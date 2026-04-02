@@ -114,6 +114,35 @@
     }
   }
 
+  function countPaths(grid, sequence, rows, cols) {
+    var start = { row: rows - 1, col: 0 };
+    var end   = { row: 0,        col: cols - 1 };
+    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
+    var count = 0;
+    var visited = {};
+    visited[cellKey(start.row, start.col)] = true;
+
+    (function dfs(row, col, step) {
+      if (count > 1) return; // early exit
+      if (row === end.row && col === end.col) { count++; return; }
+      var nextColour = sequence[step % sequence.length];
+      for (var i = 0; i < DIRS.length; i++) {
+        var nr = row + DIRS[i][0];
+        var nc = col + DIRS[i][1];
+        var nk = cellKey(nr, nc);
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+            && !visited[nk]
+            && grid[nr][nc].colour === nextColour) {
+          visited[nk] = true;
+          dfs(nr, nc, step + 1);
+          delete visited[nk];
+        }
+      }
+    }(start.row, start.col, 1));
+
+    return count;
+  }
+
   exports.COLOURS          = COLOURS;
   exports.getSequence      = getSequence;
   exports.getLabelColour   = getLabelColour;
@@ -123,6 +152,7 @@
   exports._createGrid      = createGrid;
   exports._assignPathColours = assignPathColours;
   exports._fillGrid        = fillGrid;
+  exports._countPaths      = countPaths;
   exports.generateMaze     = null; // added in Task 6
 
   // In browser, exposes window.Generator

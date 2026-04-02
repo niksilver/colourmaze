@@ -138,5 +138,55 @@ test('fillGrid only uses colours from the sequence', function () {
   }
 });
 
+console.log('\n-- Path Counter --');
+
+// Helper: build a minimal 3x3 grid with exactly one known path
+// Sequence: [red, yellow, blue] => ['#e63946','#f4d35e','#4cc9f0']
+// Solution path (bottom-left to top-right):
+//   (2,0)->(1,0)->(0,0)->(0,1)->(0,2)
+//   step:    0     1      2      3      4
+//   colour:  R     Y      B      R      Y
+// Grid (row 0 = top):
+//   [B][R][Y]   row 0   path cells at (0,0),(0,1),(0,2)
+//   [Y][R][R]   row 1   path cell at (1,0); non-path blocked
+//   [R][B][B]   row 2   path cell at (2,0); non-path blocked
+// Verified: no alternative path reaches (0,2) given these non-path colours.
+function makeGrid3x3Single() {
+  var R = '#e63946', Y = '#f4d35e', B = '#4cc9f0';
+  return [
+    [{ colour: B }, { colour: R }, { colour: Y }],
+    [{ colour: Y }, { colour: R }, { colour: R }],
+    [{ colour: R }, { colour: B }, { colour: B }],
+  ];
+}
+
+test('countPaths returns 1 for single-solution 3x3 grid', function () {
+  var seq  = ['#e63946', '#f4d35e', '#4cc9f0'];
+  var grid = makeGrid3x3Single();
+  assert.strictEqual(G._countPaths(grid, seq, 3, 3), 1);
+});
+
+// Two-solution grid:
+// Path A: (2,0)R->(1,0)Y->(0,0)B->(0,1)R->(0,2)Y
+// Path B: (2,0)R->(2,1)Y->(2,2)B->(1,2)R->(0,2)Y
+// Grid:
+//   row0: [(0,0)=B, (0,1)=R, (0,2)=Y]
+//   row1: [(1,0)=Y, (1,1)=B, (1,2)=R]
+//   row2: [(2,0)=R, (2,1)=Y, (2,2)=B]
+function makeGrid3x3Double() {
+  var R = '#e63946', Y = '#f4d35e', B = '#4cc9f0';
+  return [
+    [{ colour: B }, { colour: R }, { colour: Y }],
+    [{ colour: Y }, { colour: B }, { colour: R }],
+    [{ colour: R }, { colour: Y }, { colour: B }],
+  ];
+}
+
+test('countPaths returns 2 for dual-solution 3x3 grid', function () {
+  var seq  = ['#e63946', '#f4d35e', '#4cc9f0'];
+  var grid = makeGrid3x3Double();
+  assert.strictEqual(G._countPaths(grid, seq, 3, 3), 2);
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed > 0) process.exit(1);
