@@ -49,11 +49,49 @@
     return row + ',' + col;
   }
 
+  function generatePath(rows, cols) {
+    var minLen = Math.floor(rows * cols * 0.4);
+    var start = { row: rows - 1, col: 0 };
+    var end   = { row: 0,        col: cols - 1 };
+    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
+    var best  = null;
+
+    for (var attempt = 0; attempt < 200; attempt++) {
+      var visited = {};
+      visited[cellKey(start.row, start.col)] = true;
+
+      var result = (function dfs(row, col, path) {
+        if (row === end.row && col === end.col) return path;
+        var dirs = shuffle(DIRS);
+        for (var i = 0; i < dirs.length; i++) {
+          var nr = row + dirs[i][0];
+          var nc = col + dirs[i][1];
+          var nk = cellKey(nr, nc);
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nk]) {
+            visited[nk] = true;
+            path.push({ row: nr, col: nc });
+            var found = dfs(nr, nc, path);
+            if (found) return found;
+            path.pop();
+            delete visited[nk];
+          }
+        }
+        return null;
+      }(start.row, start.col, [{ row: start.row, col: start.col }]));
+
+      if (result && result.length >= minLen) return result;
+      if (result && (!best || result.length > best.length)) best = result;
+    }
+
+    return best; // fallback: best path found even if under minLen
+  }
+
   exports.COLOURS          = COLOURS;
   exports.getSequence      = getSequence;
   exports.getLabelColour   = getLabelColour;
   exports._shuffle         = shuffle;
   exports._cellKey         = cellKey;
+  exports._generatePath    = generatePath;
   exports.generateMaze     = null; // added in Task 6
 
   // In browser, exposes window.Generator
