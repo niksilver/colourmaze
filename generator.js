@@ -143,6 +143,236 @@
     return count;
   }
 
+  // Returns the first complete valid path from start to end, or null if none.
+  function findAnyPath(grid, sequence, rows, cols) {
+    var start = { row: rows - 1, col: 0 };
+    var end   = { row: 0,        col: cols - 1 };
+    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
+    var visited = {};
+    visited[cellKey(start.row, start.col)] = true;
+
+    return (function dfs(row, col, step, path) {
+      if (row === end.row && col === end.col) return path.slice();
+      var nextColour = sequence[step % sequence.length];
+      for (var i = 0; i < DIRS.length; i++) {
+        var nr = row + DIRS[i][0];
+        var nc = col + DIRS[i][1];
+        var nk = cellKey(nr, nc);
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+            && !visited[nk]
+            && grid[nr][nc].colour === nextColour) {
+          visited[nk] = true;
+          path.push({ row: nr, col: nc });
+          var result = dfs(nr, nc, step + 1, path);
+          if (result) return result;
+          path.pop();
+          delete visited[nk];
+        }
+      }
+      return null;
+    }(start.row, start.col, 1, [{ row: start.row, col: start.col }]));
+  }
+
+  // Returns the first complete valid path that differs from solutionPath, or null.
+  // "differs" means it contains at least one cell not in solSet.
+  function findAlternativePath(grid, sequence, solutionPath, rows, cols) {
+    var start = { row: rows - 1, col: 0 };
+    var end   = { row: 0,        col: cols - 1 };
+    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    // Build set of solution path cell keys
+    var solSet = {};
+    for (var si = 0; si < solutionPath.length; si++) {
+      solSet[cellKey(solutionPath[si].row, solutionPath[si].col)] = true;
+    }
+
+    var visited = {};
+    visited[cellKey(start.row, start.col)] = true;
+
+    return (function dfs(row, col, step, path, hasNonSol) {
+      if (row === end.row && col === end.col) {
+        return hasNonSol ? path.slice() : null;
+      }
+      var nextColour = sequence[step % sequence.length];
+      for (var i = 0; i < DIRS.length; i++) {
+        var nr = row + DIRS[i][0];
+        var nc = col + DIRS[i][1];
+        var nk = cellKey(nr, nc);
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+            && !visited[nk]
+            && grid[nr][nc].colour === nextColour) {
+          var nextHasNonSol = hasNonSol || !solSet[nk];
+          visited[nk] = true;
+          path.push({ row: nr, col: nc });
+          var result = dfs(nr, nc, step + 1, path, nextHasNonSol);
+          if (result) return result;
+          path.pop();
+          delete visited[nk];
+        }
+      }
+      return null;
+    }(start.row, start.col, 1, [{ row: start.row, col: start.col }], false));
+  }
+
+  function repairUniqueness(grid, sequence, solutionPath, rows, cols) {
+    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    // Build set of solution path cell keys
+    var solSet = {};
+    for (var i = 0; i < solutionPath.length; i++) {
+      solSet[cellKey(solutionPath[i].row, solutionPath[i].col)] = true;
+    }
+
+    var maxIterations = 200;
+    while (maxIterations-- > 0) {
+      if (countPaths(grid, sequence, rows, cols) <= 1) break;
+
+      var altPath = findAlternativePath(grid, sequence, solutionPath, rows, cols);
+      if (!altPath) {
+        // No alt path uses non-sol cells. All remaining alternatives reroute through
+        // sol cells only (different traversal order). Find the shortcut edge and break it.
+        // Strategy: find two sol cells that are grid-adjacent but not sol-path-adjacent.
+        // Then ensure a non-sol cell adjacent to the earlier sol cell has the wrong colour
+        // to prevent the alt path from going there, forcing it to use the solution order.
+        var fixed = false;
+        for (var si = 0; si < solutionPath.length && !fixed; si++) {
+          var sc = solutionPath[si];
+          for (var di = 0; di < DIRS.length && !fixed; di++) {
+            var nr = sc.row + DIRS[di][0];
+            var nc = sc.col + DIRS[di][1];
+            var nk = cellKey(nr, nc);
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && solSet[nk]) {
+              // Check if this is a "shortcut": adjacent in grid but not consecutive in sol path
+              var nIdx = -1;
+              for (var sx = 0; sx < solutionPath.length; sx++) {
+                if (solutionPath[sx].row === nr && solutionPath[sx].col === nc) {
+                  nIdx = sx; break;
+                }
+              }
+              if (Math.abs(nIdx - si) !== 1) {
+                // Shortcut found! Look for a non-sol cell adjacent to sc that we can change
+                // to force any path that "shortcuts" from si to nIdx to fail
+                for (var di2 = 0; di2 < DIRS.length && !fixed; di2++) {
+                  var br = sc.row + DIRS[di2][0];
+                  var bc = sc.col + DIRS[di2][1];
+                  var bk = cellKey(br, bc);
+                  if (br >= 0 && br < rows && bc >= 0 && bc < cols && !solSet[bk]) {
+                    // Change this cell to a colour that doesn't match the step AFTER si
+                    var targetStep = si + 1;
+                    var neededColour = sequence[targetStep % sequence.length];
+                    // Assign a colour that's NOT neededColour
+                    var wrongColour = sequence[(targetStep + 1) % sequence.length];
+                    if (grid[br][bc].colour !== wrongColour) {
+                      grid[br][bc].colour = wrongColour;
+                      fixed = true;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (!fixed) break; // Can't fix: give up
+        continue;
+      }
+
+      // Find first cell in altPath not in solutionPath (skip start and end)
+      var broken = false;
+      for (var j = 1; j < altPath.length - 1; j++) {
+        var cell = altPath[j];
+        var k    = cellKey(cell.row, cell.col);
+        if (!solSet[k]) {
+          // Change colour so it doesn't match sequence[j % seqLen]
+          var wrongColour = sequence[(j + 1) % sequence.length]; // guaranteed different
+          grid[cell.row][cell.col].colour = wrongColour;
+          broken = true;
+          break;
+        }
+      }
+
+      // Safety: if no non-sol cell was found (shouldn't happen given findAlternativePath guarantee)
+      if (!broken && altPath.length > 2) {
+        var cell = altPath[altPath.length - 2];
+        var step = altPath.length - 2;
+        if (!solSet[cellKey(cell.row, cell.col)]) {
+          grid[cell.row][cell.col].colour = sequence[(step + 1) % sequence.length];
+        }
+      }
+    }
+  }
+
+  // Fill non-sol cells with colours that minimize shortcuts from sol path.
+  // For each non-sol cell, find colours needed to enter it from adjacent sol cells,
+  // then prefer a colour NOT in that forbidden set.
+  function smartFillGrid(grid, path, sequence, rows, cols) {
+    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    // Build map: cellKey -> step index in solution path
+    var solStepMap = {};
+    for (var i = 0; i < path.length; i++) {
+      solStepMap[cellKey(path[i].row, path[i].col)] = i;
+    }
+
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        if (grid[r][c].colour !== null) continue; // already assigned (sol cell)
+        var ck = cellKey(r, c);
+
+        // Collect "forbidden" colours: colours that would let this cell be entered
+        // from an adjacent sol cell at the correct step
+        var forbidden = {};
+        for (var di = 0; di < DIRS.length; di++) {
+          var nr = r + DIRS[di][0];
+          var nc = c + DIRS[di][1];
+          var nk = cellKey(nr, nc);
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+              && solStepMap[nk] !== undefined) {
+            // Adjacent sol cell at step solStepMap[nk].
+            // To enter (r,c) after this sol cell, (r,c) must have sequence[(solStepMap[nk]+1) % len]
+            var neededColour = sequence[(solStepMap[nk] + 1) % sequence.length];
+            forbidden[neededColour] = true;
+          }
+        }
+
+        // Pick a colour not in forbidden, if possible
+        var chosen = null;
+        var shuffled = shuffle(sequence);
+        for (var si = 0; si < shuffled.length; si++) {
+          if (!forbidden[shuffled[si]]) {
+            chosen = shuffled[si];
+            break;
+          }
+        }
+        // If all colours forbidden, fall back to random
+        if (chosen === null) {
+          chosen = sequence[Math.floor(Math.random() * sequence.length)];
+        }
+        grid[r][c].colour = chosen;
+      }
+    }
+  }
+
+  function generateMaze(rows, cols, seqLength) {
+    var sequence = getSequence(seqLength);
+    for (var attempt = 0; attempt < 1000; attempt++) {
+      var path = generatePath(rows, cols);
+      var grid = createGrid(rows, cols);
+      assignPathColours(grid, path, sequence);
+      smartFillGrid(grid, path, sequence, rows, cols);
+      repairUniqueness(grid, sequence, path, rows, cols);
+      if (countPaths(grid, sequence, rows, cols) === 1) {
+        return { grid: grid, sequence: sequence, rows: rows, cols: cols };
+      }
+    }
+    // Fallback: return last attempt (with random fill)
+    var path = generatePath(rows, cols);
+    var grid = createGrid(rows, cols);
+    assignPathColours(grid, path, sequence);
+    fillGrid(grid, sequence);
+    repairUniqueness(grid, sequence, path, rows, cols);
+    return { grid: grid, sequence: sequence, rows: rows, cols: cols };
+  }
+
   exports.COLOURS          = COLOURS;
   exports.getSequence      = getSequence;
   exports.getLabelColour   = getLabelColour;
@@ -153,7 +383,9 @@
   exports._assignPathColours = assignPathColours;
   exports._fillGrid        = fillGrid;
   exports._countPaths      = countPaths;
-  exports.generateMaze     = null; // added in Task 6
+  exports.generateMaze         = generateMaze;
+  exports._repairUniqueness    = repairUniqueness;
+  exports._findAnyPath         = findAnyPath;
 
   // In browser, exposes window.Generator
   if (typeof module !== 'undefined') module.exports = exports;

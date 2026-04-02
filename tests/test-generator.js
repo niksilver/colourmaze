@@ -188,5 +188,31 @@ test('countPaths returns 2 for dual-solution 3x3 grid', function () {
   assert.strictEqual(G._countPaths(grid, seq, 3, 3), 2);
 });
 
+console.log('\n-- Repair and generateMaze --');
+
+test('generateMaze returns grid with correct dimensions (5x5, seq 3)', function () {
+  var maze = G.generateMaze(5, 5, 3);
+  assert.strictEqual(maze.grid.length, 5);
+  assert.strictEqual(maze.grid[0].length, 5);
+  assert.strictEqual(maze.sequence.length, 3);
+  assert.strictEqual(maze.rows, 5);
+  assert.strictEqual(maze.cols, 5);
+});
+
+test('generateMaze(5,5,3) produces exactly one solution', function () {
+  var maze = G.generateMaze(5, 5, 3);
+  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 5, 5), 1);
+});
+
+test('generateMaze(7,7,4) produces exactly one solution', function () {
+  var maze = G.generateMaze(7, 7, 4);
+  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 7, 7), 1);
+});
+
+test('generateMaze(5,5,2) produces exactly one solution', function () {
+  var maze = G.generateMaze(5, 5, 2);
+  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 5, 5), 1);
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed > 0) process.exit(1);
