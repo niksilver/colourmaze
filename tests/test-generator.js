@@ -15,8 +15,6 @@ function test(name, fn) {
   }
 }
 
-// tests added in later tasks
-
 console.log('\n-- Utilities --');
 
 test('COLOURS has 5 entries', function () {

@@ -19,7 +19,10 @@
   };
 
   function getSequence(length) {
-    return SEQUENCE_MAP[length];
+    if (!SEQUENCE_MAP[length]) {
+      throw new Error('getSequence: unsupported length ' + length);
+    }
+    return SEQUENCE_MAP[length].slice();
   }
 
   // Returns 'black' or 'white' for readable contrast against a hex cell colour.
