@@ -86,12 +86,43 @@
     return best; // fallback: best path found even if under minLen
   }
 
+  function createGrid(rows, cols) {
+    var grid = [];
+    for (var r = 0; r < rows; r++) {
+      grid[r] = [];
+      for (var c = 0; c < cols; c++) {
+        grid[r][c] = { colour: null };
+      }
+    }
+    return grid;
+  }
+
+  function assignPathColours(grid, path, sequence) {
+    for (var i = 0; i < path.length; i++) {
+      var cell = path[i];
+      grid[cell.row][cell.col].colour = sequence[i % sequence.length];
+    }
+  }
+
+  function fillGrid(grid, sequence) {
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < grid[r].length; c++) {
+        if (grid[r][c].colour === null) {
+          grid[r][c].colour = sequence[Math.floor(Math.random() * sequence.length)];
+        }
+      }
+    }
+  }
+
   exports.COLOURS          = COLOURS;
   exports.getSequence      = getSequence;
   exports.getLabelColour   = getLabelColour;
   exports._shuffle         = shuffle;
   exports._cellKey         = cellKey;
   exports._generatePath    = generatePath;
+  exports._createGrid      = createGrid;
+  exports._assignPathColours = assignPathColours;
+  exports._fillGrid        = fillGrid;
   exports.generateMaze     = null; // added in Task 6
 
   // In browser, exposes window.Generator

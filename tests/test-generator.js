@@ -80,5 +80,63 @@ test('path meets minimum length (7x7, min=19)', function () {
   assert.ok(path.length >= 19, 'path length ' + path.length + ' < 19');
 });
 
+console.log('\n-- Grid Creation and Colouring --');
+
+test('createGrid returns correct dimensions', function () {
+  var grid = G._createGrid(4, 5);
+  assert.strictEqual(grid.length, 4);
+  assert.strictEqual(grid[0].length, 5);
+  assert.strictEqual(grid[0][0].colour, null);
+});
+
+test('assignPathColours sets path[0] to seq[0]', function () {
+  var grid = G._createGrid(5, 5);
+  var path = G._generatePath(5, 5);
+  var seq  = G.getSequence(3);
+  G._assignPathColours(grid, path, seq);
+  assert.strictEqual(grid[path[0].row][path[0].col].colour, seq[0]);
+});
+
+test('assignPathColours wraps sequence correctly', function () {
+  var grid = G._createGrid(5, 5);
+  var path = G._generatePath(5, 5);
+  var seq  = G.getSequence(3);
+  G._assignPathColours(grid, path, seq);
+  for (var i = 0; i < path.length; i++) {
+    var cell = path[i];
+    assert.strictEqual(
+      grid[cell.row][cell.col].colour,
+      seq[i % seq.length],
+      'path step ' + i + ' has wrong colour'
+    );
+  }
+});
+
+test('fillGrid leaves no null cells', function () {
+  var grid = G._createGrid(5, 5);
+  var path = G._generatePath(5, 5);
+  var seq  = G.getSequence(3);
+  G._assignPathColours(grid, path, seq);
+  G._fillGrid(grid, seq);
+  for (var r = 0; r < 5; r++) {
+    for (var c = 0; c < 5; c++) {
+      assert.ok(grid[r][c].colour !== null, 'cell [' + r + ',' + c + '] is null');
+    }
+  }
+});
+
+test('fillGrid only uses colours from the sequence', function () {
+  var grid = G._createGrid(5, 5);
+  var path = G._generatePath(5, 5);
+  var seq  = G.getSequence(3);
+  G._assignPathColours(grid, path, seq);
+  G._fillGrid(grid, seq);
+  for (var r = 0; r < 5; r++) {
+    for (var c = 0; c < 5; c++) {
+      assert.ok(seq.indexOf(grid[r][c].colour) !== -1, 'unknown colour at [' + r + ',' + c + ']');
+    }
+  }
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed > 0) process.exit(1);
