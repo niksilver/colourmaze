@@ -38,8 +38,8 @@ Grid size and sequence length are independent settings.
 - Cells: rounded corners (`border-radius: 4px`), uniform size, small gap between cells
 - Current position: bright white border + subtle glow
 - Visited trail cells: faded `✓` overlay on the cell colour
-- Start cell (S): displays a large regular-weight "S" label
-- End cell (E): displays a large regular-weight "E" label in green (`#4ade80`) with a green border
+- Start cell (S): displays a large regular-weight "S" label; label colour (black or white) chosen by luminance of the cell colour: `luma = 0.299r + 0.587g + 0.114b`, use black if luma > 140 (0–255 scale), white otherwise
+- End cell (E): same label contrast rule; green border (`#4ade80`) always, regardless of cell colour
 
 ## Grid Layout
 
