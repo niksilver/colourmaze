@@ -9,6 +9,8 @@ var state = {
   visited:    null,   // object of "row,col" keys
 };
 
+var mazeWorker = null;
+
 // ── Selector helpers ─────────────────────────────────────
 
 function setupSelector(containerId, onSelect) {
@@ -58,14 +60,28 @@ function showScreen(id) {
 
 function startGame() {
   showScreen('game-screen');
-  var maze = Generator.generateMaze(state.gridSize, state.gridSize, state.seqLength);
-  state.maze        = maze;
-  state.currentPos  = { row: maze.rows - 1, col: 0 };
-  state.currentStep = 1;
-  state.visited     = {};
-  state.visited[(maze.rows - 1) + ',0'] = true;
-  renderSequenceBar();
-  renderGrid();
+
+  var gridEl = document.getElementById('maze-grid');
+  gridEl.style.gridTemplateColumns = '';
+  gridEl.innerHTML = '<div class="generating-msg">Generating\u2026</div>';
+  document.getElementById('sequence-bar').innerHTML = '';
+
+  if (mazeWorker) { mazeWorker.terminate(); mazeWorker = null; }
+
+  mazeWorker = new Worker('generator-worker.js');
+  mazeWorker.addEventListener('message', function (e) {
+    mazeWorker = null;
+    var maze = e.data.maze;
+    state.maze        = maze;
+    state.currentPos  = { row: maze.rows - 1, col: 0 };
+    state.currentStep = 1;
+    state.visited     = {};
+    state.visited[(maze.rows - 1) + ',0'] = true;
+    renderSequenceBar();
+    renderGrid();
+  });
+
+  mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, seqLen: state.seqLength });
 }
 
 // ── Sequence bar ─────────────────────────────────────────

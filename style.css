@@ -201,3 +201,11 @@ body {
   gap: 20px;
 }
 .overlay-title { font-size: 32px; font-weight: 700; letter-spacing: 2px; }
+
+.generating-msg {
+  grid-column: 1 / -1;
+  padding: 40px 0;
+  text-align: center;
+  color: #888;
+  font-size: 18px;
+}
