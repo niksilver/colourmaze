@@ -7,7 +7,68 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- screens added in Task 8 -->
+
+  <!-- ── Menu screen ──────────────────────────────────── -->
+  <div id="menu-screen" class="screen active">
+    <h1 class="title">Colour Maze</h1>
+
+    <div class="selector-group">
+      <div class="selector-label">Grid Size</div>
+      <div class="selector-options" id="grid-size-options">
+        <div class="selector-option" data-value="5">5×5</div>
+        <div class="selector-option selected" data-value="7">7×7</div>
+        <div class="selector-option" data-value="10">10×10</div>
+        <div class="selector-option" data-value="12">12×12</div>
+      </div>
+    </div>
+
+    <div class="selector-group">
+      <div class="selector-label">Sequence Length</div>
+      <div class="selector-options" id="seq-length-options">
+        <div class="selector-option" data-value="2">2</div>
+        <div class="selector-option selected" data-value="3">3</div>
+        <div class="selector-option" data-value="4">4</div>
+        <div class="selector-option" data-value="5">5</div>
+      </div>
+    </div>
+
+    <div class="selector-group">
+      <div class="selector-label">Sequence Preview</div>
+      <div class="sequence-preview" id="sequence-preview"></div>
+    </div>
+
+    <button class="btn btn-primary" id="new-game-btn">New Game</button>
+  </div>
+
+  <!-- ── Game screen ──────────────────────────────────── -->
+  <div id="game-screen" class="screen">
+    <div class="sequence-bar" id="sequence-bar"></div>
+    <div class="grid-wrapper">
+      <div class="maze-grid" id="maze-grid"></div>
+    </div>
+    <div class="game-buttons">
+      <button class="btn btn-secondary" id="menu-btn">Menu</button>
+      <button class="btn btn-secondary" id="new-game-btn-2">New Game</button>
+    </div>
+  </div>
+
+  <!-- ── Win overlay ──────────────────────────────────── -->
+  <div class="overlay" id="win-overlay">
+    <div class="overlay-box">
+      <div class="overlay-title">Solved!</div>
+      <button class="btn btn-primary" id="win-new-game-btn">New Game</button>
+    </div>
+  </div>
+
+  <!-- ── Dead end overlay ─────────────────────────────── -->
+  <div class="overlay" id="dead-end-overlay">
+    <div class="overlay-box">
+      <div class="overlay-title" style="font-size:22px;">Dead End</div>
+      <p style="color:#888;font-size:14px;">No valid moves remaining.</p>
+      <button class="btn btn-primary" id="dead-end-new-game-btn">New Game</button>
+    </div>
+  </div>
+
   <script src="generator.js"></script>
   <script src="game.js"></script>
 </body>
