@@ -9,6 +9,8 @@
     '#c084fc', // purple
   ];
 
+  var BLACK_COLOUR = '#000000';
+
   // Sequences per length match the spec colour table.
   // Length 2 skips yellow so red/blue are visually distinct.
   var SEQUENCE_MAP = {
@@ -49,43 +51,6 @@
     return row + ',' + col;
   }
 
-  function generatePath(rows, cols) {
-    var minLen = Math.floor(rows * cols * 0.4);
-    var start = { row: rows - 1, col: 0 };
-    var end   = { row: 0,        col: cols - 1 };
-    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
-    var best  = null;
-
-    for (var attempt = 0; attempt < 200; attempt++) {
-      var visited = {};
-      visited[cellKey(start.row, start.col)] = true;
-
-      var result = (function dfs(row, col, path) {
-        if (row === end.row && col === end.col) return path;
-        var dirs = shuffle(DIRS);
-        for (var i = 0; i < dirs.length; i++) {
-          var nr = row + dirs[i][0];
-          var nc = col + dirs[i][1];
-          var nk = cellKey(nr, nc);
-          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nk]) {
-            visited[nk] = true;
-            path.push({ row: nr, col: nc });
-            var found = dfs(nr, nc, path);
-            if (found) return found;
-            path.pop();
-            delete visited[nk];
-          }
-        }
-        return null;
-      }(start.row, start.col, [{ row: start.row, col: start.col }]));
-
-      if (result && result.length >= minLen) return result;
-      if (result && (!best || result.length > best.length)) best = result;
-    }
-
-    return best; // fallback: best path found even if under minLen
-  }
-
   function createGrid(rows, cols) {
     var grid = [];
     for (var r = 0; r < rows; r++) {
@@ -97,298 +62,262 @@
     return grid;
   }
 
-  function assignPathColours(grid, path, sequence) {
+  function generateSolutionPath(rows, cols, seqLen) {
+    var minLen = Math.ceil(rows * cols * 0.4);
+    var start  = { row: rows - 1, col: 0 };
+    var end    = { row: 0, col: cols - 1 };
+    var DIRS   = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    // Cap nodes visited per DFS attempt so each attempt fails fast,
+    // enabling the 200-attempt loop to cycle efficiently on large grids.
+    var nodeLimit = rows * cols * 20;
+
+    for (var attempt = 0; attempt < 200; attempt++) {
+      var pathIndexAt = {};
+      var path = [{ row: start.row, col: start.col }];
+      pathIndexAt[cellKey(start.row, start.col)] = 0;
+      var nodesVisited = 0;
+
+      var result = (function dfs(row, col) {
+        if (++nodesVisited > nodeLimit) return null;
+        if (row === end.row && col === end.col) {
+          return path.length >= minLen ? path.slice() : null;
+        }
+        var k = path.length;
+        var dirs = shuffle(DIRS);
+        for (var i = 0; i < dirs.length; i++) {
+          var nr = row + dirs[i][0], nc = col + dirs[i][1];
+          var nk = cellKey(nr, nc);
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          if (pathIndexAt[nk] !== undefined) continue;
+          // Shortcut pruning: check both directions of potential shortcuts
+          // (a) earlier cell j can shortcut TO candidate k: (j+1)%seqLen === k%seqLen
+          // (b) candidate k can shortcut TO earlier cell j: (k+1)%seqLen === j%seqLen
+          var shortcut = false;
+          for (var d = 0; d < DIRS.length && !shortcut; d++) {
+            var ar = nr + DIRS[d][0], ac = nc + DIRS[d][1];
+            var ak = cellKey(ar, ac);
+            if (pathIndexAt[ak] !== undefined) {
+              var j = pathIndexAt[ak];
+              if (j < k - 1) {
+                if ((j + 1) % seqLen === k % seqLen) shortcut = true;
+                if ((k + 1) % seqLen === j % seqLen) shortcut = true;
+              }
+            }
+          }
+          if (shortcut) continue;
+          path.push({ row: nr, col: nc });
+          pathIndexAt[nk] = k;
+          var found = dfs(nr, nc);
+          if (found) return found;
+          path.pop();
+          delete pathIndexAt[nk];
+        }
+        return null;
+      }(start.row, start.col));
+
+      if (result) return result;
+    }
+    return null;
+  }
+
+  function hasShortcut(path, seqLen) {
+    var indexAt = {};
+    for (var p = 0; p < path.length; p++) {
+      indexAt[cellKey(path[p].row, path[p].col)] = p;
+    }
+    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
     for (var i = 0; i < path.length; i++) {
-      var cell = path[i];
-      grid[cell.row][cell.col].colour = sequence[i % sequence.length];
-    }
-  }
-
-  function fillGrid(grid, sequence) {
-    for (var r = 0; r < grid.length; r++) {
-      for (var c = 0; c < grid[r].length; c++) {
-        if (grid[r][c].colour === null) {
-          grid[r][c].colour = sequence[Math.floor(Math.random() * sequence.length)];
+      for (var d = 0; d < DIRS.length; d++) {
+        var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
+        var nk = cellKey(nr, nc);
+        if (indexAt[nk] !== undefined) {
+          var j = indexAt[nk];
+          if (Math.abs(i - j) !== 1 && (i + 1) % seqLen === j % seqLen) return true;
         }
       }
     }
+    return false;
   }
 
-  function countPaths(grid, sequence, rows, cols) {
-    var start = { row: rows - 1, col: 0 };
-    var end   = { row: 0,        col: cols - 1 };
-    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
-    var count = 0;
-    var visited = {};
-    visited[cellKey(start.row, start.col)] = true;
-
-    (function dfs(row, col, step) {
-      if (count > 1) return; // early exit
-      if (row === end.row && col === end.col) { count++; return; }
-      var nextColour = sequence[step % sequence.length];
-      for (var i = 0; i < DIRS.length; i++) {
-        var nr = row + DIRS[i][0];
-        var nc = col + DIRS[i][1];
-        var nk = cellKey(nr, nc);
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-            && !visited[nk]
-            && grid[nr][nc].colour === nextColour) {
-          visited[nk] = true;
-          dfs(nr, nc, step + 1);
-          delete visited[nk];
-        }
-      }
-    }(start.row, start.col, 1));
-
-    return count;
-  }
-
-  // Returns the first complete valid path from start to end, or null if none.
-  function findAnyPath(grid, sequence, rows, cols) {
-    var start = { row: rows - 1, col: 0 };
-    var end   = { row: 0,        col: cols - 1 };
-    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
-    var visited = {};
-    visited[cellKey(start.row, start.col)] = true;
-
-    return (function dfs(row, col, step, path) {
-      if (row === end.row && col === end.col) return path.slice();
-      var nextColour = sequence[step % sequence.length];
-      for (var i = 0; i < DIRS.length; i++) {
-        var nr = row + DIRS[i][0];
-        var nc = col + DIRS[i][1];
-        var nk = cellKey(nr, nc);
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-            && !visited[nk]
-            && grid[nr][nc].colour === nextColour) {
-          visited[nk] = true;
-          path.push({ row: nr, col: nc });
-          var result = dfs(nr, nc, step + 1, path);
-          if (result) return result;
-          path.pop();
-          delete visited[nk];
-        }
-      }
-      return null;
-    }(start.row, start.col, 1, [{ row: start.row, col: start.col }]));
-  }
-
-  // Returns the first complete valid path that differs from solutionPath, or null.
-  // "differs" means it contains at least one cell not in solSet.
-  function findAlternativePath(grid, sequence, solutionPath, rows, cols) {
-    var start = { row: rows - 1, col: 0 };
-    var end   = { row: 0,        col: cols - 1 };
-    var DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
-
-    // Build set of solution path cell keys
-    var solSet = {};
-    for (var si = 0; si < solutionPath.length; si++) {
-      solSet[cellKey(solutionPath[si].row, solutionPath[si].col)] = true;
+  function buildCannot(rows, cols, path, seqLen, sequence) {
+    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+    var isSol = {};
+    for (var i = 0; i < path.length; i++) {
+      isSol[cellKey(path[i].row, path[i].col)] = true;
     }
 
-    var visited = {};
-    visited[cellKey(start.row, start.col)] = true;
+    var cannot = [];
+    for (var r = 0; r < rows; r++) {
+      cannot[r] = [];
+      for (var c = 0; c < cols; c++) {
+        cannot[r][c] = [];
+        for (var s = 0; s < seqLen; s++) cannot[r][c][s] = false;
+      }
+    }
 
-    return (function dfs(row, col, step, path, hasNonSol) {
-      if (row === end.row && col === end.col) {
-        return hasNonSol ? path.slice() : null;
+    function forbidAdjacent(row, col, steps) {
+      for (var d = 0; d < DIRS.length; d++) {
+        var nr = row + DIRS[d][0], nc = col + DIRS[d][1];
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        if (isSol[cellKey(nr, nc)]) continue;
+        for (var si = 0; si < steps.length; si++) cannot[nr][nc][steps[si]] = true;
       }
-      var nextColour = sequence[step % sequence.length];
-      for (var i = 0; i < DIRS.length; i++) {
-        var nr = row + DIRS[i][0];
-        var nc = col + DIRS[i][1];
-        var nk = cellKey(nr, nc);
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-            && !visited[nk]
-            && grid[nr][nc].colour === nextColour) {
-          var nextHasNonSol = hasNonSol || !solSet[nk];
-          visited[nk] = true;
-          path.push({ row: nr, col: nc });
-          var result = dfs(nr, nc, step + 1, path, nextHasNonSol);
-          if (result) return result;
-          path.pop();
-          delete visited[nk];
-        }
-      }
-      return null;
-    }(start.row, start.col, 1, [{ row: start.row, col: start.col }], false));
+    }
+
+    var endIdx  = path.length - 1;
+    var endStep = endIdx % seqLen;
+    var endColour = sequence[endStep];
+    var sBefore = [];
+    for (var s = 0; s < seqLen; s++) {
+      if (sequence[s] === endColour) sBefore.push((s - 1 + seqLen) % seqLen);
+    }
+    forbidAdjacent(path[endIdx].row, path[endIdx].col, sBefore);
+
+    for (var i = 0; i < endIdx; i++) {
+      var step   = i % seqLen;
+      var before = (step - 1 + seqLen) % seqLen;
+      forbidAdjacent(path[i].row, path[i].col, [before]);
+    }
+
+    return cannot;
   }
 
-  function repairUniqueness(grid, sequence, solutionPath, rows, cols) {
+  function propagateCannot(cannot, rows, cols, seqLen, isSol) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 
-    // Build set of solution path cell keys
-    var solSet = {};
-    for (var i = 0; i < solutionPath.length; i++) {
-      solSet[cellKey(solutionPath[i].row, solutionPath[i].col)] = true;
+    var updated = [];
+    for (var r = 0; r < rows; r++) {
+      updated[r] = [];
+      for (var c = 0; c < cols; c++) {
+        if (isSol[cellKey(r, c)]) { updated[r][c] = false; continue; }
+        var any = false;
+        for (var s = 0; s < seqLen; s++) if (cannot[r][c][s]) { any = true; break; }
+        updated[r][c] = any;
+      }
     }
 
-    var maxIterations = 200;
-    while (maxIterations-- > 0) {
-      if (countPaths(grid, sequence, rows, cols) <= 1) break;
-
-      var altPath = findAlternativePath(grid, sequence, solutionPath, rows, cols);
-      if (!altPath) {
-        // No alt path uses non-sol cells. All remaining alternatives reroute through
-        // sol cells only (different traversal order). Find the shortcut edge and break it.
-        // Strategy: find two sol cells that are grid-adjacent but not sol-path-adjacent.
-        // Then ensure a non-sol cell adjacent to the earlier sol cell has the wrong colour
-        // to prevent the alt path from going there, forcing it to use the solution order.
-        var fixed = false;
-        for (var si = 0; si < solutionPath.length && !fixed; si++) {
-          var sc = solutionPath[si];
-          for (var di = 0; di < DIRS.length && !fixed; di++) {
-            var nr = sc.row + DIRS[di][0];
-            var nc = sc.col + DIRS[di][1];
-            var nk = cellKey(nr, nc);
-            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && solSet[nk]) {
-              // Check if this is a "shortcut": adjacent in grid but not consecutive in sol path
-              var nIdx = -1;
-              for (var sx = 0; sx < solutionPath.length; sx++) {
-                if (solutionPath[sx].row === nr && solutionPath[sx].col === nc) {
-                  nIdx = sx; break;
-                }
-              }
-              if (Math.abs(nIdx - si) !== 1) {
-                // Shortcut found! Look for a non-sol cell adjacent to sc that we can change
-                // to force any path that "shortcuts" from si to nIdx to fail
-                for (var di2 = 0; di2 < DIRS.length && !fixed; di2++) {
-                  var br = sc.row + DIRS[di2][0];
-                  var bc = sc.col + DIRS[di2][1];
-                  var bk = cellKey(br, bc);
-                  if (br >= 0 && br < rows && bc >= 0 && bc < cols && !solSet[bk]) {
-                    // Change this cell to a colour that doesn't match the step AFTER si
-                    var targetStep = si + 1;
-                    var neededColour = sequence[targetStep % sequence.length];
-                    // Assign a colour that's NOT neededColour
-                    var wrongColour = sequence[(targetStep + 1) % sequence.length];
-                    if (grid[br][bc].colour !== wrongColour) {
-                      grid[br][bc].colour = wrongColour;
-                      fixed = true;
-                    }
-                  }
-                }
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          if (!updated[r][c]) continue;
+          updated[r][c] = false;
+          for (var t = 0; t < seqLen; t++) {
+            if (!cannot[r][c][t]) continue;
+            var before = (t - 1 + seqLen) % seqLen;
+            for (var d = 0; d < DIRS.length; d++) {
+              var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
+              if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+              if (isSol[cellKey(nr, nc)]) continue;
+              if (!cannot[nr][nc][before]) {
+                cannot[nr][nc][before] = true;
+                updated[nr][nc] = true;
+                changed = true;
               }
             }
           }
         }
-        if (!fixed) break; // Can't fix: give up
-        continue;
       }
+    }
+  }
 
-      // Find first cell in altPath not in solutionPath (skip start and end)
-      var broken = false;
-      for (var j = 1; j < altPath.length - 1; j++) {
-        var cell = altPath[j];
-        var k    = cellKey(cell.row, cell.col);
-        if (!solSet[k]) {
-          // Change colour so it doesn't match sequence[j % seqLen]
-          var wrongColour = sequence[(j + 1) % sequence.length]; // guaranteed different
-          grid[cell.row][cell.col].colour = wrongColour;
-          broken = true;
-          break;
-        }
-      }
-
-      // Safety: if no non-sol cell was found (shouldn't happen given findAlternativePath guarantee)
-      if (!broken && altPath.length > 2) {
-        var cell = altPath[altPath.length - 2];
-        var step = altPath.length - 2;
-        if (!solSet[cellKey(cell.row, cell.col)]) {
-          grid[cell.row][cell.col].colour = sequence[(step + 1) % sequence.length];
+  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen) {
+    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          if (cellStep[r][c] === null) continue;
+          var next = (cellStep[r][c] + 1) % seqLen;
+          for (var d = 0; d < DIRS.length; d++) {
+            var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+            if (cellStep[nr][nc] !== null) continue;
+            if (!cannot[nr][nc][next]) {
+              cellStep[nr][nc] = next;
+              changed = true;
+            }
+          }
         }
       }
     }
   }
 
-  // Fill non-sol cells with colours that minimize shortcuts from sol path.
-  // For each non-sol cell, find colours needed to enter it from adjacent sol cells,
-  // then prefer a colour NOT in that forbidden set.
-  function smartFillGrid(grid, path, sequence, rows, cols) {
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-
-    // Build map: cellKey -> step index in solution path
-    var solStepMap = {};
-    for (var i = 0; i < path.length; i++) {
-      solStepMap[cellKey(path[i].row, path[i].col)] = i;
-    }
-
+  function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
-        if (grid[r][c].colour !== null) continue; // already assigned (sol cell)
-        var ck = cellKey(r, c);
-
-        // Collect "forbidden" colours: colours that would let this cell be entered
-        // from an adjacent sol cell at the correct step
-        var forbidden = {};
-        for (var di = 0; di < DIRS.length; di++) {
-          var nr = r + DIRS[di][0];
-          var nc = c + DIRS[di][1];
-          var nk = cellKey(nr, nc);
-          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-              && solStepMap[nk] !== undefined) {
-            // Adjacent sol cell at step solStepMap[nk].
-            // To enter (r,c) after this sol cell, (r,c) must have sequence[(solStepMap[nk]+1) % len]
-            var neededColour = sequence[(solStepMap[nk] + 1) % sequence.length];
-            forbidden[neededColour] = true;
-          }
+        if (cellStep[r][c] !== null) continue;
+        var allowed = [];
+        for (var s = 0; s < seqLen; s++) {
+          if (!cannot[r][c][s]) allowed.push(s);
         }
-
-        // Pick a colour not in forbidden, if possible
-        var chosen = null;
-        var shuffled = shuffle(sequence);
-        for (var si = 0; si < shuffled.length; si++) {
-          if (!forbidden[shuffled[si]]) {
-            chosen = shuffled[si];
-            break;
-          }
-        }
-        // If all colours forbidden, fall back to random
-        if (chosen === null) {
-          chosen = sequence[Math.floor(Math.random() * sequence.length)];
-        }
-        grid[r][c].colour = chosen;
+        cellStep[r][c] = allowed.length > 0
+          ? allowed[Math.floor(Math.random() * allowed.length)]
+          : -1;
       }
     }
   }
 
   function generateMaze(rows, cols, seqLength) {
     var sequence = getSequence(seqLength);
-    for (var attempt = 0; attempt < 1000; attempt++) {
-      var path = generatePath(rows, cols);
-      var grid = createGrid(rows, cols);
-      assignPathColours(grid, path, sequence);
-      smartFillGrid(grid, path, sequence, rows, cols);
-      repairUniqueness(grid, sequence, path, rows, cols);
-      if (countPaths(grid, sequence, rows, cols) === 1) {
-        return { grid: grid, sequence: sequence, rows: rows, cols: cols };
+    for (var attempt = 0; attempt < 500; attempt++) {
+      var path = generateSolutionPath(rows, cols, seqLength);
+      if (!path) continue;
+      if (hasShortcut(path, seqLength)) continue;
+
+      var isSol = {};
+      var cellStep = [];
+      for (var r = 0; r < rows; r++) {
+        cellStep[r] = [];
+        for (var c = 0; c < cols; c++) cellStep[r][c] = null;
       }
+      for (var i = 0; i < path.length; i++) {
+        isSol[cellKey(path[i].row, path[i].col)] = true;
+        cellStep[path[i].row][path[i].col] = i % seqLength;
+      }
+
+      var cannot = buildCannot(rows, cols, path, seqLength, sequence);
+      propagateCannot(cannot, rows, cols, seqLength, isSol);
+      buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
+      propagateCannot(cannot, rows, cols, seqLength, isSol);   // re-propagate after dead-end assignments
+      fillRemaining(rows, cols, cellStep, cannot, seqLength);
+
+      var grid = createGrid(rows, cols);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var s = cellStep[r][c];
+          grid[r][c].colour = (s === -1) ? BLACK_COLOUR : sequence[s];
+        }
+      }
+      return { grid: grid, sequence: sequence, rows: rows, cols: cols };
     }
-    // Fallback: best-effort with smart fill (same as main loop)
-    var path = generatePath(rows, cols);
+    // Unreachable in practice — minimal fallback
     var grid = createGrid(rows, cols);
-    assignPathColours(grid, path, sequence);
-    smartFillGrid(grid, path, sequence, rows, cols);
-    repairUniqueness(grid, sequence, path, rows, cols);
+    for (var r = 0; r < rows; r++)
+      for (var c = 0; c < cols; c++)
+        grid[r][c].colour = sequence[0];
     return { grid: grid, sequence: sequence, rows: rows, cols: cols };
   }
 
-  exports.COLOURS          = COLOURS;
-  exports.getSequence      = getSequence;
-  exports.getLabelColour   = getLabelColour;
-  exports._shuffle         = shuffle;
-  exports._cellKey         = cellKey;
-  exports._generatePath    = generatePath;
-  exports._createGrid      = createGrid;
-  exports._assignPathColours = assignPathColours;
-  exports._fillGrid        = fillGrid;
-  exports._countPaths      = countPaths;
-  exports.generateMaze         = generateMaze;
-  exports._repairUniqueness    = repairUniqueness;
-  exports._findAnyPath         = findAnyPath;
+  exports.COLOURS               = COLOURS;
+  exports.BLACK_COLOUR          = BLACK_COLOUR;
+  exports.getSequence           = getSequence;
+  exports.getLabelColour        = getLabelColour;
+  exports.generateMaze          = generateMaze;
+  exports._shuffle              = shuffle;
+  exports._cellKey              = cellKey;
+  exports._createGrid           = createGrid;
+  exports._generateSolutionPath = generateSolutionPath;
+  exports._hasShortcut          = hasShortcut;
+  exports._buildCannot          = buildCannot;
+  exports._propagateCannot      = propagateCannot;
+  exports._buildDeadEnds        = buildDeadEnds;
+  exports._fillRemaining        = fillRemaining;
 
-  // In browser, exposes window.Generator
   if (typeof module !== 'undefined') module.exports = exports;
-  else window.Generator = exports;
+  else self.Generator = exports;   // self works in both Web Worker and browser window
 
 }({}));

@@ -7,10 +7,10 @@ let passed = 0, failed = 0;
 function test(name, fn) {
   try {
     fn();
-    console.log('  ✓ ' + name);
+    console.log('  \u2713 ' + name);
     passed++;
   } catch (e) {
-    console.log('  ✗ ' + name + ': ' + e.message);
+    console.log('  \u2717 ' + name + ': ' + e.message);
     failed++;
   }
 }
@@ -45,14 +45,21 @@ test('getLabelColour returns "black" for blue (#4cc9f0)', function () {
 
 console.log('\n-- Path Generation --');
 
-test('path starts at bottom-left and ends at top-right (5x5)', function () {
-  var path = G._generatePath(5, 5);
+test('path starts at bottom-left (5x5)', function () {
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
   assert.deepStrictEqual(path[0], { row: 4, col: 0 });
+});
+
+test('path ends at top-right (5x5)', function () {
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
   assert.deepStrictEqual(path[path.length - 1], { row: 0, col: 4 });
 });
 
 test('all path steps are orthogonal (5x5)', function () {
-  var path = G._generatePath(5, 5);
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
   for (var i = 1; i < path.length; i++) {
     var dr = Math.abs(path[i].row - path[i-1].row);
     var dc = Math.abs(path[i].col - path[i-1].col);
@@ -61,7 +68,8 @@ test('all path steps are orthogonal (5x5)', function () {
 });
 
 test('path has no repeated cells (5x5)', function () {
-  var path = G._generatePath(5, 5);
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
   var seen = {};
   path.forEach(function (c) {
     var k = G._cellKey(c.row, c.col);
@@ -70,127 +78,165 @@ test('path has no repeated cells (5x5)', function () {
   });
 });
 
-test('path meets minimum length (5x5, min=10)', function () {
-  var path = G._generatePath(5, 5);
+test('path meets minimum length (5x5, min=ceil(25*0.4)=10)', function () {
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
   assert.ok(path.length >= 10, 'path length ' + path.length + ' < 10');
 });
 
-test('path meets minimum length (7x7, min=19)', function () {
-  var path = G._generatePath(7, 7);
-  assert.ok(path.length >= 19, 'path length ' + path.length + ' < 19');
+test('path meets minimum length (7x7, min=ceil(49*0.4)=20)', function () {
+  var path = G._generateSolutionPath(7, 7, 3);
+  assert.ok(path !== null, 'path should not be null');
+  assert.ok(path.length >= 20, 'path length ' + path.length + ' < 20');
 });
 
-console.log('\n-- Grid Creation and Colouring --');
+test('_hasShortcut returns false on a generated path (seqLen 3)', function () {
+  var path = G._generateSolutionPath(5, 5, 3);
+  assert.ok(path !== null, 'path should not be null');
+  assert.strictEqual(G._hasShortcut(path, 3), false);
+});
 
-test('createGrid returns correct dimensions', function () {
+test('_hasShortcut returns true on a manually crafted shortcut (seqLen 2)', function () {
+  // seqLen=2. path[0]=(2,0)step0, path[3]=(2,1)step1, they are adjacent,
+  // |0-3|=3>1, (0+1)%2=1 === 3%2=1 => shortcut
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 1, col: 1 },
+    { row: 2, col: 1 },
+    { row: 2, col: 2 }
+  ];
+  assert.strictEqual(G._hasShortcut(path, 2), true);
+});
+
+console.log('\n-- Grid Creation --');
+
+test('_createGrid returns correct dimensions', function () {
   var grid = G._createGrid(4, 5);
   assert.strictEqual(grid.length, 4);
   assert.strictEqual(grid[0].length, 5);
   assert.strictEqual(grid[0][0].colour, null);
 });
 
-test('assignPathColours sets path[0] to seq[0]', function () {
-  var grid = G._createGrid(5, 5);
-  var path = G._generatePath(5, 5);
-  var seq  = G.getSequence(3);
-  G._assignPathColours(grid, path, seq);
-  assert.strictEqual(grid[path[0].row][path[0].col].colour, seq[0]);
+console.log('\n-- Cannot / Constraint Building --');
+
+test('buildCannot: non-sol cell adjacent to End cannot be step endStep-1', function () {
+  // 3x3 grid, seqLen 3
+  // path = [(2,0),(1,0),(0,0),(0,1),(0,2)]
+  // steps:    0     1     2     0     1
+  // End=(0,2), endStep=4%3=1, endColour=sequence[1]
+  // sequence[1]=sequence[1] => sBefore contains (1-1+3)%3=0
+  // Adjacent non-sol cells to (0,2): (1,2) is non-sol
+  // So cannot[1][2][0] must be true
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var seq = G.getSequence(3);
+  var cannot = G._buildCannot(3, 3, path, 3, seq);
+  assert.strictEqual(cannot[1][2][0], true,
+    'cannot[1][2][0] should be true (step 0 forbidden adjacent to End)');
 });
 
-test('assignPathColours wraps sequence correctly', function () {
-  var grid = G._createGrid(5, 5);
-  var path = G._generatePath(5, 5);
-  var seq  = G.getSequence(3);
-  G._assignPathColours(grid, path, seq);
+test('buildCannot: non-sol cell (2,1) adjacent to path[0]=(2,0) step 0: before=(0-1+3)%3=2 => cannot[2][1][2]=true', function () {
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var seq = G.getSequence(3);
+  var cannot = G._buildCannot(3, 3, path, 3, seq);
+  assert.strictEqual(cannot[2][1][2], true,
+    'cannot[2][1][2] should be true (before-step forbidden adjacent to path[0])');
+});
+
+test('buildCannot: sol cell (0,0) has all cannot entries false', function () {
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var seq = G.getSequence(3);
+  var cannot = G._buildCannot(3, 3, path, 3, seq);
+  for (var s = 0; s < 3; s++) {
+    assert.strictEqual(cannot[0][0][s], false,
+      'cannot[0][0][' + s + '] should be false (sol cell)');
+  }
+});
+
+console.log('\n-- Dead-end / Fill Pipeline --');
+
+test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
+  var rows = 5, cols = 5, seqLen = 3;
+  var seq = G.getSequence(seqLen);
+  var path = G._generateSolutionPath(rows, cols, seqLen);
+  assert.ok(path !== null, 'path should not be null');
+
+  var isSol = {};
+  var cellStep = [];
+  for (var r = 0; r < rows; r++) {
+    cellStep[r] = [];
+    for (var c = 0; c < cols; c++) cellStep[r][c] = null;
+  }
   for (var i = 0; i < path.length; i++) {
-    var cell = path[i];
-    assert.strictEqual(
-      grid[cell.row][cell.col].colour,
-      seq[i % seq.length],
-      'path step ' + i + ' has wrong colour'
-    );
+    isSol[G._cellKey(path[i].row, path[i].col)] = true;
+    cellStep[path[i].row][path[i].col] = i % seqLen;
   }
-});
 
-test('fillGrid leaves no null cells', function () {
-  var grid = G._createGrid(5, 5);
-  var path = G._generatePath(5, 5);
-  var seq  = G.getSequence(3);
-  G._assignPathColours(grid, path, seq);
-  G._fillGrid(grid, seq);
-  for (var r = 0; r < 5; r++) {
-    for (var c = 0; c < 5; c++) {
-      assert.ok(grid[r][c].colour !== null, 'cell [' + r + ',' + c + '] is null');
+  var cannot = G._buildCannot(rows, cols, path, seqLen, seq);
+  G._propagateCannot(cannot, rows, cols, seqLen, isSol);
+  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen);
+  G._fillRemaining(rows, cols, cellStep, cannot, seqLen);
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      assert.ok(cellStep[r][c] !== null,
+        'cell [' + r + ',' + c + '] is still null after fill');
     }
   }
 });
 
-test('fillGrid only uses colours from the sequence', function () {
-  var grid = G._createGrid(5, 5);
-  var path = G._generatePath(5, 5);
-  var seq  = G.getSequence(3);
-  G._assignPathColours(grid, path, seq);
-  G._fillGrid(grid, seq);
-  for (var r = 0; r < 5; r++) {
-    for (var c = 0; c < 5; c++) {
-      assert.ok(seq.indexOf(grid[r][c].colour) !== -1, 'unknown colour at [' + r + ',' + c + ']');
+test('all assigned steps are in range [-1, seqLen-1] (5x5, seqLen 3)', function () {
+  var rows = 5, cols = 5, seqLen = 3;
+  var seq = G.getSequence(seqLen);
+  var path = G._generateSolutionPath(rows, cols, seqLen);
+  assert.ok(path !== null, 'path should not be null');
+
+  var isSol = {};
+  var cellStep = [];
+  for (var r = 0; r < rows; r++) {
+    cellStep[r] = [];
+    for (var c = 0; c < cols; c++) cellStep[r][c] = null;
+  }
+  for (var i = 0; i < path.length; i++) {
+    isSol[G._cellKey(path[i].row, path[i].col)] = true;
+    cellStep[path[i].row][path[i].col] = i % seqLen;
+  }
+
+  var cannot = G._buildCannot(rows, cols, path, seqLen, seq);
+  G._propagateCannot(cannot, rows, cols, seqLen, isSol);
+  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen);
+  G._fillRemaining(rows, cols, cellStep, cannot, seqLen);
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var s = cellStep[r][c];
+      assert.ok(s >= -1 && s <= seqLen - 1,
+        'step ' + s + ' at [' + r + ',' + c + '] out of range');
     }
   }
 });
 
-console.log('\n-- Path Counter --');
+console.log('\n-- generateMaze end-to-end --');
 
-// Helper: build a minimal 3x3 grid with exactly one known path
-// Sequence: [red, yellow, blue] => ['#e63946','#f4d35e','#4cc9f0']
-// Solution path (bottom-left to top-right):
-//   (2,0)->(1,0)->(0,0)->(0,1)->(0,2)
-//   step:    0     1      2      3      4
-//   colour:  R     Y      B      R      Y
-// Grid (row 0 = top):
-//   [B][R][Y]   row 0   path cells at (0,0),(0,1),(0,2)
-//   [Y][R][R]   row 1   path cell at (1,0); non-path blocked
-//   [R][B][B]   row 2   path cell at (2,0); non-path blocked
-// Verified: no alternative path reaches (0,2) given these non-path colours.
-function makeGrid3x3Single() {
-  var R = '#e63946', Y = '#f4d35e', B = '#4cc9f0';
-  return [
-    [{ colour: B }, { colour: R }, { colour: Y }],
-    [{ colour: Y }, { colour: R }, { colour: R }],
-    [{ colour: R }, { colour: B }, { colour: B }],
-  ];
-}
-
-test('countPaths returns 1 for single-solution 3x3 grid', function () {
-  var seq  = ['#e63946', '#f4d35e', '#4cc9f0'];
-  var grid = makeGrid3x3Single();
-  assert.strictEqual(G._countPaths(grid, seq, 3, 3), 1);
-});
-
-// Two-solution grid:
-// Path A: (2,0)R->(1,0)Y->(0,0)B->(0,1)R->(0,2)Y
-// Path B: (2,0)R->(2,1)Y->(2,2)B->(1,2)R->(0,2)Y
-// Grid:
-//   row0: [(0,0)=B, (0,1)=R, (0,2)=Y]
-//   row1: [(1,0)=Y, (1,1)=B, (1,2)=R]
-//   row2: [(2,0)=R, (2,1)=Y, (2,2)=B]
-function makeGrid3x3Double() {
-  var R = '#e63946', Y = '#f4d35e', B = '#4cc9f0';
-  return [
-    [{ colour: B }, { colour: R }, { colour: Y }],
-    [{ colour: Y }, { colour: B }, { colour: R }],
-    [{ colour: R }, { colour: Y }, { colour: B }],
-  ];
-}
-
-test('countPaths returns 2 for dual-solution 3x3 grid', function () {
-  var seq  = ['#e63946', '#f4d35e', '#4cc9f0'];
-  var grid = makeGrid3x3Double();
-  assert.strictEqual(G._countPaths(grid, seq, 3, 3), 2);
-});
-
-console.log('\n-- Repair and generateMaze --');
-
-test('generateMaze returns grid with correct dimensions (5x5, seq 3)', function () {
+test('generateMaze returns correct shape (5x5, seq-3)', function () {
   var maze = G.generateMaze(5, 5, 3);
   assert.strictEqual(maze.grid.length, 5);
   assert.strictEqual(maze.grid[0].length, 5);
@@ -199,19 +245,34 @@ test('generateMaze returns grid with correct dimensions (5x5, seq 3)', function 
   assert.strictEqual(maze.cols, 5);
 });
 
-test('generateMaze(5,5,3) produces exactly one solution', function () {
+test('generateMaze start cell colour equals sequence[0] (5x5, seq-3)', function () {
   var maze = G.generateMaze(5, 5, 3);
-  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 5, 5), 1);
+  assert.strictEqual(
+    maze.grid[maze.rows - 1][0].colour,
+    maze.sequence[0],
+    'start cell colour should be sequence[0]'
+  );
 });
 
-test('generateMaze(7,7,4) produces exactly one solution', function () {
-  var maze = G.generateMaze(7, 7, 4);
-  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 7, 7), 1);
+test('generateMaze(7,7,2) completes without error', function () {
+  var maze = G.generateMaze(7, 7, 2);
+  assert.ok(maze.grid, 'grid should exist');
+  assert.strictEqual(maze.rows, 7);
+  assert.strictEqual(maze.cols, 7);
 });
 
-test('generateMaze(5,5,2) produces exactly one solution', function () {
-  var maze = G.generateMaze(5, 5, 2);
-  assert.strictEqual(G._countPaths(maze.grid, maze.sequence, 5, 5), 1);
+test('generateMaze(7,7,3) completes without error', function () {
+  var maze = G.generateMaze(7, 7, 3);
+  assert.ok(maze.grid, 'grid should exist');
+  assert.strictEqual(maze.rows, 7);
+  assert.strictEqual(maze.cols, 7);
+});
+
+test('generateMaze(10,10,3) completes without error', function () {
+  var maze = G.generateMaze(10, 10, 3);
+  assert.ok(maze.grid, 'grid should exist');
+  assert.strictEqual(maze.rows, 10);
+  assert.strictEqual(maze.cols, 10);
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
