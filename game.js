@@ -135,7 +135,10 @@ function renderGrid() {
 
       if (isEnd)     div.classList.add('end-cell');
       if (isCurrent) div.classList.add('current');
-      if (isVisited && !isCurrent) div.classList.add('visited');
+      if (isVisited && !isCurrent) {
+        div.classList.add('visited');
+        div.style.setProperty('--dot-color', Generator.getLabelColour(cell.colour));
+      }
 
       // S / E labels
       if (isStart || isEnd) {
