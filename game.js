@@ -6,7 +6,8 @@ var state = {
   maze:       null,   // { grid, sequence, rows, cols }
   currentPos: null,   // { row, col }
   currentStep: 1,
-  visited:    null,   // object of "row,col" keys
+  visited:    null,   // object of "row,col" keys → true
+  path:       null,   // ordered array of { row, col } visited so far
 };
 
 var mazeWorker = null;
@@ -75,6 +76,7 @@ function startGame() {
     state.maze        = maze;
     state.currentPos  = { row: maze.rows - 1, col: 0 };
     state.currentStep = 1;
+    state.path        = [{ row: maze.rows - 1, col: 0 }];
     state.visited     = {};
     state.visited[(maze.rows - 1) + ',0'] = true;
     renderSequenceBar();
@@ -176,41 +178,41 @@ function isOrthogonalNeighbour(pos, row, col) {
   return (dr + dc) === 1;
 }
 
-function hasValidMoves() {
-  var maze    = state.maze;
-  var pos     = state.currentPos;
-  var needed  = maze.sequence[state.currentStep % maze.sequence.length];
-  var DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
-  for (var i = 0; i < DIRS.length; i++) {
-    var nr = pos.row + DIRS[i][0];
-    var nc = pos.col + DIRS[i][1];
-    var nk = cellKey(nr, nc);
-    if (nr >= 0 && nr < maze.rows && nc >= 0 && nc < maze.cols
-        && !state.visited[nk]
-        && maze.grid[nr][nc].colour === needed) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function onCellClick(e) {
   var row = parseInt(e.currentTarget.dataset.row, 10);
   var col = parseInt(e.currentTarget.dataset.col, 10);
-  var maze   = state.maze;
-  var pos    = state.currentPos;
-  var key    = cellKey(row, col);
-  var needed = maze.sequence[state.currentStep % maze.sequence.length];
+  var maze = state.maze;
+  var key  = cellKey(row, col);
 
-  // Must be an unvisited orthogonal neighbour with the right colour
-  if (!isOrthogonalNeighbour(pos, row, col)) return;
+  // Backtrack: clicking any visited cell (other than current) rewinds to it
+  if (state.visited[key] && !(row === state.currentPos.row && col === state.currentPos.col)) {
+    for (var i = 0; i < state.path.length; i++) {
+      if (state.path[i].row === row && state.path[i].col === col) {
+        state.path        = state.path.slice(0, i + 1);
+        state.currentPos  = { row: row, col: col };
+        state.currentStep = i + 1;
+        state.visited     = {};
+        for (var j = 0; j < state.path.length; j++) {
+          state.visited[cellKey(state.path[j].row, state.path[j].col)] = true;
+        }
+        renderGrid();
+        renderSequenceBar();
+        return;
+      }
+    }
+    return;
+  }
+
+  // Forward move: must be an unvisited orthogonal neighbour with the right colour
+  var needed = maze.sequence[state.currentStep % maze.sequence.length];
+  if (!isOrthogonalNeighbour(state.currentPos, row, col)) return;
   if (state.visited[key]) return;
   if (maze.grid[row][col].colour !== needed) return;
 
-  // Valid move
-  state.visited[key]  = true;
-  state.currentPos    = { row: row, col: col };
-  state.currentStep  += 1;
+  state.visited[key] = true;
+  state.path.push({ row: row, col: col });
+  state.currentPos   = { row: row, col: col };
+  state.currentStep += 1;
 
   // Win condition
   if (row === 0 && col === maze.cols - 1) {
@@ -222,13 +224,6 @@ function onCellClick(e) {
 
   renderGrid();
   renderSequenceBar();
-
-  // Dead-end detection
-  if (!hasValidMoves()) {
-    setTimeout(function () {
-      document.getElementById('dead-end-overlay').classList.add('active');
-    }, 300);
-  }
 }
 
 // ── Init ─────────────────────────────────────────────────
@@ -249,10 +244,7 @@ function initMenu() {
     document.getElementById('win-overlay').classList.remove('active');
     startGame();
   });
-  document.getElementById('dead-end-new-game-btn').addEventListener('click', function () {
-    document.getElementById('dead-end-overlay').classList.remove('active');
-    startGame();
-  });
+
 }
 
 document.addEventListener('DOMContentLoaded', initMenu);
