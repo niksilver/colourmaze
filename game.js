@@ -68,6 +68,88 @@ function startGame() {
   renderGrid();
 }
 
+// ── Sequence bar ─────────────────────────────────────────
+
+function renderSequenceBar() {
+  var seq    = state.maze.sequence;
+  var bar    = document.getElementById('sequence-bar');
+  var active = state.currentStep % seq.length;
+  bar.innerHTML = '';
+
+  seq.forEach(function (colour, i) {
+    var swatch        = document.createElement('div');
+    swatch.className  = 'seq-swatch' + (i === active ? ' active' : '');
+    swatch.style.background = colour;
+    if (i === active) swatch.style.boxShadow = '0 0 8px ' + colour;
+    bar.appendChild(swatch);
+
+    if (i < seq.length - 1) {
+      var arrow       = document.createElement('span');
+      arrow.className = 'seq-arrow';
+      arrow.textContent = '→';
+      bar.appendChild(arrow);
+    }
+  });
+
+  var label       = document.createElement('span');
+  label.className = 'seq-label';
+  label.textContent = 'next';
+  bar.appendChild(label);
+}
+
+// ── Grid rendering ───────────────────────────────────────
+
+function cellKey(row, col) { return row + ',' + col; }
+
+function computeCellSize(gridSize) {
+  // Target: grid fits within ~380px. Max cell size 52px, min 24px.
+  var maxWidth  = Math.min(window.innerWidth - 48, 420);
+  var size      = Math.floor((maxWidth - (gridSize - 1) * 4) / gridSize);
+  return Math.max(24, Math.min(52, size));
+}
+
+function renderGrid() {
+  var maze    = state.maze;
+  var grid    = document.getElementById('maze-grid');
+  var size    = computeCellSize(maze.cols);
+  var endRow  = 0;
+  var endCol  = maze.cols - 1;
+
+  grid.style.gridTemplateColumns = 'repeat(' + maze.cols + ', ' + size + 'px)';
+  grid.style.setProperty('--cell-size', size + 'px');
+  grid.innerHTML = '';
+
+  for (var r = 0; r < maze.rows; r++) {
+    for (var c = 0; c < maze.cols; c++) {
+      var cell   = maze.grid[r][c];
+      var div    = document.createElement('div');
+      var key    = cellKey(r, c);
+      var isStart = (r === maze.rows - 1 && c === 0);
+      var isEnd   = (r === endRow && c === endCol);
+      var isCurrent = (r === state.currentPos.row && c === state.currentPos.col);
+      var isVisited = !!state.visited[key];
+
+      div.className  = 'cell';
+      div.dataset.row = r;
+      div.dataset.col = c;
+      div.style.background = cell.colour;
+
+      if (isEnd)     div.classList.add('end-cell');
+      if (isCurrent) div.classList.add('current');
+      if (isVisited && !isCurrent) div.classList.add('visited');
+
+      // S / E labels
+      if (isStart || isEnd) {
+        div.textContent = isStart ? 'S' : 'E';
+        div.style.color = Generator.getLabelColour(cell.colour);
+      }
+
+      div.addEventListener('click', onCellClick);
+      grid.appendChild(div);
+    }
+  }
+}
+
 // ── Init ─────────────────────────────────────────────────
 
 function initMenu() {
