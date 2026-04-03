@@ -149,6 +149,69 @@ function renderGrid() {
   }
 }
 
+// ── Move handling ────────────────────────────────────────
+
+function isOrthogonalNeighbour(pos, row, col) {
+  var dr = Math.abs(pos.row - row);
+  var dc = Math.abs(pos.col - col);
+  return (dr + dc) === 1;
+}
+
+function hasValidMoves() {
+  var maze    = state.maze;
+  var pos     = state.currentPos;
+  var needed  = maze.sequence[state.currentStep % maze.sequence.length];
+  var DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
+  for (var i = 0; i < DIRS.length; i++) {
+    var nr = pos.row + DIRS[i][0];
+    var nc = pos.col + DIRS[i][1];
+    var nk = cellKey(nr, nc);
+    if (nr >= 0 && nr < maze.rows && nc >= 0 && nc < maze.cols
+        && !state.visited[nk]
+        && maze.grid[nr][nc].colour === needed) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function onCellClick(e) {
+  var row = parseInt(e.currentTarget.dataset.row, 10);
+  var col = parseInt(e.currentTarget.dataset.col, 10);
+  var maze   = state.maze;
+  var pos    = state.currentPos;
+  var key    = cellKey(row, col);
+  var needed = maze.sequence[state.currentStep % maze.sequence.length];
+
+  // Must be an unvisited orthogonal neighbour with the right colour
+  if (!isOrthogonalNeighbour(pos, row, col)) return;
+  if (state.visited[key]) return;
+  if (maze.grid[row][col].colour !== needed) return;
+
+  // Valid move
+  state.visited[key]  = true;
+  state.currentPos    = { row: row, col: col };
+  state.currentStep  += 1;
+
+  // Win condition
+  if (row === 0 && col === maze.cols - 1) {
+    renderGrid();
+    renderSequenceBar();
+    document.getElementById('win-overlay').classList.add('active');
+    return;
+  }
+
+  renderGrid();
+  renderSequenceBar();
+
+  // Dead-end detection
+  if (!hasValidMoves()) {
+    setTimeout(function () {
+      document.getElementById('dead-end-overlay').classList.add('active');
+    }, 300);
+  }
+}
+
 // ── Init ─────────────────────────────────────────────────
 
 function initMenu() {
