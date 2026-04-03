@@ -364,11 +364,11 @@
         return { grid: grid, sequence: sequence, rows: rows, cols: cols };
       }
     }
-    // Fallback: return last attempt (with random fill)
+    // Fallback: best-effort with smart fill (same as main loop)
     var path = generatePath(rows, cols);
     var grid = createGrid(rows, cols);
     assignPathColours(grid, path, sequence);
-    fillGrid(grid, sequence);
+    smartFillGrid(grid, path, sequence, rows, cols);
     repairUniqueness(grid, sequence, path, rows, cols);
     return { grid: grid, sequence: sequence, rows: rows, cols: cols };
   }
