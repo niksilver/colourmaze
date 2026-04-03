@@ -280,9 +280,7 @@
       }
 
       var cannot = buildCannot(rows, cols, path, seqLength, sequence);
-      propagateCannot(cannot, rows, cols, seqLength, isSol);
       buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
-      propagateCannot(cannot, rows, cols, seqLength, isSol);   // re-propagate after dead-end assignments
       fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
       var grid = createGrid(rows, cols);
