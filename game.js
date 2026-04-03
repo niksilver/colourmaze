@@ -80,7 +80,6 @@ function renderSequenceBar() {
     var swatch        = document.createElement('div');
     swatch.className  = 'seq-swatch' + (i === active ? ' active' : '');
     swatch.style.background = colour;
-    if (i === active) swatch.style.boxShadow = '0 0 8px ' + colour;
     bar.appendChild(swatch);
 
     if (i < seq.length - 1) {
