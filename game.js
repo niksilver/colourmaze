@@ -228,30 +228,54 @@ function onCellClick(e) {
 
 // ── Init ─────────────────────────────────────────────────
 
+function renderSeqDots(container, seq) {
+  container.innerHTML = '';
+  seq.forEach(function (colour, i) {
+    var dot       = document.createElement('span');
+    dot.className = 'seq-dot';
+    dot.style.background = colour;
+    container.appendChild(dot);
+    if (i < seq.length - 1) {
+      var arrow       = document.createElement('span');
+      arrow.className = 'seq-dot-arrow';
+      arrow.textContent = '\u2192';
+      container.appendChild(arrow);
+    }
+  });
+}
+
 function buildSeqOptions() {
-  var container = document.getElementById('seq-options');
+  var dropdown = document.getElementById('seq-dropdown');
+  var trigger  = document.getElementById('seq-dropdown-trigger');
+  var menu     = document.getElementById('seq-dropdown-menu');
+
+  function selectSeq(idx) {
+    state.sequence = Generator.SEQUENCES[idx];
+    renderSeqDots(trigger, state.sequence);
+    menu.querySelectorAll('.seq-dropdown-item').forEach(function (item, i) {
+      item.classList.toggle('selected', i === idx);
+    });
+    updateSequencePreview();
+    dropdown.classList.remove('open');
+  }
+
   Generator.SEQUENCES.forEach(function (seq, idx) {
-    var opt       = document.createElement('div');
-    opt.className = 'selector-option' + (idx === 1 ? ' selected' : '');
-    seq.forEach(function (colour, i) {
-      var dot       = document.createElement('span');
-      dot.className = 'seq-dot';
-      dot.style.background = colour;
-      opt.appendChild(dot);
-      if (i < seq.length - 1) {
-        var arrow       = document.createTextNode('\u2192');
-        opt.appendChild(arrow);
-      }
-    });
-    opt.addEventListener('click', function () {
-      container.querySelectorAll('.selector-option').forEach(function (o) {
-        o.classList.remove('selected');
-      });
-      opt.classList.add('selected');
-      state.sequence = Generator.SEQUENCES[idx];
-      updateSequencePreview();
-    });
-    container.appendChild(opt);
+    var item      = document.createElement('div');
+    item.className = 'seq-dropdown-item' + (idx === 1 ? ' selected' : '');
+    renderSeqDots(item, seq);
+    item.addEventListener('click', function () { selectSeq(idx); });
+    menu.appendChild(item);
+  });
+
+  renderSeqDots(trigger, state.sequence);
+
+  trigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function () {
+    dropdown.classList.remove('open');
   });
 }
 
