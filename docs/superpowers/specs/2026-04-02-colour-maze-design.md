@@ -67,17 +67,19 @@ Generation runs in a Web Worker. `generateMaze(rows, cols, sequence)` loops up t
 
 2. **Check for shortcuts** (`hasShortcut`): post-generation safety net. Rejects the path if any two non-consecutive adjacent solution cells i and j satisfy `sequence[(i+1) % seqLen] === sequence[j % seqLen]` (i.e. from cell i the player could jump directly to cell j because j has the right colour for the next step). Uses colour comparison, not step-index, so repeated-colour sequences like [R,B,B] are handled correctly.
 
-3. **Build cannot constraints** (`buildCannot`): for each non-End solution cell at path index i, compute the exit colour `sequence[(i % seqLen + 1) % seqLen]`. Mark every step s where `sequence[s] === exitColour` as forbidden on every adjacent non-solution cell. This ensures the player cannot leave the solution path by moving to a non-solution cell with the right colour — all such cells are constrained away.
+3. **Build cannot constraints** (`buildCannot`): seeds forbidden steps on non-solution cells adjacent to the solution path using an entry-step rule:
+   - **Non-End solution cells**: for the cell at path index i (step `s = i % seqLen`), forbid step `(s − 1 + seqLen) % seqLen` on every adjacent non-solution cell. A player sitting at that step and moving into the solution cell would be able to follow the solution to End; forbidding that entry step blocks this.
+   - **End cell**: because repeated-colour sequences (e.g. [R,B,B]) may have multiple steps that share End's colour, all such entry steps are forbidden. Concretely, collect `sBefore = { (s − 1 + seqLen) % seqLen : sequence[s] === endColour }` and forbid every step in `sBefore` on cells adjacent to End.
 
-4. **Extend steps into dead-ends** (`buildDeadEnds`): repeatedly propagate assigned steps into adjacent unassigned cells where the next step is not forbidden, until no more extensions are possible.
+4. **Propagate cannot constraints** (`propagateCannot`): spreads the seeded forbidden steps transitively through non-solution cells. If a non-solution cell cannot be at step t, any adjacent non-solution cell cannot be at step `(t − 1 + seqLen) % seqLen` (since being there would allow a move into the forbidden cell). Iterates to convergence. Together with `buildCannot` this ensures no non-solution path can reach End.
 
-5. **Fill remaining cells** (`fillRemaining`): for each still-unassigned cell, pick a random permitted step. If all steps are forbidden, assign step -1 (rendered black).
+5. **Extend steps into dead-ends** (`buildDeadEnds`): repeatedly propagate assigned steps into adjacent unassigned cells where the next step is not forbidden, until no more extensions are possible.
 
-6. **Colour cells**: map each step to `sequence[step]`; step -1 maps to `BLACK_COLOUR` (`#000000`).
+6. **Fill remaining cells** (`fillRemaining`): for each still-unassigned cell, pick a random permitted step. If all steps are forbidden, assign step -1 (rendered black).
 
-Combined, steps 2 and 3 guarantee a unique solution: `hasShortcut` prevents sol-to-sol shortcuts; `buildCannot` prevents sol-to-non-sol detours. From every solution cell, the only valid next cell for the player is the next solution cell.
+7. **Colour cells** (`buildGrid`): map each step to `sequence[step]`; step -1 maps to `BLACK_COLOUR` (`#000000`).
 
-Note: a `propagateCannot` function is also implemented and exported (it spreads cannot constraints transitively through non-solution cells) but is not currently called in the main pipeline.
+Combined, steps 2–4 guarantee a unique solution: `hasShortcut` prevents sol-to-sol shortcuts; `buildCannot` seeds entry-step constraints on cells adjacent to the solution; `propagateCannot` extends those constraints to all reachable non-solution cells, blocking every alternative route to End.
 
 ## File Structure
 
