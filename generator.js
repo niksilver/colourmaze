@@ -272,6 +272,20 @@
     }
   }
 
+  function buildSolutionMaps(rows, cols, path, seqLen) {
+    var isSol = {};
+    var cellStep = [];
+    for (var r = 0; r < rows; r++) {
+      cellStep[r] = [];
+      for (var c = 0; c < cols; c++) cellStep[r][c] = null;
+    }
+    for (var i = 0; i < path.length; i++) {
+      isSol[cellKey(path[i].row, path[i].col)] = true;
+      cellStep[path[i].row][path[i].col] = i % seqLen;
+    }
+    return { isSol: isSol, cellStep: cellStep };
+  }
+
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
@@ -279,16 +293,9 @@
       if (!path) continue;
       if (hasShortcut(path, seqLength, sequence)) continue;
 
-      var isSol = {};
-      var cellStep = [];
-      for (var r = 0; r < rows; r++) {
-        cellStep[r] = [];
-        for (var c = 0; c < cols; c++) cellStep[r][c] = null;
-      }
-      for (var i = 0; i < path.length; i++) {
-        isSol[cellKey(path[i].row, path[i].col)] = true;
-        cellStep[path[i].row][path[i].col] = i % seqLength;
-      }
+      var maps    = buildSolutionMaps(rows, cols, path, seqLength);
+      var isSol   = maps.isSol;
+      var cellStep = maps.cellStep;
 
       var cannot = buildCannot(rows, cols, path, seqLength, sequence);
       propagateCannot(cannot, rows, cols, seqLength, isSol);
@@ -321,6 +328,7 @@
   exports._cellKey              = cellKey;
   exports._createGrid           = createGrid;
   exports._generateSolutionPath = generateSolutionPath;
+  exports._buildSolutionMaps    = buildSolutionMaps;
   exports._hasShortcut          = hasShortcut;
   exports._buildCannot          = buildCannot;
   exports._propagateCannot      = propagateCannot;

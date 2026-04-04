@@ -241,6 +241,58 @@ test('buildCannot: sol cell (0,0) has all cannot entries false', function () {
   }
 });
 
+console.log('\n-- buildSolutionMaps --');
+
+test('buildSolutionMaps: isSol marks exactly the path cells', function () {
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var result = G._buildSolutionMaps(3, 3, path, 3);
+  assert.strictEqual(result.isSol['2,0'], true);
+  assert.strictEqual(result.isSol['1,0'], true);
+  assert.strictEqual(result.isSol['0,0'], true);
+  assert.strictEqual(result.isSol['0,1'], true);
+  assert.strictEqual(result.isSol['0,2'], true);
+  assert.strictEqual(result.isSol['1,1'], undefined);
+  assert.strictEqual(result.isSol['2,2'], undefined);
+});
+
+test('buildSolutionMaps: cellStep assigns correct sequence steps to path cells', function () {
+  // path of length 5, seqLen 3: steps 0,1,2,0,1
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var result = G._buildSolutionMaps(3, 3, path, 3);
+  assert.strictEqual(result.cellStep[2][0], 0);
+  assert.strictEqual(result.cellStep[1][0], 1);
+  assert.strictEqual(result.cellStep[0][0], 2);
+  assert.strictEqual(result.cellStep[0][1], 0); // 3 % 3 = 0
+  assert.strictEqual(result.cellStep[0][2], 1); // 4 % 3 = 1
+});
+
+test('buildSolutionMaps: cellStep is null for non-path cells', function () {
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var result = G._buildSolutionMaps(3, 3, path, 3);
+  assert.strictEqual(result.cellStep[1][1], null);
+  assert.strictEqual(result.cellStep[2][1], null);
+  assert.strictEqual(result.cellStep[2][2], null);
+  assert.strictEqual(result.cellStep[1][2], null);
+});
+
 console.log('\n-- Dead-end / Fill Pipeline --');
 
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
