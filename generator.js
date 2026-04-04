@@ -286,6 +286,17 @@
     return { isSol: isSol, cellStep: cellStep };
   }
 
+  function buildGrid(rows, cols, cellStep, sequence) {
+    var grid = createGrid(rows, cols);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var s = cellStep[r][c];
+        grid[r][c].colour = (s === -1) ? BLACK_COLOUR : sequence[s];
+      }
+    }
+    return grid;
+  }
+
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
@@ -302,14 +313,12 @@
       buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
       fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
-      var grid = createGrid(rows, cols);
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var s = cellStep[r][c];
-          grid[r][c].colour = (s === -1) ? BLACK_COLOUR : sequence[s];
-        }
-      }
-      return { grid: grid, sequence: sequence, rows: rows, cols: cols };
+      return {
+        grid:     buildGrid(rows, cols, cellStep, sequence),
+        sequence: sequence,
+        rows:     rows,
+        cols:     cols,
+      };
     }
     // Unreachable in practice — minimal fallback
     var grid = createGrid(rows, cols);
@@ -329,6 +338,7 @@
   exports._createGrid           = createGrid;
   exports._generateSolutionPath = generateSolutionPath;
   exports._buildSolutionMaps    = buildSolutionMaps;
+  exports._buildGrid            = buildGrid;
   exports._hasShortcut          = hasShortcut;
   exports._buildCannot          = buildCannot;
   exports._propagateCannot      = propagateCannot;

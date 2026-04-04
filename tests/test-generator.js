@@ -293,6 +293,34 @@ test('buildSolutionMaps: cellStep is null for non-path cells', function () {
   assert.strictEqual(result.cellStep[1][2], null);
 });
 
+console.log('\n-- buildGrid --');
+
+test('buildGrid: cell colour matches sequence[cellStep]', function () {
+  var seq = G.SEQUENCES[1]; // [R, Y, B]
+  var cellStep = [[0, 1], [2, 0]];
+  var grid = G._buildGrid(2, 2, cellStep, seq);
+  assert.strictEqual(grid[0][0].colour, seq[0]); // R
+  assert.strictEqual(grid[0][1].colour, seq[1]); // Y
+  assert.strictEqual(grid[1][0].colour, seq[2]); // B
+  assert.strictEqual(grid[1][1].colour, seq[0]); // R
+});
+
+test('buildGrid: cellStep -1 produces BLACK_COLOUR', function () {
+  var seq = G.SEQUENCES[1];
+  var cellStep = [[0, -1], [-1, 1]];
+  var grid = G._buildGrid(2, 2, cellStep, seq);
+  assert.strictEqual(grid[0][1].colour, G.BLACK_COLOUR);
+  assert.strictEqual(grid[1][0].colour, G.BLACK_COLOUR);
+});
+
+test('buildGrid: returns correct dimensions', function () {
+  var seq = G.SEQUENCES[0]; // [R, B]
+  var cellStep = [[0, 1, 0], [1, 0, 1]];
+  var grid = G._buildGrid(2, 3, cellStep, seq);
+  assert.strictEqual(grid.length, 2);
+  assert.strictEqual(grid[0].length, 3);
+});
+
 console.log('\n-- Dead-end / Fill Pipeline --');
 
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
