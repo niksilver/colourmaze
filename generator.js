@@ -32,6 +32,7 @@
     return luma > 140 ? 'black' : 'white';
   }
 
+  // Returns a new array with the same elements in a random order.
   function shuffle(arr) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -41,10 +42,12 @@
     return a;
   }
 
+  // Returns a unique string key for a grid cell, used as an object property.
   function cellKey(row, col) {
     return row + ',' + col;
   }
 
+  // Allocates a rows×cols 2D array of cells, each with colour initialised to null.
   function createGrid(rows, cols) {
     var grid = [];
     for (var r = 0; r < rows; r++) {
@@ -56,6 +59,9 @@
     return grid;
   }
 
+  // Finds a random non-self-intersecting path from bottom-left to top-right of at
+  // least 40% of cells, with no colour-based shortcuts between non-consecutive cells.
+  // Returns the path as an array of {row, col} objects, or null after 200 failed attempts.
   function generateSolutionPath(rows, cols, seqLen, sequence) {
     var minLen = Math.ceil(rows * cols * 0.4);
     var start  = { row: rows - 1, col: 0 };
@@ -118,6 +124,9 @@
     return null;
   }
 
+  // Returns true if any two non-consecutive adjacent path cells form a shortcut —
+  // i.e. a player at cell i could jump directly to cell j because j's colour matches
+  // what the player needs next. Uses colour comparison to handle repeated-colour sequences.
   function hasShortcut(path, seqLen, sequence) {
     var indexAt = {};
     for (var p = 0; p < path.length; p++) {
@@ -139,6 +148,10 @@
     return false;
   }
 
+  // Seeds forbidden-step constraints on non-solution cells adjacent to the solution path.
+  // For each non-End solution cell at step s, forbids step (s-1) on adjacent non-sol cells.
+  // For the End cell, forbids all steps that could deliver a player into End (sBefore).
+  // Returns a rows×cols array where cannot[r][c][s] is true if step s is forbidden at (r,c).
   function buildCannot(rows, cols, path, seqLen, sequence) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
     var isSol = {};
@@ -194,6 +207,9 @@
     return cannot;
   }
 
+  // Spreads cannot constraints transitively through non-solution cells.
+  // If a cell cannot be at step t, any adjacent non-solution cell cannot be at step (t-1),
+  // since being there would allow a move into the forbidden cell. Iterates to convergence.
   function propagateCannot(cannot, rows, cols, seqLen, isSol) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 
@@ -234,6 +250,8 @@
     }
   }
 
+  // Tries to assign the next sequence step to each null, non-forbidden neighbour of (r,c).
+  // Returns true if at least one neighbour was assigned.
   function tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, r, c) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
     var next = (cellStep[r][c] + 1) % seqLen;
@@ -250,6 +268,8 @@
     return changed;
   }
 
+  // Performs one full scan of all assigned cells and tries to extend each into its
+  // null neighbours. Returns true if any new assignment was made.
   function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen) {
     var changed = false;
     for (var r = 0; r < rows; r++) {
@@ -261,10 +281,14 @@
     return changed;
   }
 
+  // Repeatedly expands dead-end chains outward from already-assigned cells until
+  // no further assignments are possible.
   function buildDeadEnds(rows, cols, cellStep, cannot, seqLen) {
     while (expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen)) {}
   }
 
+  // Assigns a random permitted step to every still-unassigned cell.
+  // If all steps are forbidden for a cell, assigns -1 (rendered black).
   function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
@@ -280,6 +304,8 @@
     }
   }
 
+  // Builds two lookup structures from the solution path: isSol (set of solution cell keys)
+  // and cellStep (rows×cols array with each solution cell's sequence step, null elsewhere).
   function buildSolutionMaps(rows, cols, path, seqLen) {
     var isSol = {};
     var cellStep = [];
@@ -294,6 +320,8 @@
     return { isSol: isSol, cellStep: cellStep };
   }
 
+  // Creates a coloured grid from a completed cellStep array.
+  // Each cell gets sequence[step] as its colour; step -1 maps to BLACK_COLOUR.
   function buildGrid(rows, cols, cellStep, sequence) {
     var grid = createGrid(rows, cols);
     for (var r = 0; r < rows; r++) {
@@ -305,6 +333,10 @@
     return grid;
   }
 
+  // Top-level pipeline: generates a maze with a unique solution path from bottom-left
+  // to top-right. Tries up to 500 times to find a valid solution path, then builds
+  // cannot constraints, dead-end chains, and fills remaining cells.
+  // Returns { grid, sequence, rows, cols }.
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
