@@ -291,5 +291,63 @@ test('generateMaze(10,10, SEQUENCES[1]) completes without error', function () {
   assert.strictEqual(maze.cols, 10);
 });
 
+console.log('\n-- Uniqueness solver --');
+
+function countSolutions(maze) {
+  return G._countSolutions(maze.rows, maze.cols, maze.grid, maze.sequence);
+}
+
+test('countSolutions returns 1 for a hand-crafted unique 3x3 maze', function () {
+  // Straight path (2,0)→(1,0)→(0,0)→(0,1)→(0,2), seq=[R,B]
+  // Non-sol cells all coloured to be unreachable
+  var seq  = G.SEQUENCES[0]; // [red, blue]
+  var grid = G._createGrid(3, 3);
+  // solution path colours: step%2 → 0=red,1=blue,0=red,1=blue,0=red
+  grid[2][0].colour = seq[0]; // red  (step 0)
+  grid[1][0].colour = seq[1]; // blue (step 1)
+  grid[0][0].colour = seq[0]; // red  (step 2)
+  grid[0][1].colour = seq[1]; // blue (step 3)
+  grid[0][2].colour = seq[0]; // red  (step 4) — end cell
+  // All other cells: colour them black (unreachable)
+  grid[2][1].colour = '#000000';
+  grid[2][2].colour = '#000000';
+  grid[1][1].colour = '#000000';
+  grid[1][2].colour = '#000000';
+  var maze = { grid: grid, sequence: seq, rows: 3, cols: 3 };
+  assert.strictEqual(countSolutions(maze), 1);
+});
+
+test('countSolutions returns 2 when two paths exist', function () {
+  // 3x3, seq=[R,B]. From start (2,0) the only first move is (1,0) (black
+  // blocks (2,1)), then two routes diverge via (0,0) or (1,1):
+  // path A: (2,0)→(1,0)→(0,0)→(0,1)→(0,2)
+  // path B: (2,0)→(1,0)→(1,1)→(0,1)→(0,2)
+  var seq  = G.SEQUENCES[0]; // [R, B]
+  var grid = G._createGrid(3, 3);
+  grid[2][0].colour = seq[0]; // R  step 0  (start)
+  grid[1][0].colour = seq[1]; // B  step 1
+  grid[0][0].colour = seq[0]; // R  step 2
+  grid[0][1].colour = seq[1]; // B  step 3
+  grid[0][2].colour = seq[0]; // R  step 4  (end)
+  grid[1][1].colour = seq[0]; // R  step 2 — alternate branch
+  grid[2][1].colour = '#000000'; // blocked so start has only one B neighbour
+  grid[2][2].colour = '#000000';
+  grid[1][2].colour = '#000000';
+  var maze = { grid: grid, sequence: seq, rows: 3, cols: 3 };
+  assert.strictEqual(countSolutions(maze), 2);
+});
+
+console.log('\n-- Uniqueness (50 runs, 5×5, red-blue-blue) --');
+
+test('5×5 red-blue-blue maze has exactly one solution (50 runs)', function () {
+  var seq = G.SEQUENCES[2]; // [red, blue, blue]
+  for (var i = 0; i < 50; i++) {
+    var maze = G.generateMaze(5, 5, seq);
+    var n    = countSolutions(maze);
+    assert.strictEqual(n, 1,
+      'run ' + (i + 1) + ': expected 1 solution, got ' + n);
+  }
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed > 0) process.exit(1);
