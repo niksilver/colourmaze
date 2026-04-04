@@ -234,22 +234,28 @@
     }
   }
 
-  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen) {
+  function tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, r, c) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+    var next = (cellStep[r][c] + 1) % seqLen;
+    var changed = false;
+    for (var d = 0; d < DIRS.length; d++) {
+      var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
+      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+      if (cellStep[nr][nc] !== null) continue;
+      if (!cannot[nr][nc][next]) {
+        cellStep[nr][nc] = next;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen) {
     var changed = false;
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
         if (cellStep[r][c] === null) continue;
-        var next = (cellStep[r][c] + 1) % seqLen;
-        for (var d = 0; d < DIRS.length; d++) {
-          var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
-          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-          if (cellStep[nr][nc] !== null) continue;
-          if (!cannot[nr][nc][next]) {
-            cellStep[nr][nc] = next;
-            changed = true;
-          }
-        }
+        if (tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, r, c)) changed = true;
       }
     }
     return changed;
@@ -343,6 +349,7 @@
   exports._hasShortcut          = hasShortcut;
   exports._buildCannot          = buildCannot;
   exports._propagateCannot      = propagateCannot;
+  exports._tryExtendFromCell     = tryExtendFromCell;
   exports._expandDeadEndsOnce   = expandDeadEndsOnce;
   exports._buildDeadEnds        = buildDeadEnds;
   exports._fillRemaining        = fillRemaining;

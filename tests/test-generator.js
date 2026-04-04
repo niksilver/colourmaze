@@ -321,6 +321,61 @@ test('buildGrid: returns correct dimensions', function () {
   assert.strictEqual(grid[0].length, 3);
 });
 
+console.log('\n-- tryExtendFromCell --');
+
+test('tryExtendFromCell: assigns next step to a null neighbour', function () {
+  var cellStep = [[0, null]];
+  var cannot   = [[[false,false,false],[false,false,false]]];
+  G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be assigned step 1');
+});
+
+test('tryExtendFromCell: returns true when an assignment was made', function () {
+  var cellStep = [[0, null]];
+  var cannot   = [[[false,false,false],[false,false,false]]];
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  assert.strictEqual(changed, true);
+});
+
+test('tryExtendFromCell: returns false when no null neighbours', function () {
+  var cellStep = [[0, 1]];
+  var cannot   = [[[false,false,false],[false,false,false]]];
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  assert.strictEqual(changed, false);
+});
+
+test('tryExtendFromCell: returns false when next step is forbidden on all null neighbours', function () {
+  var cellStep = [[0, null]];
+  var cannot   = [[[false,false,false],[false,true,false]]]; // step 1 forbidden on (0,1)
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  assert.strictEqual(changed, false);
+  assert.strictEqual(cellStep[0][1], null, 'cell (0,1) should remain null');
+});
+
+test('tryExtendFromCell: assigns to multiple null neighbours', function () {
+  // centre cell (1,1) step 0; all four neighbours null and unconstrained
+  var cellStep = [[null,null,null],[null,0,null],[null,null,null]];
+  var cannot   = [];
+  for (var r=0;r<3;r++){cannot[r]=[];for(var c=0;c<3;c++)cannot[r][c]=[false,false,false];}
+  G._tryExtendFromCell(3, 3, cellStep, cannot, 3, 1, 1);
+  assert.strictEqual(cellStep[0][1], 1, 'north gets step 1');
+  assert.strictEqual(cellStep[2][1], 1, 'south gets step 1');
+  assert.strictEqual(cellStep[1][0], 1, 'west gets step 1');
+  assert.strictEqual(cellStep[1][2], 1, 'east gets step 1');
+});
+
+test('tryExtendFromCell: does not assign to out-of-bounds cells', function () {
+  // corner cell (0,0); only neighbour in bounds is (0,1) and (1,0)
+  var cellStep = [[0, null],[null, null]];
+  var cannot   = [];
+  for (var r=0;r<2;r++){cannot[r]=[];for(var c=0;c<2;c++)cannot[r][c]=[false,false,false];}
+  assert.doesNotThrow(function () {
+    G._tryExtendFromCell(2, 2, cellStep, cannot, 3, 0, 0);
+  });
+  assert.strictEqual(cellStep[0][1], 1);
+  assert.strictEqual(cellStep[1][0], 1);
+});
+
 console.log('\n-- expandDeadEndsOnce --');
 
 test('expandDeadEndsOnce: assigns next step to a null neighbour', function () {
