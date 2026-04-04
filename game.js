@@ -153,7 +153,7 @@ function renderGrid() {
 
       if (isEnd)     div.classList.add('end-cell');
       if (isCurrent) div.classList.add('current');
-      if (isVisited && !isStart) {
+      if (isVisited && !isStart && !isEnd) {
         div.classList.add('visited');
         div.style.setProperty('--dot-color', Generator.getLabelColour(cell.colour));
       }
