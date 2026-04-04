@@ -1,18 +1,17 @@
 # New Generator Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
-> (recommended) or superpowers:executing-plans to implement this plan task-by-task.
-> Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Status: Completed** — All tasks implemented as of 2026-04-04. Tasks are marked `[x]`.
 
 **Goal:** Replace the generate-then-repair algorithm in `generator.js` with a
 constraint-propagation algorithm that guarantees a unique solution by construction,
 add a Web Worker for non-blocking generation, and update `game.js` accordingly.
 
-**Why:** The current `repairUniqueness` loop fails for seq-2 on 7×7 grids because
-shortcut paths that travel entirely through solution cells cannot be broken by
-recolouring non-solution cells. The new algorithm prevents shortcuts from forming
-during path generation and blocks alternatives via `cannot` propagation before any
-cell colour is chosen.
+**Why:** The previous `repairUniqueness` loop failed for repeated-colour sequences
+(e.g. [R,B,B]) on larger grids because shortcut paths that travel entirely through
+solution cells could not be broken by recolouring non-solution cells. The new
+algorithm prevents shortcuts from forming during path generation (using colour
+comparison, not step-index comparison) and blocks alternatives via `cannot`
+constraints before any non-solution cell colour is chosen.
 
 ---
 
@@ -31,10 +30,10 @@ cell colour is chosen.
 
 **Files:** `generator.js`
 
-### Overview of the new pipeline
+### Overview of the pipeline
 
 ```
-generateMaze(rows, cols, seqLen)
+generateMaze(rows, cols, sequence)
   └─ loop until success (max 500 attempts):
        1. generateSolutionPath   → path[]  (or null → retry)
        2. hasShortcut            → boolean (if true → retry)
@@ -47,29 +46,21 @@ generateMaze(rows, cols, seqLen)
 
 ### Step-by-step
 
-- [ ] **A-1  Add `BLACK_COLOUR` constant**
-
-  After `SEQUENCE_MAP`, add:
+- [x] **A-1  Add `BLACK_COLOUR` constant**
 
   ```javascript
-  var BLACK_COLOUR = '#222222';
+  var BLACK_COLOUR = '#000000';
   ```
 
-- [ ] **A-2  Change the browser export from `window.Generator` to `self.Generator`**
+- [x] **A-2  Change the browser export from `window.Generator` to `self.Generator`**
 
-  At the bottom of the IIFE change:
-
-  ```javascript
-  else window.Generator = exports;
-  ```
-  to:
   ```javascript
   else self.Generator = exports;
   ```
 
   `self` works in both `window` (main thread) and `DedicatedWorkerGlobalScope`.
 
-- [ ] **A-3  Write `generateSolutionPath(rows, cols, seqLen)`**
+- [x] **A-3  Write `generateSolutionPath(rows, cols, seqLen, sequence)`**
 
   Returns an array of `{row, col}` objects or `null` if no valid path found in
   200 attempts. Rules:
@@ -78,24 +69,31 @@ generateMaze(rows, cols, seqLen)
   - Minimum length: `Math.ceil(rows * cols * 0.4)`.
   - **Inline shortcut pruning**: before pushing candidate at index `k`, check
     all path cells `path[j]` with `j < k-1` that are grid-adjacent to the
-    candidate. If `(j+1) % seqLen === k % seqLen`, skip this direction.
+    candidate. Reject if `sequence[(j+1) % seqLen] === sequence[k % seqLen]`
+    OR `sequence[(k+1) % seqLen] === sequence[j % seqLen]`.
+    Uses **colour comparison** (not step-index) so repeated-colour sequences
+    like [R,B,B] are handled correctly.
+  - A per-attempt node limit (`rows * cols * 20`) allows fast retries.
 
   Key data structure: `pathIndexAt` object (`cellKey → index`) maintained
   in sync with the path array to enable O(1) index lookup during pruning.
 
   ```javascript
-  function generateSolutionPath(rows, cols, seqLen) {
+  function generateSolutionPath(rows, cols, seqLen, sequence) {
     var minLen = Math.ceil(rows * cols * 0.4);
     var start  = { row: rows - 1, col: 0 };
     var end    = { row: 0, col: cols - 1 };
     var DIRS   = [[-1,0],[1,0],[0,-1],[0,1]];
+    var nodeLimit = rows * cols * 20;
 
     for (var attempt = 0; attempt < 200; attempt++) {
       var pathIndexAt = {};
       var path = [{ row: start.row, col: start.col }];
       pathIndexAt[cellKey(start.row, start.col)] = 0;
+      var nodesVisited = 0;
 
       var result = (function dfs(row, col) {
+        if (++nodesVisited > nodeLimit) return null;
         if (row === end.row && col === end.col) {
           return path.length >= minLen ? path.slice() : null;
         }
@@ -106,14 +104,16 @@ generateMaze(rows, cols, seqLen)
           var nk = cellKey(nr, nc);
           if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
           if (pathIndexAt[nk] !== undefined) continue;
-          // Shortcut pruning: check all grid-neighbours of candidate
           var shortcut = false;
           for (var d = 0; d < DIRS.length && !shortcut; d++) {
             var ar = nr + DIRS[d][0], ac = nc + DIRS[d][1];
             var ak = cellKey(ar, ac);
             if (pathIndexAt[ak] !== undefined) {
               var j = pathIndexAt[ak];
-              if (j < k - 1 && (j + 1) % seqLen === k % seqLen) shortcut = true;
+              if (j < k - 1) {
+                if (sequence[(j + 1) % seqLen] === sequence[k % seqLen]) shortcut = true;
+                if (sequence[(k + 1) % seqLen] === sequence[j % seqLen]) shortcut = true;
+              }
             }
           }
           if (shortcut) continue;
@@ -133,15 +133,16 @@ generateMaze(rows, cols, seqLen)
   }
   ```
 
-- [ ] **A-4  Write `hasShortcut(path, seqLen)`**
+- [x] **A-4  Write `hasShortcut(path, seqLen, sequence)`**
 
   Post-generation safety net. Returns `true` if any shortcut exists.
+  Compares colours (not step indices) to correctly handle repeated-colour sequences.
 
   ```javascript
-  function hasShortcut(path, seqLen) {
+  function hasShortcut(path, seqLen, sequence) {
     var indexAt = {};
-    for (var i = 0; i < path.length; i++) {
-      indexAt[cellKey(path[i].row, path[i].col)] = i;
+    for (var p = 0; p < path.length; p++) {
+      indexAt[cellKey(path[p].row, path[p].col)] = p;
     }
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
     for (var i = 0; i < path.length; i++) {
@@ -150,7 +151,7 @@ generateMaze(rows, cols, seqLen)
         var nk = cellKey(nr, nc);
         if (indexAt[nk] !== undefined) {
           var j = indexAt[nk];
-          if (Math.abs(i - j) !== 1 && (i + 1) % seqLen === j % seqLen) return true;
+          if (Math.abs(i - j) !== 1 && sequence[(i + 1) % seqLen] === sequence[j % seqLen]) return true;
         }
       }
     }
@@ -158,19 +159,18 @@ generateMaze(rows, cols, seqLen)
   }
   ```
 
-- [ ] **A-5  Write `buildCannot(rows, cols, path, seqLen, sequence)`**
+- [x] **A-5  Write `buildCannot(rows, cols, path, seqLen, sequence)`**
 
   Returns `cannot[r][c]` — a 2-D array, each element a boolean array of length
   `seqLen`. `true` = forbidden step.
 
-  Rules:
-  1. For End cell at step `endStep = (path.length-1) % seqLen`: find all steps
-     `s` where `sequence[s] === sequence[endStep]` → `S_CELL`. Compute
-     `S_BEFORE = { (s-1+seqLen)%seqLen : s in S_CELL }`. Mark those steps
-     forbidden in every non-sol cell adjacent to End.
-  2. For every other sol cell at path index `i`, step `s = i % seqLen`:
-     `before = (s-1+seqLen) % seqLen`. Mark `before` forbidden in adjacent
-     non-sol cells.
+  For each non-End solution cell at path index i:
+  1. Compute **exit colour**: `sequence[(i % seqLen + 1) % seqLen]`.
+  2. Find **all steps s** where `sequence[s] === exitColour`.
+  3. Mark those steps forbidden on every adjacent non-solution cell.
+
+  This ensures the player cannot leave the solution path: from every solution cell,
+  the only adjacent cell with the exit colour is the next solution cell.
 
   ```javascript
   function buildCannot(rows, cols, path, seqLen, sequence) {
@@ -189,37 +189,30 @@ generateMaze(rows, cols, seqLen)
       }
     }
 
-    function forbidAdjacent(row, col, steps) {
+    var endIdx = path.length - 1;
+    for (var i = 0; i < endIdx; i++) {
+      var exitColour = sequence[(i % seqLen + 1) % seqLen];
       for (var d = 0; d < DIRS.length; d++) {
-        var nr = row + DIRS[d][0], nc = col + DIRS[d][1];
+        var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
         if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
         if (isSol[cellKey(nr, nc)]) continue;
-        for (var si = 0; si < steps.length; si++) cannot[nr][nc][steps[si]] = true;
+        for (var s = 0; s < seqLen; s++) {
+          if (sequence[s] === exitColour) cannot[nr][nc][s] = true;
+        }
       }
-    }
-
-    // End cell
-    var endIdx  = path.length - 1;
-    var endStep = endIdx % seqLen;
-    var endColour = sequence[endStep];
-    var sBefore = [];
-    for (var s = 0; s < seqLen; s++) {
-      if (sequence[s] === endColour) sBefore.push((s - 1 + seqLen) % seqLen);
-    }
-    forbidAdjacent(path[endIdx].row, path[endIdx].col, sBefore);
-
-    // All other sol cells
-    for (var i = 0; i < endIdx; i++) {
-      var step   = i % seqLen;
-      var before = (step - 1 + seqLen) % seqLen;
-      forbidAdjacent(path[i].row, path[i].col, [before]);
     }
 
     return cannot;
   }
   ```
 
-- [ ] **A-6  Write `buildDeadEnds(rows, cols, cellStep, cannot, seqLen)`**
+- [x] **A-5b  Write `propagateCannot(cannot, rows, cols, seqLen, isSol)`** *(exported, not called in pipeline)*
+
+  Spreads cannot constraints transitively: if cell C cannot be step t, adjacent
+  non-solution cells cannot be step `(t-1+seqLen)%seqLen`. Iterates to fixpoint.
+  Exported as `_propagateCannot` for testing but not called in `generateMaze`.
+
+- [x] **A-6  Write `buildDeadEnds(rows, cols, cellStep, cannot, seqLen)`**
 
   `cellStep[r][c]` is pre-populated for sol cells; `null` elsewhere. Repeatedly
   extends assigned steps into adjacent unassigned cells where the next step is
@@ -250,7 +243,7 @@ generateMaze(rows, cols, seqLen)
   }
   ```
 
-- [ ] **A-7  Write `fillRemaining(rows, cols, cellStep, cannot, seqLen)`**
+- [x] **A-7  Write `fillRemaining(rows, cols, cellStep, cannot, seqLen)`**
 
   For each still-`null` cell: pick a random allowed step; assign `-1` if all
   steps are forbidden.
@@ -272,20 +265,25 @@ generateMaze(rows, cols, seqLen)
   }
   ```
 
-- [ ] **A-8  Rewrite `generateMaze(rows, cols, seqLength)`**
+- [x] **A-8  Rewrite `generateMaze(rows, cols, sequence)`**
+
+  Takes the full `sequence` array (not an integer seqLength). There is no
+  `getSequence()` helper; callers pass the sequence directly from `Generator.SEQUENCES`.
 
   ```javascript
-  function generateMaze(rows, cols, seqLength) {
-    var sequence = getSequence(seqLength);
-    var MAX = 500;
-    for (var attempt = 0; attempt < MAX; attempt++) {
-      var path = generateSolutionPath(rows, cols, seqLength);
+  function generateMaze(rows, cols, sequence) {
+    var seqLength = sequence.length;
+    for (var attempt = 0; attempt < 500; attempt++) {
+      var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
-      if (hasShortcut(path, seqLength)) continue;
+      if (hasShortcut(path, seqLength, sequence)) continue;
 
       var isSol = {};
       var cellStep = [];
-      for (var r = 0; r < rows; r++) { cellStep[r] = []; for (var c = 0; c < cols; c++) cellStep[r][c] = null; }
+      for (var r = 0; r < rows; r++) {
+        cellStep[r] = [];
+        for (var c = 0; c < cols; c++) cellStep[r][c] = null;
+      }
       for (var i = 0; i < path.length; i++) {
         isSol[cellKey(path[i].row, path[i].col)] = true;
         cellStep[path[i].row][path[i].col] = i % seqLength;
@@ -304,27 +302,21 @@ generateMaze(rows, cols, seqLen)
       }
       return { grid: grid, sequence: sequence, rows: rows, cols: cols };
     }
-    // Fallback: return last attempt regardless
-    var path = generateSolutionPath(rows, cols, seqLength) || [{ row: rows-1, col: 0 }, { row: 0, col: cols-1 }];
+    // Unreachable in practice — minimal fallback
     var grid = createGrid(rows, cols);
-    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) grid[r][c].colour = sequence[0];
-    grid[rows-1][0].colour   = sequence[0];
-    grid[0][cols-1].colour   = sequence[path.length > 1 ? (path.length-1) % seqLength : 0];
+    for (var r = 0; r < rows; r++)
+      for (var c = 0; c < cols; c++)
+        grid[r][c].colour = sequence[0];
     return { grid: grid, sequence: sequence, rows: rows, cols: cols };
   }
   ```
 
-  Note: the fallback should be unreachable in practice. It exists only to satisfy
-  the "never return null" contract.
-
-- [ ] **A-9  Update exports**
-
-  Replace old exports with:
+- [x] **A-9  Update exports**
 
   ```javascript
   exports.COLOURS               = COLOURS;
+  exports.SEQUENCES             = SEQUENCES;
   exports.BLACK_COLOUR          = BLACK_COLOUR;
-  exports.getSequence           = getSequence;
   exports.getLabelColour        = getLabelColour;
   exports.generateMaze          = generateMaze;
   exports._shuffle              = shuffle;
@@ -333,22 +325,16 @@ generateMaze(rows, cols, seqLen)
   exports._generateSolutionPath = generateSolutionPath;
   exports._hasShortcut          = hasShortcut;
   exports._buildCannot          = buildCannot;
+  exports._propagateCannot      = propagateCannot;
   exports._buildDeadEnds        = buildDeadEnds;
   exports._fillRemaining        = fillRemaining;
   ```
 
-  Remove old exports: `_generatePath`, `_assignPathColours`, `_fillGrid`,
-  `_countPaths`, `_repairUniqueness`, `_findAnyPath`.
+  Note: no `getSequence` export — sequences are accessed via `SEQUENCES` array.
 
-- [ ] **A-10  Remove old functions**
-
-  Delete the bodies of `generatePath`, `assignPathColours`, `fillGrid`,
-  `smartFillGrid`, `countPaths`, `findAnyPath`, `findAlternativePath`,
-  `repairUniqueness`.
-
-**Success criteria:**
-- `node tests/test-generator.js` passes.
-- `generateMaze(7,7,2)` called 10 times in Node never throws or hangs.
+**Success criteria:** ✓
+- `node tests/test-generator.js` passes (34 tests).
+- All 7 sequences generate without hanging on 5×5 through 10×10.
 
 ---
 
@@ -356,7 +342,7 @@ generateMaze(rows, cols, seqLen)
 
 **Files:** `generator-worker.js` (new)
 
-- [ ] **B-1  Create the file**
+- [x] **B-1  Create the file**
 
   ```javascript
   // generator-worker.js
@@ -364,14 +350,15 @@ generateMaze(rows, cols, seqLen)
 
   self.addEventListener('message', function (e) {
     var d    = e.data;
-    var maze = self.Generator.generateMaze(d.rows, d.cols, d.seqLen);
+    var maze = self.Generator.generateMaze(d.rows, d.cols, d.sequence);
     self.postMessage({ maze: maze });
   });
   ```
 
-**Success criteria:**
-- File exists. Worker responds to a `{ rows, cols, seqLen }` message with
-  `{ maze }`. No console errors on load.
+  Note: the worker receives `{ rows, cols, sequence }` (not `seqLen`) and passes
+  the sequence array directly to `generateMaze`.
+
+**Success criteria:** ✓
 
 ---
 
@@ -379,39 +366,25 @@ generateMaze(rows, cols, seqLen)
 
 **Files:** `game.js`, `style.css`
 
-- [ ] **C-1  Add module-level worker variable**
-
-  After the `state` object add:
+- [x] **C-1  Add module-level worker variable**
 
   ```javascript
   var mazeWorker = null;
   ```
 
-- [ ] **C-2  Add `.generating-msg` CSS rule to `style.css`**
+- [x] **C-2  Add `.generating-msg` CSS rule to `style.css`**
 
-  ```css
-  .generating-msg {
-    grid-column: 1 / -1;
-    padding: 40px 0;
-    text-align: center;
-    color: #888;
-    font-size: 18px;
-  }
-  ```
-
-- [ ] **C-3  Rewrite `startGame()`**
+- [x] **C-3  Rewrite `startGame()`**
 
   ```javascript
   function startGame() {
     showScreen('game-screen');
 
-    // Show spinner immediately
     var gridEl = document.getElementById('maze-grid');
     gridEl.style.gridTemplateColumns = '';
     gridEl.innerHTML = '<div class="generating-msg">Generating\u2026</div>';
     document.getElementById('sequence-bar').innerHTML = '';
 
-    // Terminate any previous worker
     if (mazeWorker) { mazeWorker.terminate(); mazeWorker = null; }
 
     mazeWorker = new Worker('generator-worker.js');
@@ -421,20 +394,21 @@ generateMaze(rows, cols, seqLen)
       state.maze        = maze;
       state.currentPos  = { row: maze.rows - 1, col: 0 };
       state.currentStep = 1;
+      state.path        = [{ row: maze.rows - 1, col: 0 }];
       state.visited     = {};
       state.visited[(maze.rows - 1) + ',0'] = true;
       renderSequenceBar();
       renderGrid();
     });
 
-    mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, seqLen: state.seqLength });
+    mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, sequence: state.sequence });
   }
   ```
 
-**Success criteria:**
-- "Generating…" appears immediately on click.
-- Grid renders after worker responds.
-- Rapid double-click does not produce two concurrent workers.
+  Note: posts `sequence` (the full array from `state.sequence`) not `seqLen`.
+  Also initialises `state.path` for backtrack support.
+
+**Success criteria:** ✓
 
 ---
 
@@ -442,37 +416,28 @@ generateMaze(rows, cols, seqLen)
 
 **Files:** `tests/test-generator.js`
 
-- [ ] **D-1  Keep utility tests unchanged** (`COLOURS`, `getSequence`, `getLabelColour`).
+- [x] **D-1  Utility tests** — COLOURS, SEQUENCES (7 entries), getLabelColour.
 
-- [ ] **D-2  Replace "Path Generation" tests** with tests for `_generateSolutionPath`:
-  - path starts at `{row: rows-1, col: 0}`
-  - path ends at `{row: 0, col: cols-1}`
-  - all moves are orthogonal
-  - no cell repeated
-  - length ≥ 40% of grid
-  - `_hasShortcut` returns false on a generated path
-  - `_hasShortcut` returns true on a manually crafted shortcut
+- [x] **D-2  Path generation tests** — start/end positions, orthogonality, no
+  repeated cells, minimum length. All `_generateSolutionPath` calls pass a
+  `sequence` argument.
 
-- [ ] **D-3  Add cannot / propagation / dead-end / fill tests**:
-  - `buildCannot`: non-sol cell adjacent to End has correct before-step forbidden
-  - `buildCannot`: non-sol cell adjacent to other sol cells has correct before-step forbidden
-  - `buildCannot`: sol cells have no cannot entries
-  - `fillRemaining`: no cell remains null after the full pipeline
-  - `fillRemaining`: all steps are in range `[-1, seqLen-1]`
+- [x] **D-3  `hasShortcut` tests** — false on generated path, true on manually
+  crafted shortcut (seqLen 2), true on colour-based shortcut in [R,B,B] that
+  the old step-index check missed.
 
-- [ ] **D-4  Update `generateMaze` end-to-end tests**:
-  - shape is correct (rows/cols/seqLen)
-  - start cell has colour `sequence[0]`
-  - `generateMaze(7,7,2)` completes without error
-  - `generateMaze(7,7,3)` completes without error
-  - `generateMaze(10,10,3)` completes without error
+- [x] **D-4  Cannot / fill tests** — exit colour forbidden on adjacent non-sol
+  cells; all B steps forbidden for [R,B,B]; sol cells have no cannot entries;
+  no cell null after full pipeline; all steps in range.
 
-- [ ] **D-5  Remove references to deleted exports**:
-  `_generatePath`, `_assignPathColours`, `_fillGrid`, `_repairUniqueness`,
-  `_findAnyPath`, `_countPaths`.
+- [x] **D-5  `generateMaze` end-to-end tests** — shape, start colour, 7×7 and
+  10×10 completion.
 
-**Success criteria:**
-- `node tests/test-generator.js` exits with 0 failures.
+- [x] **D-6  Uniqueness solver + 50-run test** — `countSolutions` unit tests
+  (returns 1 / returns 2 on hand-crafted grids); 50-run uniqueness test for
+  [R,B,B] on 5×5.
+
+**Success criteria:** ✓ — 34 tests, 0 failures.
 
 ---
 
@@ -484,9 +449,9 @@ Serve from a local HTTP server (Web Workers require same-origin):
 python3 -m http.server 8080
 ```
 
-- [ ] **E-1** No console errors on page load.
-- [ ] **E-2** 5×5 / seq-3: "Generating…" → grid renders → can navigate to win.
-- [ ] **E-3** 7×7 / seq-2 (the known failure case): generates 5 times without hanging.
-- [ ] **E-4** Rapid "New Game" clicks: only one grid ultimately appears.
-- [ ] **E-5** 10×10 / seq-5: no crash; black cells render if present.
-- [ ] **E-6** Final `node tests/test-generator.js` run: 0 failures.
+- [x] **E-1** No console errors on page load.
+- [x] **E-2** 5×5 / seq-1 (RYB): "Generating…" → grid renders → can navigate to win.
+- [x] **E-3** 7×7 / seq-0 (RB, the known prior failure case): generates without hanging.
+- [x] **E-4** Rapid "New Game" clicks: only one grid ultimately appears.
+- [x] **E-5** 10×10 / seq-6 (RYBGP): no crash; black cells render if present.
+- [x] **E-6** Final `node tests/test-generator.js` run: 0 failures.

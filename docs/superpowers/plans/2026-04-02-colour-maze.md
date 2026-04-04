@@ -1,6 +1,8 @@
 # Colour Maze Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **SUPERSEDED** — This plan describes the initial implementation (repair-based uniqueness algorithm, `getSequence(n)` API, no Web Worker). The architecture has since been replaced. See `docs/superpowers/plans/2026-04-03-new-generator.md` for the current algorithm and `docs/superpowers/specs/2026-04-02-colour-maze-design.md` for the current design. All tasks below were completed during the initial build.
+
+---
 
 **Goal:** Build a browser-based colour maze puzzle game where the player navigates a grid by following a repeating colour sequence, with procedurally generated mazes guaranteed to have exactly one solution.
 
