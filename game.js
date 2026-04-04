@@ -273,9 +273,8 @@ function initMenu() {
   document.getElementById('new-game-btn').addEventListener('click', startGame);
   document.getElementById('menu-btn').addEventListener('click', function () { showScreen('menu-screen'); });
   document.getElementById('new-game-btn-2').addEventListener('click', startGame);
-  document.getElementById('win-new-game-btn').addEventListener('click', function () {
+  document.getElementById('win-ok-btn').addEventListener('click', function () {
     document.getElementById('win-overlay').classList.remove('active');
-    startGame();
   });
 
 }
