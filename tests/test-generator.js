@@ -153,9 +153,9 @@ test('_createGrid returns correct dimensions', function () {
 
 console.log('\n-- Cannot / Constraint Building --');
 
-test('buildCannot: non-sol cell adjacent to step-0 (R) sol cell cannot have exit colour Y', function () {
-  // path[0]=(2,0) step 0 (R), exit colour = seq[1] = Y
-  // Non-sol adjacent: (2,1). Exit colour Y = step 1, so cannot[2][1][1] must be true.
+test('buildCannot: non-sol cell adjacent to step-0 (R) sol cell cannot be entry step 2 (B)', function () {
+  // path[0]=(2,0) step 0 (R). Entry step = (0-1+3)%3 = 2.
+  // Non-sol adjacent: (2,1). cannot[2][1][2] must be true.
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -165,13 +165,13 @@ test('buildCannot: non-sol cell adjacent to step-0 (R) sol cell cannot have exit
   ];
   var seq = G.SEQUENCES[1]; // [R, Y, B]
   var cannot = G._buildCannot(3, 3, path, 3, seq);
-  assert.strictEqual(cannot[2][1][1], true,
-    'cannot[2][1][1] should be true (exit colour Y = step 1 forbidden adjacent to path[0])');
+  assert.strictEqual(cannot[2][1][2], true,
+    'cannot[2][1][2] should be true (entry step 2 forbidden adjacent to step-0 sol cell)');
 });
 
-test('buildCannot: non-sol cell adjacent to step-1 (Y) sol cell cannot have exit colour B', function () {
-  // path[1]=(1,0) step 1 (Y), exit colour = seq[2] = B = step 2
-  // Non-sol adjacent: (1,1). cannot[1][1][2] must be true.
+test('buildCannot: non-sol cell adjacent to step-1 (Y) sol cell cannot be entry step 0 (R)', function () {
+  // path[1]=(1,0) step 1 (Y). Entry step = (1-1+3)%3 = 0.
+  // Non-sol adjacent: (1,1). cannot[1][1][0] must be true.
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -181,14 +181,14 @@ test('buildCannot: non-sol cell adjacent to step-1 (Y) sol cell cannot have exit
   ];
   var seq = G.SEQUENCES[1]; // [R, Y, B]
   var cannot = G._buildCannot(3, 3, path, 3, seq);
-  assert.strictEqual(cannot[1][1][2], true,
-    'cannot[1][1][2] should be true (exit colour B = step 2 forbidden adjacent to path[1])');
+  assert.strictEqual(cannot[1][1][0], true,
+    'cannot[1][1][0] should be true (entry step 0 forbidden adjacent to step-1 sol cell)');
 });
 
-test('buildCannot: [R,B,B] both B steps forbidden on non-sol cell adjacent to step-1 (B) sol cell', function () {
-  // path[1]=(1,0) step 1 (B), exit colour = seq[2] = B
-  // Both step 1 and step 2 have colour B, so BOTH must be forbidden on adj non-sol (1,1).
-  // This is the key fix for repeated-colour sequences.
+test('buildCannot: [R,B,B] non-sol cell (1,1) adjacent to two sol cells gets both entry steps forbidden', function () {
+  // path[1]=(1,0) step 1 (B): entry step = (1-1+3)%3 = 0. Forbids cannot[1][1][0].
+  // path[3]=(0,1) step 0 (R): entry step = (0-1+3)%3 = 2. Forbids cannot[1][1][2].
+  // (1,1) is adjacent to both, so steps 0 and 2 are forbidden; step 1 remains allowed.
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -198,10 +198,31 @@ test('buildCannot: [R,B,B] both B steps forbidden on non-sol cell adjacent to st
   ];
   var seq = G.SEQUENCES[2]; // [R, B, B]
   var cannot = G._buildCannot(3, 3, path, 3, seq);
-  assert.strictEqual(cannot[1][1][1], true,
-    'cannot[1][1][1] should be true (B step 1 forbidden adjacent to step-1 sol cell)');
+  assert.strictEqual(cannot[1][1][0], true,
+    'cannot[1][1][0] should be true (entry step 0 forbidden: adjacent to path[1] step 1)');
+  assert.strictEqual(cannot[1][1][1], false,
+    'cannot[1][1][1] should be false (no sol cell has entry step 1 adjacent to (1,1))');
   assert.strictEqual(cannot[1][1][2], true,
-    'cannot[1][1][2] should be true (B step 2 forbidden adjacent to step-1 sol cell)');
+    'cannot[1][1][2] should be true (entry step 2 forbidden: adjacent to path[3] step 0)');
+});
+
+test('buildCannot: [R,B,B] End cell sBefore covers all entry routes (steps 0 and 1 forbidden)', function () {
+  // path[4]=(0,2) is End. endStep=4%3=1 (B). endColour=B.
+  // Steps s with seq[s]=B: s=1,2. sBefore={(1-1+3)%3,(2-1+3)%3}={0,1}.
+  // Adjacent non-sol to End: (1,2). cannot[1][2][0] and cannot[1][2][1] must both be true.
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var seq = G.SEQUENCES[2]; // [R, B, B]
+  var cannot = G._buildCannot(3, 3, path, 3, seq);
+  assert.strictEqual(cannot[1][2][0], true,
+    'cannot[1][2][0] should be true (sBefore step 0 forbidden adjacent to End)');
+  assert.strictEqual(cannot[1][2][1], true,
+    'cannot[1][2][1] should be true (sBefore step 1 forbidden adjacent to End)');
 });
 
 test('buildCannot: sol cell (0,0) has all cannot entries false', function () {

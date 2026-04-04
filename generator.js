@@ -155,23 +155,39 @@
       }
     }
 
-    // Exit constraint: for each non-End sol cell, forbid adjacent non-sol cells
-    // from having the exit colour (the colour needed to leave that sol cell).
-    // This prevents any path from diverging off the solution — from every sol
-    // cell the only valid move is to the next sol cell.  Combined with
-    // hasShortcut this guarantees a unique solution.
-    // For repeated-colour sequences (e.g. [R,B,B]) ALL steps sharing the exit
-    // colour are forbidden, not just one, closing the gap in the old approach.
-    var endIdx = path.length - 1;
+    // Entry-step constraint: for each solution cell at step s, a player at an
+    // adjacent non-sol cell at step (s-1) could move into it and then follow
+    // the solution to End, creating an alternative route.  Forbid that entry
+    // step on all adjacent non-sol cells.
+    //
+    // End cell needs extra care with repeated-colour sequences: if End has
+    // colour C, any step r where sequence[(r+1)%seqLen]===C allows entry, so
+    // all such r are forbidden (not just (endStep-1+seqLen)%seqLen).
+    // Non-End cells: only the single step (s-1+seqLen)%seqLen is forbidden.
+    // Even if a player enters a non-End sol cell at the wrong absolute step,
+    // the subsequent sol cell won't match the required colour, so they stall.
+    var endIdx   = path.length - 1;
+    var endStep  = endIdx % seqLen;
+    var endColour = sequence[endStep];
+    var sBefore  = [];
+    for (var s = 0; s < seqLen; s++) {
+      if (sequence[s] === endColour) sBefore.push((s - 1 + seqLen) % seqLen);
+    }
+    for (var d = 0; d < DIRS.length; d++) {
+      var nr = path[endIdx].row + DIRS[d][0], nc = path[endIdx].col + DIRS[d][1];
+      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+      if (isSol[cellKey(nr, nc)]) continue;
+      for (var si = 0; si < sBefore.length; si++) cannot[nr][nc][sBefore[si]] = true;
+    }
+
     for (var i = 0; i < endIdx; i++) {
-      var exitColour = sequence[(i % seqLen + 1) % seqLen];
+      var step   = i % seqLen;
+      var before = (step - 1 + seqLen) % seqLen;
       for (var d = 0; d < DIRS.length; d++) {
         var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
         if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
         if (isSol[cellKey(nr, nc)]) continue;
-        for (var s = 0; s < seqLen; s++) {
-          if (sequence[s] === exitColour) cannot[nr][nc][s] = true;
-        }
+        cannot[nr][nc][before] = true;
       }
     }
 
@@ -275,6 +291,7 @@
       }
 
       var cannot = buildCannot(rows, cols, path, seqLength, sequence);
+      propagateCannot(cannot, rows, cols, seqLength, isSol);
       buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
       fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
