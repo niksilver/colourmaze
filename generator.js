@@ -11,21 +11,15 @@
 
   var BLACK_COLOUR = '#000000';
 
-  // Sequences per length match the spec colour table.
-  // Length 2 skips yellow so red/blue are visually distinct.
-  var SEQUENCE_MAP = {
-    2: ['#e63946', '#4cc9f0'],
-    3: ['#e63946', '#f4d35e', '#4cc9f0'],
-    4: ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80'],
-    5: ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80', '#c084fc'],
-  };
-
-  function getSequence(length) {
-    if (!SEQUENCE_MAP[length]) {
-      throw new Error('getSequence: unsupported length ' + length);
-    }
-    return SEQUENCE_MAP[length].slice();
-  }
+  var SEQUENCES = [
+    ['#e63946', '#4cc9f0'],                                       // red, blue
+    ['#e63946', '#f4d35e', '#4cc9f0'],                           // red, yellow, blue
+    ['#e63946', '#4cc9f0', '#4cc9f0'],                           // red, blue, blue
+    ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80'],                // red, yellow, blue, green
+    ['#e63946', '#4cc9f0', '#f4d35e', '#4cc9f0'],                // red, blue, yellow, blue
+    ['#e63946', '#f4d35e', '#f4d35e', '#4cc9f0'],                // red, yellow, yellow, blue
+    ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80', '#c084fc'],     // red, yellow, blue, green, purple
+  ];
 
   // Returns 'black' or 'white' for readable contrast against a hex cell colour.
   // Uses perceived luminance: luma = 0.299R + 0.587G + 0.114B (0-255 scale).
@@ -261,8 +255,8 @@
     }
   }
 
-  function generateMaze(rows, cols, seqLength) {
-    var sequence = getSequence(seqLength);
+  function generateMaze(rows, cols, sequence) {
+    var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
       var path = generateSolutionPath(rows, cols, seqLength);
       if (!path) continue;
@@ -301,8 +295,8 @@
   }
 
   exports.COLOURS               = COLOURS;
+  exports.SEQUENCES             = SEQUENCES;
   exports.BLACK_COLOUR          = BLACK_COLOUR;
-  exports.getSequence           = getSequence;
   exports.getLabelColour        = getLabelColour;
   exports.generateMaze          = generateMaze;
   exports._shuffle              = shuffle;

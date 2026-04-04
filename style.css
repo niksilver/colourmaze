@@ -209,3 +209,13 @@ body {
   color: #888;
   font-size: 18px;
 }
+
+.seq-options { flex-wrap: wrap; }
+.seq-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 2px;
+  vertical-align: middle;
+}

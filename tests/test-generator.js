@@ -21,14 +21,28 @@ test('COLOURS has 5 entries', function () {
   assert.strictEqual(G.COLOURS.length, 5);
 });
 
-test('getSequence(2) returns [red, blue]', function () {
-  var seq = G.getSequence(2);
-  assert.deepStrictEqual(seq, ['#e63946', '#4cc9f0']);
+test('SEQUENCES has 7 entries', function () {
+  assert.strictEqual(G.SEQUENCES.length, 7);
 });
 
-test('getSequence(3) returns [red, yellow, blue]', function () {
-  var seq = G.getSequence(3);
-  assert.deepStrictEqual(seq, ['#e63946', '#f4d35e', '#4cc9f0']);
+test('SEQUENCES[0] is [red, blue]', function () {
+  assert.deepStrictEqual(G.SEQUENCES[0], ['#e63946', '#4cc9f0']);
+});
+
+test('SEQUENCES[1] is [red, yellow, blue]', function () {
+  assert.deepStrictEqual(G.SEQUENCES[1], ['#e63946', '#f4d35e', '#4cc9f0']);
+});
+
+test('SEQUENCES[2] is [red, blue, blue]', function () {
+  assert.deepStrictEqual(G.SEQUENCES[2], ['#e63946', '#4cc9f0', '#4cc9f0']);
+});
+
+test('SEQUENCES[4] is [red, blue, yellow, blue]', function () {
+  assert.deepStrictEqual(G.SEQUENCES[4], ['#e63946', '#4cc9f0', '#f4d35e', '#4cc9f0']);
+});
+
+test('SEQUENCES[5] is [red, yellow, yellow, blue]', function () {
+  assert.deepStrictEqual(G.SEQUENCES[5], ['#e63946', '#f4d35e', '#f4d35e', '#4cc9f0']);
 });
 
 test('getLabelColour returns "black" for yellow (#f4d35e)', function () {
@@ -135,7 +149,7 @@ test('buildCannot: non-sol cell adjacent to End cannot be step endStep-1', funct
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var seq = G.getSequence(3);
+  var seq = G.SEQUENCES[1];
   var cannot = G._buildCannot(3, 3, path, 3, seq);
   assert.strictEqual(cannot[1][2][0], true,
     'cannot[1][2][0] should be true (step 0 forbidden adjacent to End)');
@@ -149,7 +163,7 @@ test('buildCannot: non-sol cell (2,1) adjacent to path[0]=(2,0) step 0: before=(
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var seq = G.getSequence(3);
+  var seq = G.SEQUENCES[1];
   var cannot = G._buildCannot(3, 3, path, 3, seq);
   assert.strictEqual(cannot[2][1][2], true,
     'cannot[2][1][2] should be true (before-step forbidden adjacent to path[0])');
@@ -163,7 +177,7 @@ test('buildCannot: sol cell (0,0) has all cannot entries false', function () {
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var seq = G.getSequence(3);
+  var seq = G.SEQUENCES[1];
   var cannot = G._buildCannot(3, 3, path, 3, seq);
   for (var s = 0; s < 3; s++) {
     assert.strictEqual(cannot[0][0][s], false,
@@ -175,7 +189,7 @@ console.log('\n-- Dead-end / Fill Pipeline --');
 
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
   var rows = 5, cols = 5, seqLen = 3;
-  var seq = G.getSequence(seqLen);
+  var seq = G.SEQUENCES[1];
   var path = G._generateSolutionPath(rows, cols, seqLen);
   assert.ok(path !== null, 'path should not be null');
 
@@ -205,7 +219,7 @@ test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', fun
 
 test('all assigned steps are in range [-1, seqLen-1] (5x5, seqLen 3)', function () {
   var rows = 5, cols = 5, seqLen = 3;
-  var seq = G.getSequence(seqLen);
+  var seq = G.SEQUENCES[1];
   var path = G._generateSolutionPath(rows, cols, seqLen);
   assert.ok(path !== null, 'path should not be null');
 
@@ -237,7 +251,7 @@ test('all assigned steps are in range [-1, seqLen-1] (5x5, seqLen 3)', function 
 console.log('\n-- generateMaze end-to-end --');
 
 test('generateMaze returns correct shape (5x5, seq-3)', function () {
-  var maze = G.generateMaze(5, 5, 3);
+  var maze = G.generateMaze(5, 5, G.SEQUENCES[1]);
   assert.strictEqual(maze.grid.length, 5);
   assert.strictEqual(maze.grid[0].length, 5);
   assert.strictEqual(maze.sequence.length, 3);
@@ -246,7 +260,7 @@ test('generateMaze returns correct shape (5x5, seq-3)', function () {
 });
 
 test('generateMaze start cell colour equals sequence[0] (5x5, seq-3)', function () {
-  var maze = G.generateMaze(5, 5, 3);
+  var maze = G.generateMaze(5, 5, G.SEQUENCES[1]);
   assert.strictEqual(
     maze.grid[maze.rows - 1][0].colour,
     maze.sequence[0],
@@ -254,22 +268,24 @@ test('generateMaze start cell colour equals sequence[0] (5x5, seq-3)', function 
   );
 });
 
-test('generateMaze(7,7,2) completes without error', function () {
-  var maze = G.generateMaze(7, 7, 2);
+test('generateMaze(7,7, SEQUENCES[0]) completes without error', function () {
+  var maze = G.generateMaze(7, 7, G.SEQUENCES[0]);
   assert.ok(maze.grid, 'grid should exist');
   assert.strictEqual(maze.rows, 7);
   assert.strictEqual(maze.cols, 7);
+  assert.strictEqual(maze.sequence.length, 2);
 });
 
-test('generateMaze(7,7,3) completes without error', function () {
-  var maze = G.generateMaze(7, 7, 3);
+test('generateMaze(7,7, SEQUENCES[1]) completes without error', function () {
+  var maze = G.generateMaze(7, 7, G.SEQUENCES[1]);
   assert.ok(maze.grid, 'grid should exist');
   assert.strictEqual(maze.rows, 7);
   assert.strictEqual(maze.cols, 7);
+  assert.strictEqual(maze.sequence.length, 3);
 });
 
-test('generateMaze(10,10,3) completes without error', function () {
-  var maze = G.generateMaze(10, 10, 3);
+test('generateMaze(10,10, SEQUENCES[1]) completes without error', function () {
+  var maze = G.generateMaze(10, 10, G.SEQUENCES[1]);
   assert.ok(maze.grid, 'grid should exist');
   assert.strictEqual(maze.rows, 10);
   assert.strictEqual(maze.cols, 10);

@@ -1,13 +1,13 @@
 // game.js
 
 var state = {
-  gridSize:   7,
-  seqLength:  3,
-  maze:       null,   // { grid, sequence, rows, cols }
+  gridSize:  7,
+  sequence:  null,    // selected colour sequence array (set on init)
+  maze:      null,    // { grid, sequence, rows, cols }
   currentPos: null,   // { row, col }
   currentStep: 1,
-  visited:    null,   // object of "row,col" keys → true
-  path:       null,   // ordered array of { row, col } visited so far
+  visited:   null,    // object of "row,col" keys → true
+  path:      null,    // ordered array of { row, col } visited so far
 };
 
 var mazeWorker = null;
@@ -27,7 +27,7 @@ function setupSelector(containerId, onSelect) {
 }
 
 function updateSequencePreview() {
-  var seq      = Generator.getSequence(state.seqLength);
+  var seq      = state.sequence;
   var preview  = document.getElementById('sequence-preview');
   preview.innerHTML = '';
   seq.forEach(function (colour, i) {
@@ -83,7 +83,7 @@ function startGame() {
     renderGrid();
   });
 
-  mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, seqLen: state.seqLength });
+  mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, sequence: state.sequence });
 }
 
 // ── Sequence bar ─────────────────────────────────────────
@@ -228,13 +228,38 @@ function onCellClick(e) {
 
 // ── Init ─────────────────────────────────────────────────
 
+function buildSeqOptions() {
+  var container = document.getElementById('seq-options');
+  Generator.SEQUENCES.forEach(function (seq, idx) {
+    var opt       = document.createElement('div');
+    opt.className = 'selector-option' + (idx === 1 ? ' selected' : '');
+    seq.forEach(function (colour, i) {
+      var dot       = document.createElement('span');
+      dot.className = 'seq-dot';
+      dot.style.background = colour;
+      opt.appendChild(dot);
+      if (i < seq.length - 1) {
+        var arrow       = document.createTextNode('\u2192');
+        opt.appendChild(arrow);
+      }
+    });
+    opt.addEventListener('click', function () {
+      container.querySelectorAll('.selector-option').forEach(function (o) {
+        o.classList.remove('selected');
+      });
+      opt.classList.add('selected');
+      state.sequence = Generator.SEQUENCES[idx];
+      updateSequencePreview();
+    });
+    container.appendChild(opt);
+  });
+}
+
 function initMenu() {
   setupSelector('grid-size-options', function (val) { state.gridSize = val; });
-  setupSelector('seq-length-options', function (val) {
-    state.seqLength = val;
-    updateSequencePreview();
-  });
 
+  state.sequence = Generator.SEQUENCES[1];
+  buildSeqOptions();
   updateSequencePreview();
 
   document.getElementById('new-game-btn').addEventListener('click', startGame);
