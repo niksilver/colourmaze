@@ -245,37 +245,21 @@ function renderSeqDots(container, seq) {
 }
 
 function buildSeqOptions() {
-  var dropdown = document.getElementById('seq-dropdown');
-  var trigger  = document.getElementById('seq-dropdown-trigger');
-  var menu     = document.getElementById('seq-dropdown-menu');
-
-  function selectSeq(idx) {
-    state.sequence = Generator.SEQUENCES[idx];
-    renderSeqDots(trigger, state.sequence);
-    menu.querySelectorAll('.seq-dropdown-item').forEach(function (item, i) {
-      item.classList.toggle('selected', i === idx);
-    });
-    updateSequencePreview();
-    dropdown.classList.remove('open');
-  }
+  var container = document.getElementById('seq-options');
+  var items     = [];
 
   Generator.SEQUENCES.forEach(function (seq, idx) {
     var item      = document.createElement('div');
-    item.className = 'seq-dropdown-item' + (idx === 1 ? ' selected' : '');
+    item.className = 'seq-option' + (idx === 1 ? ' selected' : '');
     renderSeqDots(item, seq);
-    item.addEventListener('click', function () { selectSeq(idx); });
-    menu.appendChild(item);
-  });
-
-  renderSeqDots(trigger, state.sequence);
-
-  trigger.addEventListener('click', function (e) {
-    e.stopPropagation();
-    dropdown.classList.toggle('open');
-  });
-
-  document.addEventListener('click', function () {
-    dropdown.classList.remove('open');
+    item.addEventListener('click', function () {
+      items.forEach(function (el) { el.classList.remove('selected'); });
+      item.classList.add('selected');
+      state.sequence = Generator.SEQUENCES[idx];
+      updateSequencePreview();
+    });
+    container.appendChild(item);
+    items.push(item);
   });
 }
 
