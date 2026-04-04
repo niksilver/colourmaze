@@ -60,19 +60,19 @@ test('getLabelColour returns "black" for blue (#4cc9f0)', function () {
 console.log('\n-- Path Generation --');
 
 test('path starts at bottom-left (5x5)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   assert.deepStrictEqual(path[0], { row: 4, col: 0 });
 });
 
 test('path ends at top-right (5x5)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   assert.deepStrictEqual(path[path.length - 1], { row: 0, col: 4 });
 });
 
 test('all path steps are orthogonal (5x5)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   for (var i = 1; i < path.length; i++) {
     var dr = Math.abs(path[i].row - path[i-1].row);
@@ -82,7 +82,7 @@ test('all path steps are orthogonal (5x5)', function () {
 });
 
 test('path has no repeated cells (5x5)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   var seen = {};
   path.forEach(function (c) {
@@ -93,26 +93,28 @@ test('path has no repeated cells (5x5)', function () {
 });
 
 test('path meets minimum length (5x5, min=ceil(25*0.4)=10)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   assert.ok(path.length >= 10, 'path length ' + path.length + ' < 10');
 });
 
 test('path meets minimum length (7x7, min=ceil(49*0.4)=20)', function () {
-  var path = G._generateSolutionPath(7, 7, 3);
+  var path = G._generateSolutionPath(7, 7, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
   assert.ok(path.length >= 20, 'path length ' + path.length + ' < 20');
 });
 
 test('_hasShortcut returns false on a generated path (seqLen 3)', function () {
-  var path = G._generateSolutionPath(5, 5, 3);
+  var seq  = G.SEQUENCES[1];
+  var path = G._generateSolutionPath(5, 5, 3, seq);
   assert.ok(path !== null, 'path should not be null');
-  assert.strictEqual(G._hasShortcut(path, 3), false);
+  assert.strictEqual(G._hasShortcut(path, 3, seq), false);
 });
 
 test('_hasShortcut returns true on a manually crafted shortcut (seqLen 2)', function () {
-  // seqLen=2. path[0]=(2,0)step0, path[3]=(2,1)step1, they are adjacent,
-  // |0-3|=3>1, (0+1)%2=1 === 3%2=1 => shortcut
+  // seqLen=2, seq=[R,B]. path[0]=(2,0)step0 (R), path[3]=(2,1)step1 (B), adjacent,
+  // |0-3|=3>1, seq[(0+1)%2]=seq[1]=B === seq[3%2]=seq[1]=B => shortcut
+  var seq  = G.SEQUENCES[0]; // [R, B]
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -120,7 +122,24 @@ test('_hasShortcut returns true on a manually crafted shortcut (seqLen 2)', func
     { row: 2, col: 1 },
     { row: 2, col: 2 }
   ];
-  assert.strictEqual(G._hasShortcut(path, 2), true);
+  assert.strictEqual(G._hasShortcut(path, 2, seq), true);
+});
+
+test('_hasShortcut detects colour-based shortcut in [R,B,B] (missed by old step-index check)', function () {
+  // seqLen=3, seq=[R,B,B]. path[0]=(2,0)step0(R) adjacent to path[2]=(2,1)step2(B).
+  // Old check: (0+1)%3=1 !== 2%3=2 — NOT detected.
+  // New check: seq[(0+1)%3]=seq[1]=B === seq[2%3]=seq[2]=B — IS detected.
+  var seq  = G.SEQUENCES[2]; // [R, B, B]
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 2, col: 1 },  // adjacent to path[0] AND path[4]
+    { row: 2, col: 2 },
+    { row: 1, col: 2 },
+    { row: 0, col: 2 }
+  ];
+  // path[0]=(2,0)step0(R), path[2]=(2,1)step2(B): adjacent, |0-2|=2, seq[1]=B === seq[2]=B => shortcut
+  assert.strictEqual(G._hasShortcut(path, 3, seq), true);
 });
 
 console.log('\n-- Grid Creation --');
@@ -134,12 +153,9 @@ test('_createGrid returns correct dimensions', function () {
 
 console.log('\n-- Cannot / Constraint Building --');
 
-test('buildCannot: non-sol cell adjacent to End cannot be step endStep-1', function () {
-  // 3x3 grid, seqLen 3
-  // path = [(2,0),(1,0),(0,0),(0,1),(0,2)]
-  // End=(0,2), endStep=4%3=1, endColour=Y => sBefore contains (1-1+3)%3=0
-  // Adjacent non-sol cells to (0,2): (1,2) is non-sol
-  // So cannot[1][2][0] must be true
+test('buildCannot: non-sol cell adjacent to step-0 (R) sol cell cannot have exit colour Y', function () {
+  // path[0]=(2,0) step 0 (R), exit colour = seq[1] = Y
+  // Non-sol adjacent: (2,1). Exit colour Y = step 1, so cannot[2][1][1] must be true.
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -147,13 +163,15 @@ test('buildCannot: non-sol cell adjacent to End cannot be step endStep-1', funct
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var seq = G.SEQUENCES[1];
+  var seq = G.SEQUENCES[1]; // [R, Y, B]
   var cannot = G._buildCannot(3, 3, path, 3, seq);
-  assert.strictEqual(cannot[1][2][0], true,
-    'cannot[1][2][0] should be true (step 0 forbidden adjacent to End)');
+  assert.strictEqual(cannot[2][1][1], true,
+    'cannot[2][1][1] should be true (exit colour Y = step 1 forbidden adjacent to path[0])');
 });
 
-test('buildCannot: non-sol cell (2,1) adjacent to path[0]=(2,0) step 0: before=(0-1+3)%3=2 => cannot[2][1][2]=true', function () {
+test('buildCannot: non-sol cell adjacent to step-1 (Y) sol cell cannot have exit colour B', function () {
+  // path[1]=(1,0) step 1 (Y), exit colour = seq[2] = B = step 2
+  // Non-sol adjacent: (1,1). cannot[1][1][2] must be true.
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -161,10 +179,29 @@ test('buildCannot: non-sol cell (2,1) adjacent to path[0]=(2,0) step 0: before=(
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var seq = G.SEQUENCES[1];
+  var seq = G.SEQUENCES[1]; // [R, Y, B]
   var cannot = G._buildCannot(3, 3, path, 3, seq);
-  assert.strictEqual(cannot[2][1][2], true,
-    'cannot[2][1][2] should be true (before-step forbidden adjacent to path[0])');
+  assert.strictEqual(cannot[1][1][2], true,
+    'cannot[1][1][2] should be true (exit colour B = step 2 forbidden adjacent to path[1])');
+});
+
+test('buildCannot: [R,B,B] both B steps forbidden on non-sol cell adjacent to step-1 (B) sol cell', function () {
+  // path[1]=(1,0) step 1 (B), exit colour = seq[2] = B
+  // Both step 1 and step 2 have colour B, so BOTH must be forbidden on adj non-sol (1,1).
+  // This is the key fix for repeated-colour sequences.
+  var path = [
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 }
+  ];
+  var seq = G.SEQUENCES[2]; // [R, B, B]
+  var cannot = G._buildCannot(3, 3, path, 3, seq);
+  assert.strictEqual(cannot[1][1][1], true,
+    'cannot[1][1][1] should be true (B step 1 forbidden adjacent to step-1 sol cell)');
+  assert.strictEqual(cannot[1][1][2], true,
+    'cannot[1][1][2] should be true (B step 2 forbidden adjacent to step-1 sol cell)');
 });
 
 test('buildCannot: sol cell (0,0) has all cannot entries false', function () {
@@ -188,7 +225,7 @@ console.log('\n-- Dead-end / Fill Pipeline --');
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
   var rows = 5, cols = 5, seqLen = 3;
   var seq = G.SEQUENCES[1];
-  var path = G._generateSolutionPath(rows, cols, seqLen);
+  var path = G._generateSolutionPath(rows, cols, seqLen, seq);
   assert.ok(path !== null, 'path should not be null');
 
   var isSol = {};
@@ -218,7 +255,7 @@ test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', fun
 test('all assigned steps are in range [-1, seqLen-1] (5x5, seqLen 3)', function () {
   var rows = 5, cols = 5, seqLen = 3;
   var seq = G.SEQUENCES[1];
-  var path = G._generateSolutionPath(rows, cols, seqLen);
+  var path = G._generateSolutionPath(rows, cols, seqLen, seq);
   assert.ok(path !== null, 'path should not be null');
 
   var isSol = {};

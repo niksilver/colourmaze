@@ -56,7 +56,7 @@
     return grid;
   }
 
-  function generateSolutionPath(rows, cols, seqLen) {
+  function generateSolutionPath(rows, cols, seqLen, sequence) {
     var minLen = Math.ceil(rows * cols * 0.4);
     var start  = { row: rows - 1, col: 0 };
     var end    = { row: 0, col: cols - 1 };
@@ -84,9 +84,12 @@
           var nk = cellKey(nr, nc);
           if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
           if (pathIndexAt[nk] !== undefined) continue;
-          // Shortcut pruning: check both directions of potential shortcuts
-          // (a) earlier cell j can shortcut TO candidate k: (j+1)%seqLen === k%seqLen
-          // (b) candidate k can shortcut TO earlier cell j: (k+1)%seqLen === j%seqLen
+          // Shortcut pruning: compare colours (not step indices) so that
+          // repeated-colour sequences like [R,B,B] are handled correctly.
+          // (a) earlier cell j can shortcut TO candidate k:
+          //     colour needed after j === colour of k
+          // (b) candidate k can shortcut TO earlier cell j:
+          //     colour needed after k === colour of j
           var shortcut = false;
           for (var d = 0; d < DIRS.length && !shortcut; d++) {
             var ar = nr + DIRS[d][0], ac = nc + DIRS[d][1];
@@ -94,8 +97,8 @@
             if (pathIndexAt[ak] !== undefined) {
               var j = pathIndexAt[ak];
               if (j < k - 1) {
-                if ((j + 1) % seqLen === k % seqLen) shortcut = true;
-                if ((k + 1) % seqLen === j % seqLen) shortcut = true;
+                if (sequence[(j + 1) % seqLen] === sequence[k % seqLen]) shortcut = true;
+                if (sequence[(k + 1) % seqLen] === sequence[j % seqLen]) shortcut = true;
               }
             }
           }
@@ -115,7 +118,7 @@
     return null;
   }
 
-  function hasShortcut(path, seqLen) {
+  function hasShortcut(path, seqLen, sequence) {
     var indexAt = {};
     for (var p = 0; p < path.length; p++) {
       indexAt[cellKey(path[p].row, path[p].col)] = p;
@@ -127,7 +130,9 @@
         var nk = cellKey(nr, nc);
         if (indexAt[nk] !== undefined) {
           var j = indexAt[nk];
-          if (Math.abs(i - j) !== 1 && (i + 1) % seqLen === j % seqLen) return true;
+          // Compare colours, not step indices, so repeated-colour sequences
+          // like [R,B,B] don't create undetected shortcuts.
+          if (Math.abs(i - j) !== 1 && sequence[(i + 1) % seqLen] === sequence[j % seqLen]) return true;
         }
       }
     }
@@ -150,28 +155,24 @@
       }
     }
 
-    function forbidAdjacent(row, col, steps) {
+    // Exit constraint: for each non-End sol cell, forbid adjacent non-sol cells
+    // from having the exit colour (the colour needed to leave that sol cell).
+    // This prevents any path from diverging off the solution — from every sol
+    // cell the only valid move is to the next sol cell.  Combined with
+    // hasShortcut this guarantees a unique solution.
+    // For repeated-colour sequences (e.g. [R,B,B]) ALL steps sharing the exit
+    // colour are forbidden, not just one, closing the gap in the old approach.
+    var endIdx = path.length - 1;
+    for (var i = 0; i < endIdx; i++) {
+      var exitColour = sequence[(i % seqLen + 1) % seqLen];
       for (var d = 0; d < DIRS.length; d++) {
-        var nr = row + DIRS[d][0], nc = col + DIRS[d][1];
+        var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
         if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
         if (isSol[cellKey(nr, nc)]) continue;
-        for (var si = 0; si < steps.length; si++) cannot[nr][nc][steps[si]] = true;
+        for (var s = 0; s < seqLen; s++) {
+          if (sequence[s] === exitColour) cannot[nr][nc][s] = true;
+        }
       }
-    }
-
-    var endIdx  = path.length - 1;
-    var endStep = endIdx % seqLen;
-    var endColour = sequence[endStep];
-    var sBefore = [];
-    for (var s = 0; s < seqLen; s++) {
-      if (sequence[s] === endColour) sBefore.push((s - 1 + seqLen) % seqLen);
-    }
-    forbidAdjacent(path[endIdx].row, path[endIdx].col, sBefore);
-
-    for (var i = 0; i < endIdx; i++) {
-      var step   = i % seqLen;
-      var before = (step - 1 + seqLen) % seqLen;
-      forbidAdjacent(path[i].row, path[i].col, [before]);
     }
 
     return cannot;
@@ -258,9 +259,9 @@
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
-      var path = generateSolutionPath(rows, cols, seqLength);
+      var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
-      if (hasShortcut(path, seqLength)) continue;
+      if (hasShortcut(path, seqLength, sequence)) continue;
 
       var isSol = {};
       var cellStep = [];
