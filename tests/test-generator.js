@@ -321,6 +321,98 @@ test('buildGrid: returns correct dimensions', function () {
   assert.strictEqual(grid[0].length, 3);
 });
 
+console.log('\n-- expandDeadEndsOnce --');
+
+test('expandDeadEndsOnce: assigns next step to a null neighbour', function () {
+  // 1x2 grid: cell (0,0) has step 0, cell (0,1) is null and step 1 is allowed
+  var cellStep = [[0, null]];
+  var cannot   = [[[false, false, false], [false, false, false]]];
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be assigned step 1');
+});
+
+test('expandDeadEndsOnce: returns true when an assignment was made', function () {
+  var cellStep = [[0, null]];
+  var cannot   = [[[false, false, false], [false, false, false]]];
+  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(changed, true);
+});
+
+test('expandDeadEndsOnce: returns false when no assignment was made', function () {
+  // cell (0,1) already assigned — nothing to do
+  var cellStep = [[0, 1]];
+  var cannot   = [[[false, false, false], [false, false, false]]];
+  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(changed, false);
+});
+
+test('expandDeadEndsOnce: does not assign a forbidden step', function () {
+  // cell (0,0) step 0, next=1; cell (0,1) null but step 1 is forbidden
+  var cellStep = [[0, null]];
+  var cannot   = [[[false, false, false], [false, true, false]]];
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], null, 'cell (0,1) should remain null');
+});
+
+test('expandDeadEndsOnce: wraps step seqLen-1 to step 0', function () {
+  // seqLen=3, cell (0,0) has step 2, next = (2+1)%3 = 0
+  var cellStep = [[2, null]];
+  var cannot   = [[[false, false, false], [false, false, false]]];
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 0, 'step should wrap to 0');
+});
+
+test('expandDeadEndsOnce: does not overwrite an already-assigned cell', function () {
+  // cell (0,0) step 0, cell (0,1) already step 2 — must not be overwritten
+  var cellStep = [[0, 2]];
+  var cannot   = [[[false, false, false], [false, false, false]]];
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 2, 'cell (0,1) should keep its original step');
+});
+
+test('expandDeadEndsOnce: scan-order means a backward chain needs a second pass', function () {
+  // 1x3: (0,2)=step 0. Scan goes left-to-right, so (0,0) and (0,1) are visited
+  // before (0,2) is processed. One pass assigns (0,1)=1 from (0,2); (0,0) is
+  // only reachable from (0,1) in a second pass.
+  var cellStep = [[null, null, 0]];
+  var cannot   = [[[false,false,false],[false,false,false],[false,false,false]]];
+  G._expandDeadEndsOnce(1, 3, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 1,    'cell (0,1) should be assigned step 1');
+  assert.strictEqual(cellStep[0][0], null, 'cell (0,0) should still be null after one pass');
+});
+
+console.log('\n-- buildDeadEnds --');
+
+test('buildDeadEnds: chains propagation across multiple cells', function () {
+  // 1x3: (0,0)=step 0; one call should chain through (0,1) and (0,2)
+  var cellStep = [[0, null, null]];
+  var cannot   = [[[false,false,false],[false,false,false],[false,false,false]]];
+  G._buildDeadEnds(1, 3, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be step 1');
+  assert.strictEqual(cellStep[0][2], 2, 'cell (0,2) should be step 2');
+});
+
+test('buildDeadEnds: stops when forbidden step blocks propagation', function () {
+  // 1x3: (0,0)=step 0; (0,1) allows step 1; (0,2) forbids step 2
+  var cellStep = [[0, null, null]];
+  var cannot   = [[[false,false,false],[false,false,false],[false,false,true]]];
+  G._buildDeadEnds(1, 3, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 1,    'cell (0,1) should be step 1');
+  assert.strictEqual(cellStep[0][2], null, 'cell (0,2) should remain null');
+});
+
+test('buildDeadEnds: propagates in all four directions from a seed cell', function () {
+  // 3x3 grid, centre (1,1) seeded at step 0; all neighbours null and unconstrained
+  var cellStep = [[null,null,null],[null,0,null],[null,null,null]];
+  var cannot   = [];
+  for (var r=0;r<3;r++){cannot[r]=[];for(var c=0;c<3;c++)cannot[r][c]=[false,false,false];}
+  G._buildDeadEnds(3, 3, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[0][1], 1, 'north neighbour gets step 1');
+  assert.strictEqual(cellStep[2][1], 1, 'south neighbour gets step 1');
+  assert.strictEqual(cellStep[1][0], 1, 'west neighbour gets step 1');
+  assert.strictEqual(cellStep[1][2], 1, 'east neighbour gets step 1');
+});
+
 console.log('\n-- Dead-end / Fill Pipeline --');
 
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {

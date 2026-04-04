@@ -234,27 +234,29 @@
     }
   }
 
-  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen) {
+  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-    var changed = true;
-    while (changed) {
-      changed = false;
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          if (cellStep[r][c] === null) continue;
-          var next = (cellStep[r][c] + 1) % seqLen;
-          for (var d = 0; d < DIRS.length; d++) {
-            var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
-            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-            if (cellStep[nr][nc] !== null) continue;
-            if (!cannot[nr][nc][next]) {
-              cellStep[nr][nc] = next;
-              changed = true;
-            }
+    var changed = false;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        if (cellStep[r][c] === null) continue;
+        var next = (cellStep[r][c] + 1) % seqLen;
+        for (var d = 0; d < DIRS.length; d++) {
+          var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          if (cellStep[nr][nc] !== null) continue;
+          if (!cannot[nr][nc][next]) {
+            cellStep[nr][nc] = next;
+            changed = true;
           }
         }
       }
     }
+    return changed;
+  }
+
+  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen) {
+    while (expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen)) {}
   }
 
   function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
@@ -309,7 +311,6 @@
       var cellStep = maps.cellStep;
 
       var cannot = buildCannot(rows, cols, path, seqLength, sequence);
-      propagateCannot(cannot, rows, cols, seqLength, isSol);
       buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
       fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
@@ -342,6 +343,7 @@
   exports._hasShortcut          = hasShortcut;
   exports._buildCannot          = buildCannot;
   exports._propagateCannot      = propagateCannot;
+  exports._expandDeadEndsOnce   = expandDeadEndsOnce;
   exports._buildDeadEnds        = buildDeadEnds;
   exports._fillRemaining        = fillRemaining;
 
