@@ -137,9 +137,7 @@ console.log('\n-- Cannot / Constraint Building --');
 test('buildCannot: non-sol cell adjacent to End cannot be step endStep-1', function () {
   // 3x3 grid, seqLen 3
   // path = [(2,0),(1,0),(0,0),(0,1),(0,2)]
-  // steps:    0     1     2     0     1
-  // End=(0,2), endStep=4%3=1, endColour=sequence[1]
-  // sequence[1]=sequence[1] => sBefore contains (1-1+3)%3=0
+  // End=(0,2), endStep=4%3=1, endColour=Y => sBefore contains (1-1+3)%3=0
   // Adjacent non-sol cells to (0,2): (1,2) is non-sol
   // So cannot[1][2][0] must be true
   var path = [
@@ -294,7 +292,33 @@ test('generateMaze(10,10, SEQUENCES[1]) completes without error', function () {
 console.log('\n-- Uniqueness solver --');
 
 function countSolutions(maze) {
-  return G._countSolutions(maze.rows, maze.cols, maze.grid, maze.sequence);
+  var seq     = maze.sequence;
+  var seqLen  = seq.length;
+  var rows    = maze.rows;
+  var cols    = maze.cols;
+  var DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
+  var visited = {};
+  var count   = 0;
+
+  visited[(rows - 1) + ',0'] = true;
+
+  (function dfs(r, c, step) {
+    if (count > 1) return;
+    if (r === 0 && c === cols - 1) { count++; return; }
+    var needed = seq[step % seqLen];
+    for (var i = 0; i < DIRS.length; i++) {
+      var nr = r + DIRS[i][0], nc = c + DIRS[i][1];
+      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+      var key = nr + ',' + nc;
+      if (visited[key]) continue;
+      if (maze.grid[nr][nc].colour !== needed) continue;
+      visited[key] = true;
+      dfs(nr, nc, step + 1);
+      delete visited[key];
+    }
+  }(rows - 1, 0, 1));
+
+  return count;
 }
 
 test('countSolutions returns 1 for a hand-crafted unique 3x3 maze', function () {

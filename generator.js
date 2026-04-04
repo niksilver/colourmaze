@@ -255,33 +255,6 @@
     }
   }
 
-  function countSolutions(rows, cols, grid, sequence) {
-    var seqLen = sequence.length;
-    var DIRS   = [[-1,0],[1,0],[0,-1],[0,1]];
-    var visited = {};
-    var count   = 0;
-
-    visited[(rows - 1) + ',0'] = true;
-
-    (function dfs(r, c, step) {
-      if (count > 1) return;
-      if (r === 0 && c === cols - 1) { count++; return; }
-      var needed = sequence[step % seqLen];
-      for (var i = 0; i < DIRS.length; i++) {
-        var nr = r + DIRS[i][0], nc = c + DIRS[i][1];
-        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-        var key = nr + ',' + nc;
-        if (visited[key]) continue;
-        if (grid[nr][nc].colour !== needed) continue;
-        visited[key] = true;
-        dfs(nr, nc, step + 1);
-        delete visited[key];
-      }
-    }(rows - 1, 0, 1));
-
-    return count;
-  }
-
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
@@ -311,7 +284,6 @@
           grid[r][c].colour = (s === -1) ? BLACK_COLOUR : sequence[s];
         }
       }
-      if (countSolutions(rows, cols, grid, sequence) !== 1) continue;
       return { grid: grid, sequence: sequence, rows: rows, cols: cols };
     }
     // Unreachable in practice — minimal fallback
@@ -336,7 +308,6 @@
   exports._propagateCannot      = propagateCannot;
   exports._buildDeadEnds        = buildDeadEnds;
   exports._fillRemaining        = fillRemaining;
-  exports._countSolutions       = countSolutions;
 
   if (typeof module !== 'undefined') module.exports = exports;
   else self.Generator = exports;   // self works in both Web Worker and browser window
