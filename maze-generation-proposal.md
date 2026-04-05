@@ -21,20 +21,21 @@ has all steps forbidden by the cannot constraints (see below).
 
 ## Process for maze generation
 
-- Generate solution path.
-- Check for shortcuts.
-- Calculate "cannot" data.
-- Fill dead-end extensions.
-- Fill remaining cells.
-- Colour the cells.
+- Generate solution path
+- Check for shortcuts
+- Prepare forbidden data
+- Prepare accessFrom data
+- Fill dead-end extensions
+- Fill remaining cells
+- Colour the cells
 
 Each step is described below.
 
 ## Generate solution path
 
 Generate a random path from Start (bottom-left) to End (top-right) using
-a depth-first search with backtracking. Each cell is visited at most once.
-The path must be at least `ceil(rows * cols * 0.4)` cells long.
+a depth-first search (DFS) with backtracking. Each cell is visited at most once.
+The path must be at most `ceil(rows * cols * 0.5)` cells long.
 
 During DFS, before extending to a candidate cell at path index k, we check
 all previously-visited path cells j that are grid-adjacent to the candidate.
@@ -60,41 +61,93 @@ the path, it checks whether:
 
 If so, the path is rejected. This is a safety net on top of the pruning.
 
-## Calculate "cannot" data
+## Prepare forbidden data
 
-To ensure there is only one solution, we mark certain steps as forbidden
-on non-solution cells adjacent to the solution path.
+Create a `forbidden` data structure that says for each cell which step(s)
+it cannot be. For example, `forbidden[3][4][2] == true` means cell (3,4)
+cannot be at step 2, while `forbidden[3][4][0] == false` means the same cell
+can be at step 2. Initially the value is false for every cell in the grid.
 
-For each non-End solution cell at path index i:
 
-1. Compute the **exit colour**: `sequence[(i % seqLen + 1) % seqLen]`.
-   This is the colour the player needs to leave this cell.
-2. Find **all steps** s where `sequence[s] === exitColour`.
-3. Mark all those steps as forbidden on every adjacent non-solution cell.
+## Prepare accessFrom data
 
-The End cell is excluded from this rule (there is no "next step" to leave it).
+We will need to track which non-solution cells are accessible from
+which solution-path cells at which step. We will need some functions
+backed by one or more data structures. Those data structures need
+to be initialised.
 
-**Why this works:** From any solution cell, the only adjacent cell with the
-exit colour is the next solution cell (the path pruning during generation
-prevents two non-consecutive solution cells from sharing a shortcut colour).
-Marking the exit colour forbidden on adjacent non-solution cells means the
-player cannot leave the solution path — from every solution cell, the only
-valid next move is to the next solution cell.
+`canAccessFrom(r, c)` returns a dict with key/value pairs
+`p: sList` where `sList` is a list of steps `s`. This means
+there is a path from solution path index `p` to (r,c), and when
+we arrive at (r,c) we will be at step `s`.
 
-A `propagateCannot` function exists that spreads these constraints
-transitively through non-solution cells (if cell C cannot be step t, then
-adjacent cells cannot be step t−1). It is implemented and exported but is
-not currently called in the main generation pipeline; the exit-colour
-constraints plus dead-end extension are sufficient in practice.
+`setAccessFrom(p, r, c, s)` adds `s` to the list of steps in `sList`
+for `canAccessFrom(r, c)`.
+It should return true if `s` was new to `sList`,
+and false if `s` was already present.
+
+`removeAccessFrom(p, r, c, s)` removes `s` from the list of steps in `sList`
+for `canAccessFrom(r, c)`.
+It should return true if `s` was present in `sList`,
+and false if `s` was not present.
+
 
 ## Fill dead-end extensions
 
-Repeatedly scan the grid. For each assigned cell (step s), if an adjacent
-unassigned cell is not forbidden for step `(s + 1) % seqLen`, assign it
-that step. Repeat until no more assignments can be made.
+Here we are creating misleading paths off the solution path.
+They should not create any new solutions.
 
-This "grows" the solution cells outward into branches, creating dead-end
-paths for the player to explore.
+Scan the grid. For each assigned cell (step s), and each
+adjacent unassigned cell that is not forbidden for step `(s + 1) % seqLen`
+attempt a candidate step `(s + 1) % seqLen` (see below).
+If the attempt is successful, just note that.
+If the attempt is not successful record that the cell is forbidden
+to be step `s` (true), and reset the cell to be unassigned.
+
+If the grid was scanned and at least one attempt at a candidate step
+was successful, then repeat the scan. We keep doing this until
+a scan produced no successful attempts of a candidate step.
+Then we have finished filling dead-end extensions.
+
+
+## Attempt a candidate step
+
+When we attempt a candidate step `s` at unassigned cell (r,c)
+we are calling `attemptCandidateStep(r, c, s)`.
+This will see if we can set unassigned (r,c) to be step `s` and without leading
+to any forbidden steps or creating a new path. It works as follows.
+
+First we set (r,c) to be step `s`.
+We also create an undo list which is initially empty.
+
+Next we scan the grid. When we find an assigned non-solution cell (r,c)
+we call `canAccessFrom(r, c)` and
+look at each path index `p` and each `s` in the `sList`.
+Then for each `p` and `s` we look at each assigned cell (rAdj,cAdj) adjacent
+to (r,c) and we get the colour `colAdj` of cell (rAdj,cAdj).
+We set `sAdj` to be `(s + 1) % seqLen`.
+
+If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p`
+then the attempt at a candidate step has failed (because we've learned that
+we've joined up to our solution path in a new place).
+We undo using the undo list (see below) and return a flag so say we were unsuccessful.
+
+If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p, rAdj, cAdj, sAdj)`.
+If this returns false then we just continue with our next `p` and `s`.
+If it returns true then we add [p, rAdj, cAdj, sAdj] to our undo list,
+we set a flag to say we've made some new progress. Then we continue with
+our next `p` and `s`.
+
+At the end of the grid scan we check to see if we made some new progress.
+If so, we reset that flag and scan again.
+If no new progress we return from `attemptCandidateStep()` saying
+we were successful.
+
+How to undo using the undo list:
+For each [p, rAdj, cAdj, sAdj] in the undo list we call
+`removeAccessFrom(p, rAdj, cAdj, sAdj)`. Each all should return
+false - it's a logical error otherwise (use assert).
+
 
 ## Fill remaining cells
 
