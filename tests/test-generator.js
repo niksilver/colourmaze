@@ -326,28 +326,28 @@ console.log('\n-- tryExtendFromCell --');
 test('tryExtendFromCell: assigns next step to a null neighbour', function () {
   var cellStep = [[0, null]];
   var cannot   = [[[false,false,false],[false,false,false]]];
-  G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  G._tryExtendFromCell(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {}, 0, 0);
   assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be assigned step 1');
 });
 
 test('tryExtendFromCell: returns true when an assignment was made', function () {
   var cellStep = [[0, null]];
   var cannot   = [[[false,false,false],[false,false,false]]];
-  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {}, 0, 0);
   assert.strictEqual(changed, true);
 });
 
 test('tryExtendFromCell: returns false when no null neighbours', function () {
   var cellStep = [[0, 1]];
   var cannot   = [[[false,false,false],[false,false,false]]];
-  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {}, 0, 0);
   assert.strictEqual(changed, false);
 });
 
 test('tryExtendFromCell: returns false when next step is forbidden on all null neighbours', function () {
   var cellStep = [[0, null]];
   var cannot   = [[[false,false,false],[false,true,false]]]; // step 1 forbidden on (0,1)
-  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, 0, 0);
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {}, 0, 0);
   assert.strictEqual(changed, false);
   assert.strictEqual(cellStep[0][1], null, 'cell (0,1) should remain null');
 });
@@ -357,7 +357,7 @@ test('tryExtendFromCell: assigns to multiple null neighbours', function () {
   var cellStep = [[null,null,null],[null,0,null],[null,null,null]];
   var cannot   = [];
   for (var r=0;r<3;r++){cannot[r]=[];for(var c=0;c<3;c++)cannot[r][c]=[false,false,false];}
-  G._tryExtendFromCell(3, 3, cellStep, cannot, 3, 1, 1);
+  G._tryExtendFromCell(3, 3, cellStep, cannot, 3, G.SEQUENCES[1], {}, 1, 1);
   assert.strictEqual(cellStep[0][1], 1, 'north gets step 1');
   assert.strictEqual(cellStep[2][1], 1, 'south gets step 1');
   assert.strictEqual(cellStep[1][0], 1, 'west gets step 1');
@@ -370,10 +370,59 @@ test('tryExtendFromCell: does not assign to out-of-bounds cells', function () {
   var cannot   = [];
   for (var r=0;r<2;r++){cannot[r]=[];for(var c=0;c<2;c++)cannot[r][c]=[false,false,false];}
   assert.doesNotThrow(function () {
-    G._tryExtendFromCell(2, 2, cellStep, cannot, 3, 0, 0);
+    G._tryExtendFromCell(2, 2, cellStep, cannot, 3, G.SEQUENCES[1], {}, 0, 0);
   });
   assert.strictEqual(cellStep[0][1], 1);
   assert.strictEqual(cellStep[1][0], 1);
+});
+
+console.log('\n-- tryExtendFromCell (same-colour reset) --');
+
+test('tryExtendFromCell: resets neighbour with same colour as next but cannot be next', function () {
+  // (0,0)=step 1 (B), next=2 (B). (0,1)=step 1 (B) — same colour as next (B).
+  // cannot[0][1][2]=true → (0,1) cannot be next. Reset to null; step 1 now forbidden.
+  var seq      = G.SEQUENCES[2]; // [R, B, B]
+  var cellStep = [[1, 1]];
+  var cannot   = [[[false,false,false],[false,false,true]]];
+  var isSol    = {};
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, seq, isSol, 0, 0);
+  assert.strictEqual(cellStep[0][1], null, 'cell (0,1) should be reset to null');
+  assert.strictEqual(cannot[0][1][1], true,  'current step 1 should now be forbidden');
+  assert.strictEqual(changed, true);
+});
+
+test('tryExtendFromCell: does not reset neighbour with same colour as next when it CAN be next', function () {
+  // (0,0)=step 1 (B), next=2 (B). (0,1)=step 1 (B) — same colour but step 2 is allowed.
+  var seq      = G.SEQUENCES[2]; // [R, B, B]
+  var cellStep = [[1, 1]];
+  var cannot   = [[[false,false,false],[false,false,false]]];
+  var isSol    = {};
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, seq, isSol, 0, 0);
+  assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should keep its step');
+  assert.strictEqual(changed, false);
+});
+
+test('tryExtendFromCell: does not reset neighbour whose colour differs from next', function () {
+  // (0,0)=step 1 (B), next=2 (B). (0,1)=step 0 (R) — different colour. No reset.
+  var seq      = G.SEQUENCES[2]; // [R, B, B]
+  var cellStep = [[1, 0]];
+  var cannot   = [[[false,false,false],[false,false,true]]];
+  var isSol    = {};
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, seq, isSol, 0, 0);
+  assert.strictEqual(cellStep[0][1], 0, 'cell (0,1) should keep its step');
+  assert.strictEqual(changed, false);
+});
+
+test('tryExtendFromCell: does not reset a solution cell', function () {
+  // (0,0)=step 1 (B), next=2 (B). (0,1)=step 1 (B), same colour, cannot be next —
+  // but (0,1) is a solution cell, so it must not be touched.
+  var seq      = G.SEQUENCES[2]; // [R, B, B]
+  var cellStep = [[1, 1]];
+  var cannot   = [[[false,false,false],[false,false,true]]];
+  var isSol    = { '0,1': true };
+  var changed  = G._tryExtendFromCell(1, 2, cellStep, cannot, 3, seq, isSol, 0, 0);
+  assert.strictEqual(cellStep[0][1], 1, 'solution cell should not be changed');
+  assert.strictEqual(changed, false);
 });
 
 console.log('\n-- expandDeadEndsOnce --');
@@ -382,14 +431,14 @@ test('expandDeadEndsOnce: assigns next step to a null neighbour', function () {
   // 1x2 grid: cell (0,0) has step 0, cell (0,1) is null and step 1 is allowed
   var cellStep = [[0, null]];
   var cannot   = [[[false, false, false], [false, false, false]]];
-  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be assigned step 1');
 });
 
 test('expandDeadEndsOnce: returns true when an assignment was made', function () {
   var cellStep = [[0, null]];
   var cannot   = [[[false, false, false], [false, false, false]]];
-  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(changed, true);
 });
 
@@ -397,7 +446,7 @@ test('expandDeadEndsOnce: returns false when no assignment was made', function (
   // cell (0,1) already assigned — nothing to do
   var cellStep = [[0, 1]];
   var cannot   = [[[false, false, false], [false, false, false]]];
-  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  var changed  = G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(changed, false);
 });
 
@@ -405,7 +454,7 @@ test('expandDeadEndsOnce: does not assign a forbidden step', function () {
   // cell (0,0) step 0, next=1; cell (0,1) null but step 1 is forbidden
   var cellStep = [[0, null]];
   var cannot   = [[[false, false, false], [false, true, false]]];
-  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], null, 'cell (0,1) should remain null');
 });
 
@@ -413,7 +462,7 @@ test('expandDeadEndsOnce: wraps step seqLen-1 to step 0', function () {
   // seqLen=3, cell (0,0) has step 2, next = (2+1)%3 = 0
   var cellStep = [[2, null]];
   var cannot   = [[[false, false, false], [false, false, false]]];
-  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 0, 'step should wrap to 0');
 });
 
@@ -421,7 +470,7 @@ test('expandDeadEndsOnce: does not overwrite an already-assigned cell', function
   // cell (0,0) step 0, cell (0,1) already step 2 — must not be overwritten
   var cellStep = [[0, 2]];
   var cannot   = [[[false, false, false], [false, false, false]]];
-  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3);
+  G._expandDeadEndsOnce(1, 2, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 2, 'cell (0,1) should keep its original step');
 });
 
@@ -431,7 +480,7 @@ test('expandDeadEndsOnce: scan-order means a backward chain needs a second pass'
   // only reachable from (0,1) in a second pass.
   var cellStep = [[null, null, 0]];
   var cannot   = [[[false,false,false],[false,false,false],[false,false,false]]];
-  G._expandDeadEndsOnce(1, 3, cellStep, cannot, 3);
+  G._expandDeadEndsOnce(1, 3, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 1,    'cell (0,1) should be assigned step 1');
   assert.strictEqual(cellStep[0][0], null, 'cell (0,0) should still be null after one pass');
 });
@@ -442,7 +491,7 @@ test('buildDeadEnds: chains propagation across multiple cells', function () {
   // 1x3: (0,0)=step 0; one call should chain through (0,1) and (0,2)
   var cellStep = [[0, null, null]];
   var cannot   = [[[false,false,false],[false,false,false],[false,false,false]]];
-  G._buildDeadEnds(1, 3, cellStep, cannot, 3);
+  G._buildDeadEnds(1, 3, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 1, 'cell (0,1) should be step 1');
   assert.strictEqual(cellStep[0][2], 2, 'cell (0,2) should be step 2');
 });
@@ -451,7 +500,7 @@ test('buildDeadEnds: stops when forbidden step blocks propagation', function () 
   // 1x3: (0,0)=step 0; (0,1) allows step 1; (0,2) forbids step 2
   var cellStep = [[0, null, null]];
   var cannot   = [[[false,false,false],[false,false,false],[false,false,true]]];
-  G._buildDeadEnds(1, 3, cellStep, cannot, 3);
+  G._buildDeadEnds(1, 3, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 1,    'cell (0,1) should be step 1');
   assert.strictEqual(cellStep[0][2], null, 'cell (0,2) should remain null');
 });
@@ -461,27 +510,30 @@ test('buildDeadEnds: propagates in all four directions from a seed cell', functi
   var cellStep = [[null,null,null],[null,0,null],[null,null,null]];
   var cannot   = [];
   for (var r=0;r<3;r++){cannot[r]=[];for(var c=0;c<3;c++)cannot[r][c]=[false,false,false];}
-  G._buildDeadEnds(3, 3, cellStep, cannot, 3);
+  G._buildDeadEnds(3, 3, cellStep, cannot, 3, G.SEQUENCES[1], {});
   assert.strictEqual(cellStep[0][1], 1, 'north neighbour gets step 1');
   assert.strictEqual(cellStep[2][1], 1, 'south neighbour gets step 1');
   assert.strictEqual(cellStep[1][0], 1, 'west neighbour gets step 1');
   assert.strictEqual(cellStep[1][2], 1, 'east neighbour gets step 1');
 });
 
-console.log('\n-- expandDeadEndsOnce uniqueness problem --');
+console.log('\n-- buildDeadEnds fix (3x2, [R,B,B]) --');
 
 // 3x2 grid (rows=3, cols=2), seq=[R,B,B]:
 //   (0,0)=B  (0,1)=R   <- End
 //   (1,0)=B  (1,1)=.
-//   (2,0)=R             <- Start (below the visible 2-row area)
+//   (2,0)=R             <- Start
 //
 // Path: (2,0) step 0 (R) -> (1,0) step 1 (B) -> (0,0) step 2 (B) -> (0,1) step 0 (R, End)
-// buildCannot seeds: cannot[1][1][0]=true (from (1,0) step 1) and
-//                    cannot[1][1][2]=true (from End sBefore).
-// expandDeadEndsOnce then assigns (1,1)=step 1 (B), propagating outward from (0,1).
-// This creates a second route: (2,0)->(1,0)->(1,1)->(0,1).
+//
+// Without the fix, (1,1) would be assigned step 1 (B) by the End cell (0,1), creating
+// the second route (2,0)->(1,0)->(1,1)->(0,1).
+//
+// With the fix: pass 1 of expandDeadEndsOnce temporarily assigns (1,1)=1, then (1,0)
+// detects the same-colour ambiguity (step 1 and step 2 are both B) and resets (1,1)
+// to null, setting cannot[1][1][1]=true.  Pass 2 finds no further assignments.
 
-test('expandDeadEndsOnce should not create a second solution in 3x2 [R,B,B] grid', function () {
+test('expandDeadEndsOnce fix: same-colour reset blocks second solution in 3x2 [R,B,B] grid', function () {
   var seq  = G.SEQUENCES[2]; // [R, B, B]
   var path = [
     { row: 2, col: 0 },  // step 0 (R) — Start
@@ -491,22 +543,36 @@ test('expandDeadEndsOnce should not create a second solution in 3x2 [R,B,B] grid
   ];
   var maps     = G._buildSolutionMaps(3, 2, path, 3);
   var cellStep = maps.cellStep;
+  var isSol    = maps.isSol;
   var cannot   = G._buildCannot(3, 2, path, 3, seq);
 
   // buildCannot seeds steps 0 and 2 as forbidden on (1,1), leaving step 1 allowed
   assert.strictEqual(cannot[1][1][0], true,  'step 0 should be forbidden on (1,1)');
-  assert.strictEqual(cannot[1][1][1], false, 'step 1 should remain allowed on (1,1)');
+  assert.strictEqual(cannot[1][1][1], false, 'step 1 should initially be allowed on (1,1)');
   assert.strictEqual(cannot[1][1][2], true,  'step 2 should be forbidden on (1,1)');
 
-  // expandDeadEndsOnce assigns step 1 (B) to (1,1), propagating from the End cell
-  G._expandDeadEndsOnce(3, 2, cellStep, cannot, 3);
-  assert.strictEqual(cellStep[1][1], 1, 'cell (1,1) should be assigned step 1 (B)');
+  // Pass 1: End (0,1) assigns (1,1)=1, then (1,0) resets it via the same-colour fix.
+  // (2,0) also assigns (2,1)=1 (unambiguous dead-end extension).
+  var changed1 = G._expandDeadEndsOnce(3, 2, cellStep, cannot, 3, seq, isSol);
+  assert.strictEqual(changed1, true, 'pass 1 should report changes');
+  assert.strictEqual(cellStep[1][1], null, '(1,1) should be reset to null by the fix');
+  assert.strictEqual(cannot[1][1][1], true, 'step 1 should now be forbidden on (1,1) after reset');
+  assert.strictEqual(cellStep[2][1], 1, '(2,1) should be assigned step 1');
 
-  // this creates a second route: (2,0)->(1,0)->(1,1)->(0,1)
+  // Pass 2: (1,1) cannot be any step; (2,1) is already assigned. Nothing to do.
+  var changed2 = G._expandDeadEndsOnce(3, 2, cellStep, cannot, 3, seq, isSol);
+  assert.strictEqual(changed2, false, 'pass 2 should report no changes');
+
+  // Grid with null (1,1) acts as a blocked cell — only one route exists.
   var grid = G._buildGrid(3, 2, cellStep, seq);
   var maze = { grid: grid, sequence: seq, rows: 3, cols: 2 };
-  assert.strictEqual(countSolutions(maze), 1,
-    'should have one solution but (2,0)->(1,0)->(1,1)->(0,1) is a second route');
+  assert.strictEqual(countSolutions(maze), 1, 'should have exactly one solution before fillRemaining');
+
+  // After fillRemaining, (1,1) → black (-1). Solution count unchanged.
+  G._fillRemaining(3, 2, cellStep, cannot, 3);
+  var grid2 = G._buildGrid(3, 2, cellStep, seq);
+  var maze2 = { grid: grid2, sequence: seq, rows: 3, cols: 2 };
+  assert.strictEqual(countSolutions(maze2), 1, 'should still have exactly one solution after fillRemaining');
 });
 
 console.log('\n-- Dead-end / Fill Pipeline --');
@@ -530,7 +596,7 @@ test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', fun
 
   var cannot = G._buildCannot(rows, cols, path, seqLen, seq);
   G._propagateCannot(cannot, rows, cols, seqLen, isSol);
-  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen);
+  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen, seq, isSol);
   G._fillRemaining(rows, cols, cellStep, cannot, seqLen);
 
   for (var r = 0; r < rows; r++) {
@@ -560,7 +626,7 @@ test('all assigned steps are in range [-1, seqLen-1] (5x5, seqLen 3)', function 
 
   var cannot = G._buildCannot(rows, cols, path, seqLen, seq);
   G._propagateCannot(cannot, rows, cols, seqLen, isSol);
-  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen);
+  G._buildDeadEnds(rows, cols, cellStep, cannot, seqLen, seq, isSol);
   G._fillRemaining(rows, cols, cellStep, cannot, seqLen);
 
   for (var r = 0; r < rows; r++) {

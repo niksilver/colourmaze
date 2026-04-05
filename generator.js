@@ -251,17 +251,31 @@
   }
 
   // Tries to assign the next sequence step to each null, non-forbidden neighbour of (r,c).
-  // Returns true if at least one neighbour was assigned.
-  function tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, r, c) {
+  // If a neighbour is already assigned a different step whose colour equals next's colour
+  // but cannot be next, it is reset to null and its current step is forbidden.
+  // Returns true if any assignment or reset was made.
+  function tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, sequence, isSol, r, c) {
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
     var next = (cellStep[r][c] + 1) % seqLen;
     var changed = false;
     for (var d = 0; d < DIRS.length; d++) {
       var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
       if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-      if (cellStep[nr][nc] !== null) continue;
-      if (!cannot[nr][nc][next]) {
-        cellStep[nr][nc] = next;
+      if (isSol[cellKey(nr, nc)]) continue;
+      if (cellStep[nr][nc] === next) continue;
+      if (cellStep[nr][nc] === null) {
+        if (!cannot[nr][nc][next]) {
+          cellStep[nr][nc] = next;
+          changed = true;
+        }
+        continue;
+      }
+      var currentCol = sequence[cellStep[nr][nc]];
+      var nextCol    = sequence[next];
+      if (currentCol !== nextCol) continue;
+      if (cannot[nr][nc][next]) {
+        cannot[nr][nc][cellStep[nr][nc]] = true;
+        cellStep[nr][nc] = null;
         changed = true;
       }
     }
@@ -270,12 +284,12 @@
 
   // Performs one full scan of all assigned cells and tries to extend each into its
   // null neighbours. Returns true if any new assignment was made.
-  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen) {
+  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen, sequence, isSol) {
     var changed = false;
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
         if (cellStep[r][c] === null) continue;
-        if (tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, r, c)) changed = true;
+        if (tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, sequence, isSol, r, c)) changed = true;
       }
     }
     return changed;
@@ -283,8 +297,8 @@
 
   // Repeatedly expands dead-end chains outward from already-assigned cells until
   // no further assignments are possible.
-  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen) {
-    while (expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen)) {}
+  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen, sequence, isSol) {
+    while (expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen, sequence, isSol)) {}
   }
 
   // Assigns a random permitted step to every still-unassigned cell.
@@ -349,7 +363,7 @@
       var cellStep = maps.cellStep;
 
       var cannot = buildCannot(rows, cols, path, seqLength, sequence);
-      buildDeadEnds(rows, cols, cellStep, cannot, seqLength);
+      buildDeadEnds(rows, cols, cellStep, cannot, seqLength, sequence, isSol);
       fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
       return {
