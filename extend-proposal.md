@@ -2,7 +2,7 @@
 
 First let's confirm the problem. Write the following test.
 
-Start with a 3x2 grid using sequence [R,B,B] that looks like this:
+Start with a 2x2 grid using sequence [R,B,B] that looks like this:
 
 B R
 B .
