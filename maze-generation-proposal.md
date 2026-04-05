@@ -35,7 +35,8 @@ Each step is described below.
 
 Generate a random path from Start (bottom-left) to End (top-right) using
 a depth-first search (DFS) with backtracking. Each cell is visited at most once.
-The path must be at most `ceil(rows * cols * 0.5)` cells long.
+The path must be at least `2 * (rows + cols)` cells long and
+at most `ceil(rows * cols * 0.5)` cells long.
 
 During DFS, before extending to a candidate cell at path index k, we check
 all previously-visited path cells j that are grid-adjacent to the candidate.
@@ -78,8 +79,8 @@ to be initialised.
 
 `canAccessFrom(r, c)` returns a dict with key/value pairs
 `p: sList` where `sList` is a list of steps `s`. This means
-there is a path from solution path index `p` to (r,c), and when
-we arrive at (r,c) we will be at step `s`.
+there is a path from solution path index `p` to (r,c), arriving at step `s`.
+Initially this dict is empty for every (r,c).
 
 `setAccessFrom(p, r, c, s)` adds `s` to the list of steps in `sList`
 for `canAccessFrom(r, c)`.
@@ -95,14 +96,14 @@ and false if `s` was not present.
 ## Fill dead-end extensions
 
 Here we are creating misleading paths off the solution path.
-They should not create any new solutions.
+They should not introduce any new solutions.
 
 Scan the grid. For each assigned cell (step s), and each
 adjacent unassigned cell that is not forbidden for step `(s + 1) % seqLen`
 attempt a candidate step `(s + 1) % seqLen` (see below).
 If the attempt is successful, just note that.
 If the attempt is not successful record that the cell is forbidden
-to be step `s` (true), and reset the cell to be unassigned.
+to be step `s` (true).
 
 If the grid was scanned and at least one attempt at a candidate step
 was successful, then repeat the scan. We keep doing this until
@@ -114,14 +115,16 @@ Then we have finished filling dead-end extensions.
 
 When we attempt a candidate step `s` at unassigned cell (r,c)
 we are calling `attemptCandidateStep(r, c, s)`.
-This will see if we can set unassigned (r,c) to be step `s` and without leading
+This will see if we can set unassigned (r,c) to be step `s` without leading
 to any forbidden steps or creating a new path. It works as follows.
+
+>>> How do we get the `p` path data into this structure????
 
 First we set (r,c) to be step `s`.
 We also create an undo list which is initially empty.
 
 Next we scan the grid. When we find an assigned non-solution cell (r,c)
-we call `canAccessFrom(r, c)` and
+we get the `canAccessFrom(r, c)` dict and
 look at each path index `p` and each `s` in the `sList`.
 Then for each `p` and `s` we look at each assigned cell (rAdj,cAdj) adjacent
 to (r,c) and we get the colour `colAdj` of cell (rAdj,cAdj).
@@ -147,6 +150,7 @@ How to undo using the undo list:
 For each [p, rAdj, cAdj, sAdj] in the undo list we call
 `removeAccessFrom(p, rAdj, cAdj, sAdj)`. Each all should return
 false - it's a logical error otherwise (use assert).
+Then reset (r,c) to be unassigned.
 
 
 ## Fill remaining cells
