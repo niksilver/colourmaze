@@ -468,6 +468,47 @@ test('buildDeadEnds: propagates in all four directions from a seed cell', functi
   assert.strictEqual(cellStep[1][2], 1, 'east neighbour gets step 1');
 });
 
+console.log('\n-- expandDeadEndsOnce uniqueness problem --');
+
+// 3x2 grid (rows=3, cols=2), seq=[R,B,B]:
+//   (0,0)=B  (0,1)=R   <- End
+//   (1,0)=B  (1,1)=.
+//   (2,0)=R             <- Start (below the visible 2-row area)
+//
+// Path: (2,0) step 0 (R) -> (1,0) step 1 (B) -> (0,0) step 2 (B) -> (0,1) step 0 (R, End)
+// buildCannot seeds: cannot[1][1][0]=true (from (1,0) step 1) and
+//                    cannot[1][1][2]=true (from End sBefore).
+// expandDeadEndsOnce then assigns (1,1)=step 1 (B), propagating outward from (0,1).
+// This creates a second route: (2,0)->(1,0)->(1,1)->(0,1).
+
+test('expandDeadEndsOnce should not create a second solution in 3x2 [R,B,B] grid', function () {
+  var seq  = G.SEQUENCES[2]; // [R, B, B]
+  var path = [
+    { row: 2, col: 0 },  // step 0 (R) — Start
+    { row: 1, col: 0 },  // step 1 (B)
+    { row: 0, col: 0 },  // step 2 (B)
+    { row: 0, col: 1 },  // step 0 (R) — End
+  ];
+  var maps     = G._buildSolutionMaps(3, 2, path, 3);
+  var cellStep = maps.cellStep;
+  var cannot   = G._buildCannot(3, 2, path, 3, seq);
+
+  // buildCannot seeds steps 0 and 2 as forbidden on (1,1), leaving step 1 allowed
+  assert.strictEqual(cannot[1][1][0], true,  'step 0 should be forbidden on (1,1)');
+  assert.strictEqual(cannot[1][1][1], false, 'step 1 should remain allowed on (1,1)');
+  assert.strictEqual(cannot[1][1][2], true,  'step 2 should be forbidden on (1,1)');
+
+  // expandDeadEndsOnce assigns step 1 (B) to (1,1), propagating from the End cell
+  G._expandDeadEndsOnce(3, 2, cellStep, cannot, 3);
+  assert.strictEqual(cellStep[1][1], 1, 'cell (1,1) should be assigned step 1 (B)');
+
+  // this creates a second route: (2,0)->(1,0)->(1,1)->(0,1)
+  var grid = G._buildGrid(3, 2, cellStep, seq);
+  var maze = { grid: grid, sequence: seq, rows: 3, cols: 2 };
+  assert.strictEqual(countSolutions(maze), 1,
+    'should have one solution but (2,0)->(1,0)->(1,1)->(0,1) is a second route');
+});
+
 console.log('\n-- Dead-end / Fill Pipeline --');
 
 test('after full pipeline no cell remains null in cellStep (5x5, seqLen 3)', function () {
