@@ -2,12 +2,14 @@
 
 First let's confirm the problem. Write the following test.
 
-Start with a 2x2 grid using sequence [R,B,B] that looks like this:
+Start with a 3x2 grid using sequence [R,B,B] that looks like this:
 
 B R
 B .
+R .
 
-The partial solution path is (1,0) step 1 -> (0,0) step 2 -> (0,1) step 3.
+The partial solution path is
+(2, 0) step 0, (1,0) step 1 -> (0,0) step 2 -> (0,1) step 3.
 
 If we run buildCannot() we should find that cell (1,1) cannot have steps 0 or 2.
 
@@ -15,14 +17,15 @@ If we run expandDeadEndsOnce() we should find that cell (1,1) has been given
 step 1, which is colour B.
 
 However, this is a problem because now we have a second solution path
-(1,0) step 1 -> (1,1) step 2 -> (0,1) step 3. The test should identify this
-second solution path and fail.
+(2, 0) step 0 -> (1,0) step 1 -> (1,1) step 2 -> (0,1) step 3.
+The test should identify this second solution path and fail.
 
 # Fixing the problem
 
 Function tryExtendFromCell() needs updated logic. For each direction from
 the given cell it should identify the new cell and next step, and do this:
 - If the new cell is off the grid, continue.
+- If the new cell is on the solution path, continue.
 - If the new cell is already set as the next step, continue.
 - If the new cell is null and it "cannot" be the next step then continue.
 - If the new cell is null and it's okay to be the next step (i.e. not "cannot") then
