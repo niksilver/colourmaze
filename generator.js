@@ -322,11 +322,27 @@
       return true;
     }
 
+    // Returns the union of all steps reachable at (r,c) across every solution
+    // path origin, derived directly from the accessFrom data structure.
+    // Returns [] if the cell has not been assigned any step.
+    function cellSteps(r, c) {
+      var accDict = af.canAccessFrom(r, c);
+      var steps = [];
+      for (var pStr in accDict) {
+        var sList = accDict[pStr];
+        for (var i = 0; i < sList.length; i++) {
+          if (steps.indexOf(sList[i]) === -1) steps.push(sList[i]);
+        }
+      }
+      return steps;
+    }
+
     return {
       cellStep:             cellStep,
       forbidden:            forbidden,
       isSol:                isSol,
       canAccessFrom:        af.canAccessFrom,
+      cellSteps:            cellSteps,
       attemptCandidateStep: attemptCandidateStep,
     };
   }

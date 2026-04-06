@@ -338,6 +338,35 @@ test('attemptCandidateStep: propagation updates canAccessFrom for a downstream c
   assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0], 1: [0] });
 });
 
+console.log('\n-- cellSteps and colour --');
+
+test('cellSteps: returns [] for an unassigned cell after initialisation', function () {
+  var seq  = G.SEQUENCES[1];
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  assert.deepStrictEqual(ctx.cellSteps(1, 1), []);
+  assert.deepStrictEqual(ctx.cellSteps(1, 2), []);
+  assert.deepStrictEqual(ctx.cellSteps(2, 1), []);
+  assert.deepStrictEqual(ctx.cellSteps(2, 2), []);
+});
+
+test('cellSteps: returns [step] for a solution cell after initialisation', function () {
+  var seq  = G.SEQUENCES[1];
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  assert.deepStrictEqual(ctx.cellSteps(2, 0), [0]); // path[0], step 0%3=0
+  assert.deepStrictEqual(ctx.cellSteps(1, 0), [1]); // path[1], step 1%3=1
+  assert.deepStrictEqual(ctx.cellSteps(0, 0), [2]); // path[2], step 2%3=2
+  assert.deepStrictEqual(ctx.cellSteps(0, 1), [0]); // path[3], step 3%3=0
+  assert.deepStrictEqual(ctx.cellSteps(0, 2), [1]); // path[4], step 4%3=1
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {
