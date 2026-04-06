@@ -24,6 +24,7 @@ has all steps forbidden by the forbidden constraints (see below).
 - Generate solution path
 - Check for shortcuts
 - Prepare forbidden data
+- Prepare cellSteps data
 - Prepare accessFrom data
 - Fill dead-end extensions
 - Fill remaining cells
@@ -102,6 +103,16 @@ and false if `p` doesn't exist, or if `s` was not present in the list for `p`.
 This should not leave an empty list; if `sList` is left empty then the
 corresponding `p` key should be removed.
 
+`cellSteps(r, c)` returns an array of steps that (r,c) can be at from
+anywhere on the solution path. It is the union of every `sList` in
+the dict of `canAccessFrom(r, c)`, and may be the empty list. It cannot
+be null.
+
+`colour(r, c)` returns the colour of (r,c) or null if it is not set to
+any colour. It is a convenience function. Internally it should check
+that every step `s` for (r,c) has the same colour, and fail with an
+assertion error if not.
+
 
 ## Fill dead-end extensions
 
@@ -129,10 +140,10 @@ Then we have finished filling dead-end extensions.
 When we attempt a candidate step `s` at unassigned cell (r,c) and
 originating at solution path index `p`
 we are calling `attemptCandidateStep(p, r, c, s)`.
-This will see if we can set unassigned (r,c) to be step `s` without leading
-creating a new path. It works as follows.
+This will see if we can allow unassigned (r,c) to be step `s` without
+creating a new path to End. It works as follows.
 
-First we set (r,c) to be step `s` and call
+First we
 `setAccessFrom(p, r, c, s)` which should return true (check with assert).
 We also create an undo list which initially just has the element
 [p, r, c, s].
@@ -176,7 +187,6 @@ How to undo using the undo list:
 For each [pU, rU, cU, sU] in the undo list we call
 `removeAccessFrom(pU, rU, cU, sU)`. Each call should return
 true - it's a logical error otherwise (use assert).
-Then reset (r,c) to be unassigned.
 
 
 ## Fill remaining cells
