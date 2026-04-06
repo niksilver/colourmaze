@@ -173,6 +173,85 @@ test('buildForbidden: all entries are initially false', function () {
         assert.strictEqual(f[r][c][s], false, 'f[' + r + '][' + c + '][' + s + '] should be false');
 });
 
+console.log('\n-- accessFrom --');
+
+// Shared path for all accessFrom tests: 3-cell column, seqLen 3.
+// path[0]=(2,0) step 0, path[1]=(1,0) step 1, path[2]=(0,0) step 2.
+var AF_PATH = [{ row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }];
+
+test('canAccessFrom: after initialisation, returns {} for a non-solution cell', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  assert.deepStrictEqual(af.canAccessFrom(2, 1), {});
+});
+
+test('canAccessFrom: after initialisation, returns {p:[s]} for each solution cell', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  assert.deepStrictEqual(af.canAccessFrom(2, 0), { 0: [0] });
+  assert.deepStrictEqual(af.canAccessFrom(1, 0), { 1: [1] });
+  assert.deepStrictEqual(af.canAccessFrom(0, 0), { 2: [2] });
+});
+
+test('setAccessFrom: returns true when s is new (new p key)', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  assert.strictEqual(af.setAccessFrom(0, 2, 1, 1), true);
+});
+
+test('setAccessFrom: returns false when s already present', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  assert.strictEqual(af.setAccessFrom(0, 2, 1, 1), false);
+});
+
+test('setAccessFrom: canAccessFrom reflects the addition', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  assert.deepStrictEqual(af.canAccessFrom(2, 1), { 0: [1] });
+});
+
+test('setAccessFrom: multiple steps accumulate for same p', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  af.setAccessFrom(0, 2, 1, 2);
+  var entry = af.canAccessFrom(2, 1);
+  assert.ok(entry[0].indexOf(1) !== -1, 'step 1 should be present');
+  assert.ok(entry[0].indexOf(2) !== -1, 'step 2 should be present');
+});
+
+test('setAccessFrom: multiple p keys coexist', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  af.setAccessFrom(1, 2, 1, 2);
+  var entry = af.canAccessFrom(2, 1);
+  assert.ok(entry[0] !== undefined, 'p=0 key should exist');
+  assert.ok(entry[1] !== undefined, 'p=1 key should exist');
+});
+
+test('removeAccessFrom: returns true when s was present and removes it', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  assert.strictEqual(af.removeAccessFrom(0, 2, 1, 1), true);
+  assert.deepStrictEqual(af.canAccessFrom(2, 1), {});
+});
+
+test('removeAccessFrom: removes p key when sList becomes empty', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  af.removeAccessFrom(0, 2, 1, 1);
+  var entry = af.canAccessFrom(2, 1);
+  assert.strictEqual(entry[0], undefined, 'p=0 key should be gone');
+});
+
+test('removeAccessFrom: returns false when p does not exist', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  assert.strictEqual(af.removeAccessFrom(5, 2, 1, 0), false);
+});
+
+test('removeAccessFrom: returns false when s not in sList for p', function () {
+  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  af.setAccessFrom(0, 2, 1, 1);
+  assert.strictEqual(af.removeAccessFrom(0, 2, 1, 2), false);
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {

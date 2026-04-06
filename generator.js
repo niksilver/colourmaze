@@ -148,6 +148,57 @@
     return false;
   }
 
+  // Builds the accessFrom data structure and returns an object exposing three
+  // functions: canAccessFrom, setAccessFrom, removeAccessFrom.
+  //
+  // The backing store is a dict keyed by cellKey(r,c).  Each value is an object
+  // whose keys are solution-path indices p and whose values are arrays of steps s,
+  // meaning there is a path from solution cell p to (r,c) arriving at step s.
+  //
+  // Solution cells are seeded at initialisation: path cell at index p with step
+  // p%seqLen gets entry {p: [p%seqLen]}.
+  function buildAccessFrom(rows, cols, path, seqLen) {
+    var store = {};
+
+    // Seed each solution cell with its own path index and step.
+    for (var i = 0; i < path.length; i++) {
+      var k = cellKey(path[i].row, path[i].col);
+      store[k] = {};
+      store[k][i] = [i % seqLen];
+    }
+
+    // Returns the live dict {p: [s, ...], ...} for cell (r,c), or {} if unknown.
+    function canAccessFrom(r, c) {
+      return store[cellKey(r, c)] || {};
+    }
+
+    // Adds step s to the sList for key p at cell (r,c).
+    // Returns true if s was new to that list, false if already present.
+    function setAccessFrom(p, r, c, s) {
+      var k = cellKey(r, c);
+      if (!store[k])    store[k]    = {};
+      if (!store[k][p]) store[k][p] = [];
+      if (store[k][p].indexOf(s) !== -1) return false;
+      store[k][p].push(s);
+      return true;
+    }
+
+    // Removes step s from the sList for key p at cell (r,c).
+    // Returns true if s was present, false if p or s was not found.
+    // Removes the p key if its sList becomes empty.
+    function removeAccessFrom(p, r, c, s) {
+      var k = cellKey(r, c);
+      if (!store[k] || !store[k][p]) return false;
+      var idx = store[k][p].indexOf(s);
+      if (idx === -1) return false;
+      store[k][p].splice(idx, 1);
+      if (store[k][p].length === 0) delete store[k][p];
+      return true;
+    }
+
+    return { canAccessFrom: canAccessFrom, setAccessFrom: setAccessFrom, removeAccessFrom: removeAccessFrom };
+  }
+
   // Allocates a rows×cols×seqLen array of booleans, all initialised to false.
   // forbidden[r][c][s] is set to true during dead-end extension whenever
   // attemptCandidateStep determines that assigning step s to cell (r,c) would
@@ -250,6 +301,7 @@
   exports._buildSolutionMaps    = buildSolutionMaps;
   exports._buildGrid            = buildGrid;
   exports._hasShortcut          = hasShortcut;
+  exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
   exports._fillRemaining        = fillRemaining;
 
