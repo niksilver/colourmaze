@@ -82,7 +82,9 @@ to be initialised.
 `canAccessFrom(r, c)` returns a dict with key/value pairs
 `p: sList` where `sList` is a list of steps `s`. This means
 there is a path from solution path index `p` to (r,c), arriving at step `s`.
-Initially this dict is empty for every (r,c).
+Initially a call to `canAccessFrom(r, c)` will return an empty
+dict if (r,c) is not on the solution path, but if (r,c) is on the solution
+path at index `p` and step `s` then it will return `{p: [s]}`.
 
 `setAccessFrom(p, r, c, s)` adds `s` to the list of steps in `sList`
 for `canAccessFrom(r, c)`.
