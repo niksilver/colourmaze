@@ -286,6 +286,40 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
   assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
 });
 
+test('attemptCandidateStep: returns false when cell adjacent to End creates second route of a different step but same colour', function () {
+  // seq=[R,B,B]: step 1 and step 2 are both blue.
+  // End (0,2) has step 1 (B). Assigning step 1 to (1,2): sAdj=2, colour(2)=B == End's colour.
+  // Condition 2 fires on colour equality even though sAdj(2) != End's step(1).
+  var seq  = G.SEQUENCES[2]; // [R, B, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  var result = ctx.attemptCandidateStep(0, 1, 2, 1);
+  assert.strictEqual(result, false, 'should return false (same-colour second route to End)');
+  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+});
+
+test('attemptCandidateStep: propagation updates canAccessFrom for a downstream cell', function () {
+  // 3×3, seq=[R,Y,B]. Solution: (2,0)[R0]→(1,0)[Y1]→(0,0)[B2]→(0,1)[R0]→(0,2)[Y1].
+  // Assign step 2 (B) to (1,1) from p=1 (solution cell (1,0)[Y1], adjacent to (1,1)).
+  // The scan sees (1,1) at s0=2, sAdj=0 — (0,1)[R0] is adjacent and colour matches,
+  // so canAccessFrom(0,1) gains the new entry {1:[0]}.
+  // NOTE: once condition 3 is implemented this call will return false, because (0,1)
+  // is a solution cell at path index 3 (≠ p=1) and sAdj=0 matches its step — so this
+  // test will need updating at that point.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  var result = ctx.attemptCandidateStep(1, 1, 1, 2);
+  assert.strictEqual(result, true);
+  assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0], 1: [0] });
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {

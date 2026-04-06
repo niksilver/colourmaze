@@ -282,18 +282,7 @@
     // On failure, undoes all changes and resets cellStep[r][c] to null.
     function attemptCandidateStep(p, r, c, s) {
       cellStep[r][c] = s;
-      var seeded = af.setAccessFrom(p, r, c, s);
-      if (!seeded) throw new Error('attemptCandidateStep: setAccessFrom returned false on initial seed');
-
-      var undoList = [[p, r, c, s]];
-
-      function undo() {
-        // Roll back every setAccessFrom call recorded in undoList.
-        for (var u = 0; u < undoList.length; u++) {
-          af.removeAccessFrom(undoList[u][0], undoList[u][1], undoList[u][2], undoList[u][3]);
-        }
-        cellStep[r][c] = null;
-      }
+      af.setAccessFrom(p, r, c, s);
 
       var progress = true;
       while (progress) {
@@ -331,17 +320,14 @@
                   // Condition 2: adj is End and its colour matches what the player
                   // needs next — a second route to End has been found; fail.
                   if (adjKey === endKey && sequence[sAdj] === colAdj) {
-                    undo();
+                    cellStep[r][c] = null;
                     return false;
                   }
 
                   // Propagate reachability.
                   if (sequence[sAdj] === colAdj) {
                     var added = af.setAccessFrom(p0, rAdj, cAdj, sAdj);
-                    if (added) {
-                      undoList.push([p0, rAdj, cAdj, sAdj]);
-                      progress = true;
-                    }
+                    if (added) progress = true;
                   }
                 }
               }
