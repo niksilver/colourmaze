@@ -148,6 +148,22 @@
     return false;
   }
 
+  // Allocates a rows×cols×seqLen array of booleans, all initialised to false.
+  // forbidden[r][c][s] is set to true during dead-end extension whenever
+  // attemptCandidateStep determines that assigning step s to cell (r,c) would
+  // create a second solution path.
+  function buildForbidden(rows, cols, seqLen) {
+    var forbidden = [];
+    for (var r = 0; r < rows; r++) {
+      forbidden[r] = [];
+      for (var c = 0; c < cols; c++) {
+        forbidden[r][c] = [];
+        for (var s = 0; s < seqLen; s++) forbidden[r][c][s] = false;
+      }
+    }
+    return forbidden;
+  }
+
   // Assigns a random permitted step to every still-unassigned cell.
   // If all steps are forbidden for a cell, assigns -1 (rendered black).
   function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
@@ -234,6 +250,7 @@
   exports._buildSolutionMaps    = buildSolutionMaps;
   exports._buildGrid            = buildGrid;
   exports._hasShortcut          = hasShortcut;
+  exports._buildForbidden       = buildForbidden;
   exports._fillRemaining        = fillRemaining;
 
   if (typeof module !== 'undefined') module.exports = exports;

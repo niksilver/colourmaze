@@ -151,6 +151,28 @@ test('_createGrid returns correct dimensions', function () {
   assert.strictEqual(grid[0][0].colour, null);
 });
 
+console.log('\n-- buildForbidden --');
+
+test('buildForbidden: returns rows×cols array', function () {
+  var f = G._buildForbidden(3, 4, 2);
+  assert.strictEqual(f.length, 3);
+  assert.strictEqual(f[0].length, 4);
+});
+
+test('buildForbidden: each cell has seqLen entries', function () {
+  var f = G._buildForbidden(2, 2, 5);
+  assert.strictEqual(f[0][0].length, 5);
+  assert.strictEqual(f[1][1].length, 5);
+});
+
+test('buildForbidden: all entries are initially false', function () {
+  var f = G._buildForbidden(2, 3, 3);
+  for (var r = 0; r < 2; r++)
+    for (var c = 0; c < 3; c++)
+      for (var s = 0; s < 3; s++)
+        assert.strictEqual(f[r][c][s], false, 'f[' + r + '][' + c + '][' + s + '] should be false');
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {
