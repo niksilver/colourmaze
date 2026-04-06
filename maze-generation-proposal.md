@@ -31,6 +31,7 @@ has all steps forbidden by the cannot constraints (see below).
 
 Each step is described below.
 
+
 ## Generate solution path
 
 Generate a random path from Start (bottom-left) to End (top-right) using
@@ -61,6 +62,7 @@ the path, it checks whether:
     sequence[(i + 1) % seqLen] === sequence[j % seqLen]
 
 If so, the path is rejected. This is a safety net on top of the pruning.
+
 
 ## Prepare forbidden data
 
