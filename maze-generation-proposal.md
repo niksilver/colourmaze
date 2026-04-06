@@ -17,7 +17,7 @@ the starting cell they are on the first step of the sequence.
 
 We will also allow grid cells to be a non-sequence colour. This is
 rendered as black. We use the non-sequence colour only when a cell
-has all steps forbidden by the cannot constraints (see below).
+has all steps forbidden by the forbidden constraints (see below).
 
 ## Process for maze generation
 
@@ -76,8 +76,10 @@ can be at step 0. Initially the value is false for every cell in the grid.
 
 We will need to track which non-solution cells are accessible from
 which solution-path cells at which step. This mechanism will also track
-how each solution cell is accessed from the previous (and only previous)
-solution cell. We will need some functions
+where each solution cell is in the solution path, but not paths from
+previous solution cells.
+
+We will need some functions
 backed by one or more data structures. Those data structures need
 to be initialised.
 
@@ -89,14 +91,16 @@ dict if (r,c) is not on the solution path, but if (r,c) is on the solution
 path at index `p` and step `s` then it will return `{p: [s]}`.
 
 `setAccessFrom(p, r, c, s)` adds `s` to the list of steps in `sList`
-for `canAccessFrom(r, c)`.
+for `canAccessFrom(r, c)`, adding a new key `p` if necessary.
 It should return true if `s` was new to `sList`,
 and false if `s` was already present.
 
 `removeAccessFrom(p, r, c, s)` removes `s` from the list of steps in `sList`
 for `canAccessFrom(r, c)`.
 It should return true if `s` was present in `sList`,
-and false if `s` was not present.
+and false if `p` doesn't exist, or if `s` was not present in the list for `p`.
+This should not leave an empty list; if `sList` is left empty then the
+corresponding `p` key should be removed.
 
 
 ## Fill dead-end extensions
@@ -105,7 +109,9 @@ Here we are creating misleading paths off the solution path.
 They should not introduce any new solutions.
 
 Scan the grid. For each assigned cell (r,c) get the dict
-`canAccessFrom(r,c)` and look at each `p` and `s`. Then for each
+`canAccessFrom(r,c)` and look at each `p` and `s`. (We will treat this dict
+as a live view, so any new `p` and `s` entries added while processing
+this cell are consumed in the current pass.) Then for each
 adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
 `(s + 1) % seqLen` attempt a candidate step `(s + 1) % seqLen` (see below).
 If the attempt is successful, just note that.
