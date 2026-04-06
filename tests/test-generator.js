@@ -272,6 +272,20 @@ test('attemptCandidateStep: returns true and assigns step for a safe cell', func
   assert.deepStrictEqual(ctx.canAccessFrom(2, 1), { 0: [1] });
 });
 
+test('attemptCandidateStep: returns false when cell adjacent to End creates second route', function () {
+  // End (0,2) has step 1 (Y). Assigning step 0 (R) to (1,2) means the player
+  // can walk (1,2)→(0,2), a second route to End.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  var result = ctx.attemptCandidateStep(0, 1, 2, 0);
+  assert.strictEqual(result, false, 'should return false (second route to End)');
+  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {
