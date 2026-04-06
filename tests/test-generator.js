@@ -268,7 +268,7 @@ test('attemptCandidateStep: returns true and assigns step for a safe cell', func
 
   var result = ctx.attemptCandidateStep(0, 2, 1, 1);
   assert.strictEqual(result, true, 'should return true (success)');
-  assert.strictEqual(ctx.cellStep[2][1], 1, 'cell (2,1) should be assigned step 1');
+  assert.deepStrictEqual(ctx.cellSteps(2, 1), [1], 'cell (2,1) should be assigned step 1');
   assert.deepStrictEqual(ctx.canAccessFrom(2, 1), { 0: [1] });
 });
 
@@ -283,7 +283,7 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
   var ctx = G._buildMazeState(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(0, 1, 2, 0);
   assert.strictEqual(result, false, 'should return false (second route to End)');
-  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+  assert.deepStrictEqual(ctx.cellSteps(1, 2), [], 'cell should be unassigned after failure');
 });
 
 test('attemptCandidateStep: returns false when cell adjacent to End creates second route of a different step but same colour', function () {
@@ -298,7 +298,7 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
   var ctx = G._buildMazeState(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(0, 1, 2, 1);
   assert.strictEqual(result, false, 'should return false (same-colour second route to End)');
-  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+  assert.deepStrictEqual(ctx.cellSteps(1, 2), [], 'cell should be unassigned after failure');
 });
 
 /*

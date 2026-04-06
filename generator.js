@@ -275,7 +275,7 @@
     // Assigns step s to unassigned cell (r,c) from solution path index p.
     // Propagates reachability and detects second routes to End.
     // Returns true on success (no second solution created), false otherwise.
-    // On failure, undoes all changes and resets cellStep[r][c] to null.
+    // On failure, undoes all canAccessFrom changes made during this call.
     // Throws if s has a different colour from steps already assigned to (r,c).
     function attemptCandidateStep(p, r, c, s) {
       // Check colour consistency before assigning.
@@ -285,8 +285,13 @@
           throw new Error('colour conflict: cell (' + r + ',' + c + ') has step ' + existingSteps[ei] + ' (' + sequence[existingSteps[ei]] + ') but new step ' + s + ' is ' + sequence[s]);
       }
 
-      cellStep[r][c] = s;
+      var undoList = [[p, r, c, s]];
       af.setAccessFrom(p, r, c, s);
+
+      function undoAll() {
+        for (var ui = 0; ui < undoList.length; ui++)
+          af.removeAccessFrom(undoList[ui][0], undoList[ui][1], undoList[ui][2], undoList[ui][3]);
+      }
 
       var progress = true;
       while (progress) {
@@ -294,7 +299,7 @@
         // Outer scan: visit every assigned cell in the grid.
         for (var r0 = 0; r0 < rows; r0++) {
           for (var c0 = 0; c0 < cols; c0++) {
-            if (cellStep[r0][c0] === null) continue;
+            if (cellSteps(r0, c0).length === 0) continue;
             var r0Key   = cellKey(r0, c0);
             var accDict = af.canAccessFrom(r0, c0);
             // For each (p0, s0) recorded as reaching (r0,c0).
@@ -309,29 +314,31 @@
                 for (var d = 0; d < DIRS.length; d++) {
                   var rAdj = r0 + DIRS[d][0], cAdj = c0 + DIRS[d][1];
                   if (rAdj < 0 || rAdj >= rows || cAdj < 0 || cAdj >= cols) continue;
-                  if (cellStep[rAdj][cAdj] === null) continue;
+                  var colAdj = colour(rAdj, cAdj);
+                  if (colAdj === null) continue;
                   var adjKey = cellKey(rAdj, cAdj);
-                  var colAdj = cellStep[rAdj][cAdj] === -1
-                    ? BLACK_COLOUR : sequence[cellStep[rAdj][cAdj]];
 
                   // Condition 1: both cells are consecutive solution-path cells —
                   // this is the intended route, not a new one; skip.
-                  if (isSol[r0Key] && cellStep[r0][c0] === s0 &&
-                      isSol[adjKey] && cellStep[rAdj][cAdj] === sAdj) {
+                  if (isSol[r0Key] && isSol[adjKey] &&
+                      cellSteps(rAdj, cAdj).includes(sAdj)) {
                     continue;
                   }
 
                   // Condition 2: adj is End and its colour matches what the player
                   // needs next — a second route to End has been found; fail.
                   if (adjKey === endKey && sequence[sAdj] === colAdj) {
-                    cellStep[r][c] = null;
+                    undoAll();
                     return false;
                   }
 
                   // Propagate reachability.
                   if (sequence[sAdj] === colAdj) {
                     var added = af.setAccessFrom(p0, rAdj, cAdj, sAdj);
-                    if (added) progress = true;
+                    if (added) {
+                      undoList.push([p0, rAdj, cAdj, sAdj]);
+                      progress = true;
+                    }
                   }
                 }
               }
