@@ -124,7 +124,8 @@ we are calling `attemptCandidateStep(p, r, c, s)`.
 This will see if we can set unassigned (r,c) to be step `s` without leading
 to any forbidden steps or creating a new path. It works as follows.
 
-First we set (r,c) to be step `s`.
+First we set (r,c) to be step `s` and call
+`setAccessFrom(p, r, c, s)` which should return true (check with assert).
 We also create an undo list which initially just has the element
 [p, r, c, s].
 
@@ -143,7 +144,7 @@ We undo using the undo list (see below) and return a flag to say we were unsucce
 
 If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
 If this returns false then we just continue with our next `p0` and `s0`.
-If it returns true then we add [p, rAdj, cAdj, sAdj] to our undo list,
+If it returns true then we add [p0, rAdj, cAdj, sAdj] to our undo list,
 we set a flag to say we've made some progress. Then we continue with
 our next `p0` and `s0`.
 Note that in this case it's okay if (rAdj,cAdj) are on the solution path
@@ -158,7 +159,7 @@ we were successful.
 How to undo using the undo list:
 For each [p, rAdj, cAdj, sAdj] in the undo list we call
 `removeAccessFrom(p, rAdj, cAdj, sAdj)`. Each call should return
-false - it's a logical error otherwise (use assert).
+true - it's a logical error otherwise (use assert).
 Then reset (r,c) to be unassigned.
 
 
