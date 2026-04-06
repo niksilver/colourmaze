@@ -252,6 +252,26 @@ test('removeAccessFrom: returns false when s not in sList for p', function () {
   assert.strictEqual(af.removeAccessFrom(0, 2, 1, 2), false);
 });
 
+console.log('\n-- attemptCandidateStep (success path) --');
+
+test('attemptCandidateStep: returns true and assigns step for a safe cell', function () {
+  // 3×3 grid, seq=[R,Y,B]. Solution: (2,0)→(1,0)→(0,0)→(0,1)→(0,2).
+  // Steps: 0,1,2,0,1.
+  // Attempt: assign step 1 to (2,1) from p=0 (Start cell at (2,0)).
+  // (2,1)'s only assigned neighbour is (2,0) — no condition 2 or 3 can fire.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+
+  var result = ctx.attemptCandidateStep(0, 2, 1, 1);
+  assert.strictEqual(result, true, 'should return true (success)');
+  assert.strictEqual(ctx.cellStep[2][1], 1, 'cell (2,1) should be assigned step 1');
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 1), { 0: [1] });
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {

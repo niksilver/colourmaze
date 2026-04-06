@@ -261,6 +261,33 @@
     return grid;
   }
 
+  // Bundles all mutable maze state and methods that operate on it, so those
+  // methods only need (p, r, c, s) style arguments via closure.
+  function buildMazeState(rows, cols, path, sequence) {
+    var seqLen   = sequence.length;
+    var maps     = buildSolutionMaps(rows, cols, path, seqLen);
+    var isSol    = maps.isSol;
+    var cellStep = maps.cellStep;
+    var forbidden = buildForbidden(rows, cols, seqLen);
+    var af        = buildAccessFrom(rows, cols, path, seqLen);
+
+    // Assigns step s to unassigned cell (r,c) from solution path index p.
+    // Returns true on success (no second solution created), false otherwise.
+    function attemptCandidateStep(p, r, c, s) {
+      cellStep[r][c] = s;
+      af.setAccessFrom(p, r, c, s);
+      return true;
+    }
+
+    return {
+      cellStep:             cellStep,
+      forbidden:            forbidden,
+      isSol:                isSol,
+      canAccessFrom:        af.canAccessFrom,
+      attemptCandidateStep: attemptCandidateStep,
+    };
+  }
+
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
   // to top-right. Tries up to 500 times to find a valid solution path.
   // Returns { grid, sequence, rows, cols }.
@@ -304,6 +331,7 @@
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
   exports._fillRemaining        = fillRemaining;
+  exports._buildMazeState       = buildMazeState;
 
   if (typeof module !== 'undefined') module.exports = exports;
   else self.Generator = exports;   // self works in both Web Worker and browser window
