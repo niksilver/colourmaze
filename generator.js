@@ -259,11 +259,32 @@
 
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 
+    // Returns the colour that (r,c) maps to, or null if unassigned.
+    // Throws if the cell's steps map to more than one colour.
+    function colour(r, c) {
+      var steps = cellSteps(r, c);
+      if (steps.length === 0) return null;
+      var col = sequence[steps[0]];
+      for (var i = 1; i < steps.length; i++) {
+        if (sequence[steps[i]] !== col)
+          throw new Error('colour conflict at (' + r + ',' + c + '): step ' + steps[0] + ' is ' + col + ' but step ' + steps[i] + ' is ' + sequence[steps[i]]);
+      }
+      return col;
+    }
+
     // Assigns step s to unassigned cell (r,c) from solution path index p.
     // Propagates reachability and detects second routes to End.
     // Returns true on success (no second solution created), false otherwise.
     // On failure, undoes all changes and resets cellStep[r][c] to null.
+    // Throws if s has a different colour from steps already assigned to (r,c).
     function attemptCandidateStep(p, r, c, s) {
+      // Check colour consistency before assigning.
+      var existingSteps = cellSteps(r, c);
+      for (var ei = 0; ei < existingSteps.length; ei++) {
+        if (sequence[existingSteps[ei]] !== sequence[s])
+          throw new Error('colour conflict: cell (' + r + ',' + c + ') has step ' + existingSteps[ei] + ' (' + sequence[existingSteps[ei]] + ') but new step ' + s + ' is ' + sequence[s]);
+      }
+
       cellStep[r][c] = s;
       af.setAccessFrom(p, r, c, s);
 
@@ -342,7 +363,9 @@
       forbidden:            forbidden,
       isSol:                isSol,
       canAccessFrom:        af.canAccessFrom,
+      setAccessFrom:        af.setAccessFrom,
       cellSteps:            cellSteps,
+      colour:               colour,
       attemptCandidateStep: attemptCandidateStep,
     };
   }

@@ -95,6 +95,8 @@ path at index `p` and step `s` then it will return `{p: [s]}`.
 for `canAccessFrom(r, c)`, adding a new key `p` if necessary.
 It should return true if `s` was new to `sList`,
 and false if `s` was already present.
+It should throw an error if setting a step whose colour does not match an
+existing step for that cell.
 
 `removeAccessFrom(p, r, c, s)` removes `s` from the list of steps in `sList`
 for `canAccessFrom(r, c)`.
@@ -111,7 +113,8 @@ be null.
 `colour(r, c)` returns the colour of (r,c) or null if it is not set to
 any colour. It is a convenience function. Internally it should check
 that every step `s` for (r,c) has the same colour, and fail with an
-assertion error if not.
+assertion error if not. However, logically that should never happen
+as we're protected by the error in `setAccessFrom()`.
 
 
 ## Fill dead-end extensions
