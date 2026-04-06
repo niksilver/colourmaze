@@ -103,12 +103,12 @@ Here we are creating misleading paths off the solution path.
 They should not introduce any new solutions.
 
 Scan the grid. For each assigned cell (r,c) get the dict
-`canAccessFrom(r,c)` and look at each `p` and `s`. The for each
-adjacent unassigned cell that is not forbidden for step `(s + 1) % seqLen`
-attempt a candidate step `(s + 1) % seqLen` (see below).
+`canAccessFrom(r,c)` and look at each `p` and `s`. Then for each
+adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
+`(s + 1) % seqLen` attempt a candidate step `(s + 1) % seqLen` (see below).
 If the attempt is successful, just note that.
-If the attempt is not successful record that the cell is forbidden
-to be step `s` (true).
+If the attempt is not successful record that (rAdj,cAdj) is forbidden
+to be step `(s + 1) % seqLen` (true).
 
 If the grid was scanned and at least one attempt at a candidate step
 was successful, then repeat the scan. We keep doing this until
@@ -128,24 +128,27 @@ First we set (r,c) to be step `s`.
 We also create an undo list which initially just has the element
 [p, r, c, s].
 
-Next we scan the grid. When we find an assigned non-solution cell (r,c)
-we get the `canAccessFrom(r, c)` dict and
-look at each path index `p` and each `s` in the `sList`.
-Then for each `p` and `s` we look at each assigned cell (rAdj,cAdj) adjacent
-to (r,c) and we get the colour `colAdj` of cell (rAdj,cAdj).
-We set `sAdj` to be `(s + 1) % seqLen`.
+Next we scan the grid. When we find an assigned non-solution cell (r0,c0)
+we get the `canAccessFrom(r0, c0)` dict and
+look at each path index `p0` and each `s0` in the `sList`.
+Then for each `p0` and `s0` we look at each assigned cell (rAdj,cAdj) adjacent
+to (r0,c0) and we get the colour `colAdj` of cell (rAdj,cAdj).
+We set `sAdj` to be `(s0 + 1) % seqLen`.
 
-If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p`
-and `sAdj` is the step on solution path index `p`
+If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p0`
+and `sAdj` is the step on solution path index `pAdj`
 then the attempt at a candidate step has failed (because we've learned that
 we've joined up to our solution path in a new place).
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
-If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p, rAdj, cAdj, sAdj)`.
-If this returns false then we just continue with our next `p` and `s`.
+If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
+If this returns false then we just continue with our next `p0` and `s0`.
 If it returns true then we add [p, rAdj, cAdj, sAdj] to our undo list,
 we set a flag to say we've made some progress. Then we continue with
-our next `p` and `s`.
+our next `p0` and `s0`.
+Note that in this case it's okay if (rAdj,cAdj) are on the solution path
+because it's possible a dead-path may cross the solution at a different
+step without leading to a second solution.
 
 At the end of the grid scan we check to see if we made some progress.
 If so, we reset the progress flag and scan again.
