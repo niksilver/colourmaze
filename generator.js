@@ -148,159 +148,6 @@
     return false;
   }
 
-  // Seeds forbidden-step constraints on non-solution cells adjacent to the solution path.
-  // For each non-End solution cell at step s, forbids step (s-1) on adjacent non-sol cells.
-  // For the End cell, forbids all steps that could deliver a player into End (sBefore).
-  // Returns a rows×cols array where cannot[r][c][s] is true if step s is forbidden at (r,c).
-  function buildCannot(rows, cols, path, seqLen, sequence) {
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-    var isSol = {};
-    for (var i = 0; i < path.length; i++) {
-      isSol[cellKey(path[i].row, path[i].col)] = true;
-    }
-
-    var cannot = [];
-    for (var r = 0; r < rows; r++) {
-      cannot[r] = [];
-      for (var c = 0; c < cols; c++) {
-        cannot[r][c] = [];
-        for (var s = 0; s < seqLen; s++) cannot[r][c][s] = false;
-      }
-    }
-
-    // Entry-step constraint: for each solution cell at step s, a player at an
-    // adjacent non-sol cell at step (s-1) could move into it and then follow
-    // the solution to End, creating an alternative route.  Forbid that entry
-    // step on all adjacent non-sol cells.
-    //
-    // End cell needs extra care with repeated-colour sequences: if End has
-    // colour C, any step r where sequence[(r+1)%seqLen]===C allows entry, so
-    // all such r are forbidden (not just (endStep-1+seqLen)%seqLen).
-    // Non-End cells: only the single step (s-1+seqLen)%seqLen is forbidden.
-    // Even if a player enters a non-End sol cell at the wrong absolute step,
-    // the subsequent sol cell won't match the required colour, so they stall.
-    var endIdx   = path.length - 1;
-    var endStep  = endIdx % seqLen;
-    var endColour = sequence[endStep];
-    var sBefore  = [];
-    for (var s = 0; s < seqLen; s++) {
-      if (sequence[s] === endColour) sBefore.push((s - 1 + seqLen) % seqLen);
-    }
-    for (var d = 0; d < DIRS.length; d++) {
-      var nr = path[endIdx].row + DIRS[d][0], nc = path[endIdx].col + DIRS[d][1];
-      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-      if (isSol[cellKey(nr, nc)]) continue;
-      for (var si = 0; si < sBefore.length; si++) cannot[nr][nc][sBefore[si]] = true;
-    }
-
-    for (var i = 0; i < endIdx; i++) {
-      var step   = i % seqLen;
-      var before = (step - 1 + seqLen) % seqLen;
-      for (var d = 0; d < DIRS.length; d++) {
-        var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
-        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-        if (isSol[cellKey(nr, nc)]) continue;
-        cannot[nr][nc][before] = true;
-      }
-    }
-
-    return cannot;
-  }
-
-  // Spreads cannot constraints transitively through non-solution cells.
-  // If a cell cannot be at step t, any adjacent non-solution cell cannot be at step (t-1),
-  // since being there would allow a move into the forbidden cell. Iterates to convergence.
-  function propagateCannot(cannot, rows, cols, seqLen, isSol) {
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-
-    var updated = [];
-    for (var r = 0; r < rows; r++) {
-      updated[r] = [];
-      for (var c = 0; c < cols; c++) {
-        if (isSol[cellKey(r, c)]) { updated[r][c] = false; continue; }
-        var any = false;
-        for (var s = 0; s < seqLen; s++) if (cannot[r][c][s]) { any = true; break; }
-        updated[r][c] = any;
-      }
-    }
-
-    var changed = true;
-    while (changed) {
-      changed = false;
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          if (!updated[r][c]) continue;
-          updated[r][c] = false;
-          for (var t = 0; t < seqLen; t++) {
-            if (!cannot[r][c][t]) continue;
-            var before = (t - 1 + seqLen) % seqLen;
-            for (var d = 0; d < DIRS.length; d++) {
-              var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
-              if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-              if (isSol[cellKey(nr, nc)]) continue;
-              if (!cannot[nr][nc][before]) {
-                cannot[nr][nc][before] = true;
-                updated[nr][nc] = true;
-                changed = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Tries to assign the next sequence step to each null, non-forbidden neighbour of (r,c).
-  // If a neighbour is already assigned a different step whose colour equals next's colour
-  // but cannot be next, it is reset to null and its current step is forbidden.
-  // Returns true if any assignment or reset was made.
-  function tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, sequence, isSol, r, c) {
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-    var next = (cellStep[r][c] + 1) % seqLen;
-    var changed = false;
-    for (var d = 0; d < DIRS.length; d++) {
-      var nr = r + DIRS[d][0], nc = c + DIRS[d][1];
-      if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-      if (isSol[cellKey(nr, nc)]) continue;
-      if (cellStep[nr][nc] === next) continue;
-      if (cellStep[nr][nc] === null) {
-        if (!cannot[nr][nc][next]) {
-          cellStep[nr][nc] = next;
-          changed = true;
-        }
-        continue;
-      }
-      var currentCol = sequence[cellStep[nr][nc]];
-      var nextCol    = sequence[next];
-      if (currentCol !== nextCol) continue;
-      if (cannot[nr][nc][next]) {
-        cannot[nr][nc][cellStep[nr][nc]] = true;
-        cellStep[nr][nc] = null;
-        changed = true;
-      }
-    }
-    return changed;
-  }
-
-  // Performs one full scan of all assigned cells and tries to extend each into its
-  // null neighbours. Returns true if any new assignment was made.
-  function expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen, sequence, isSol) {
-    var changed = false;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        if (cellStep[r][c] === null) continue;
-        if (tryExtendFromCell(rows, cols, cellStep, cannot, seqLen, sequence, isSol, r, c)) changed = true;
-      }
-    }
-    return changed;
-  }
-
-  // Repeatedly expands dead-end chains outward from already-assigned cells until
-  // no further assignments are possible.
-  function buildDeadEnds(rows, cols, cellStep, cannot, seqLen, sequence, isSol) {
-    while (expandDeadEndsOnce(rows, cols, cellStep, cannot, seqLen, sequence, isSol)) {}
-  }
-
   // Assigns a random permitted step to every still-unassigned cell.
   // If all steps are forbidden for a cell, assigns -1 (rendered black).
   function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
@@ -348,8 +195,7 @@
   }
 
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
-  // to top-right. Tries up to 500 times to find a valid solution path, then builds
-  // cannot constraints, dead-end chains, and fills remaining cells.
+  // to top-right. Tries up to 500 times to find a valid solution path.
   // Returns { grid, sequence, rows, cols }.
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
@@ -358,13 +204,8 @@
       if (!path) continue;
       if (hasShortcut(path, seqLength, sequence)) continue;
 
-      var maps    = buildSolutionMaps(rows, cols, path, seqLength);
-      var isSol   = maps.isSol;
+      var maps     = buildSolutionMaps(rows, cols, path, seqLength);
       var cellStep = maps.cellStep;
-
-      var cannot = buildCannot(rows, cols, path, seqLength, sequence);
-      buildDeadEnds(rows, cols, cellStep, cannot, seqLength, sequence, isSol);
-      fillRemaining(rows, cols, cellStep, cannot, seqLength);
 
       return {
         grid:     buildGrid(rows, cols, cellStep, sequence),
@@ -393,11 +234,6 @@
   exports._buildSolutionMaps    = buildSolutionMaps;
   exports._buildGrid            = buildGrid;
   exports._hasShortcut          = hasShortcut;
-  exports._buildCannot          = buildCannot;
-  exports._propagateCannot      = propagateCannot;
-  exports._tryExtendFromCell     = tryExtendFromCell;
-  exports._expandDeadEndsOnce   = expandDeadEndsOnce;
-  exports._buildDeadEnds        = buildDeadEnds;
   exports._fillRemaining        = fillRemaining;
 
   if (typeof module !== 'undefined') module.exports = exports;
