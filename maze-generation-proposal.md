@@ -114,7 +114,7 @@ as a live view, so any new `p` and `s` entries added while processing
 this cell are consumed in the current pass.) Then for each
 adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
 `(s + 1) % seqLen` attempt a candidate step `(s + 1) % seqLen` (see below).
-If the attempt is successful, just note that.
+If the attempt is successful, set a flag to say that.
 If the attempt is not successful record that (rAdj,cAdj) is forbidden
 to be step `(s + 1) % seqLen` (true).
 
@@ -165,8 +165,8 @@ If no progress we return from `attemptCandidateStep()` saying
 we were successful.
 
 How to undo using the undo list:
-For each [p, rAdj, cAdj, sAdj] in the undo list we call
-`removeAccessFrom(p, rAdj, cAdj, sAdj)`. Each call should return
+For each [pU, rU, cU, sU] in the undo list we call
+`removeAccessFrom(pU, rU, cU, sU)`. Each call should return
 true - it's a logical error otherwise (use assert).
 Then reset (r,c) to be unassigned.
 
