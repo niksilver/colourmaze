@@ -141,15 +141,15 @@ Next we scan the grid. When we find an assigned cell (r0,c0)
 we get the `canAccessFrom(r0, c0)` dict and
 look at each path index `p0` and each `s0` in the `sList`.
 Then for each `p0` and `s0` we look at each assigned cell (rAdj,cAdj) adjacent
-to (r0,c0) and we get the colour `colAdj` of cell (rAdj,cAdj).
+to (r0,c0) - the inner loop. We get the colour `colAdj` of cell (rAdj,cAdj).
 We set `sAdj` to be `(s0 + 1) % seqLen`.
 
 If (r0,c0) is on the solution path with step `s0` and (rAdj,cAdj) is on the
-solution path with step `sAdj` then we continue with the next `p0` and `s0`
+solution path with step `sAdj` then we continue with the inner loop
 (because this is just repeating the solution path exactly).
 
-If (rAdj,cAdj) is End then this candidate step has failed
-(because we've reached End via a different path).
+If (rAdj,cAdj) is End and `colour(sAdj) == colAdj` then this
+candidate step has failed (because we've reached End via a different path).
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
 If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p0`
@@ -160,7 +160,7 @@ an accepted part of the solution path).
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
 If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
-If this returns false then we just continue with our next `p0` and `s0`.
+If this returns false then we just continue with the inner loop.
 If it returns true then we add [p0, rAdj, cAdj, sAdj] to our undo list,
 we set a flag to say we've made some progress. Then we continue with
 our next `p0` and `s0`.
