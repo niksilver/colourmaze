@@ -301,6 +301,24 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
   assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
 });
 
+/*
+test('attemptCandidateStep: propagates back to path entry point and that is okay', function () {
+  // seq=[R,Y,B], solution path is just up the left side of the grid.
+  // We add two extra cells from no path (which wouldn't normally happen),
+  // and when we add a third cell 'from' p=1 it should link back to the solution
+  // path at p=1 and that should be okay.
+    ****
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  var result = ctx.attemptCandidateStep(0, 1, 2, 1);
+  assert.strictEqual(result, false, 'should return false (same-colour second route to End)');
+  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+});
+*/
+
 test('attemptCandidateStep: propagation updates canAccessFrom for a downstream cell', function () {
   // 3×3, seq=[R,Y,B]. Solution: (2,0)[R0]→(1,0)[Y1]→(0,0)[B2]→(0,1)[R0]→(0,2)[Y1].
   // Assign step 2 (B) to (1,1) from p=1 (solution cell (1,0)[Y1], adjacent to (1,1)).
