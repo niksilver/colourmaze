@@ -162,8 +162,7 @@ We undo using the undo list (see below) and return a flag to say we were unsucce
 If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
 If this returns false then we just continue with the inner loop.
 If it returns true then we add [p0, rAdj, cAdj, sAdj] to our undo list,
-we set a flag to say we've made some progress. Then we continue with
-our next `p0` and `s0`.
+we set a flag to say we've made some progress. Then we continue with the inner loop.
 Note that in this case it's okay if (rAdj,cAdj) are on the solution path
 because it's possible a dead-path may cross the solution at a different
 step without leading to a second solution.
