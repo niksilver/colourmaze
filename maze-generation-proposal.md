@@ -137,17 +137,26 @@ First we set (r,c) to be step `s` and call
 We also create an undo list which initially just has the element
 [p, r, c, s].
 
-Next we scan the grid. When we find an assigned non-solution cell (r0,c0)
+Next we scan the grid. When we find an assigned cell (r0,c0)
 we get the `canAccessFrom(r0, c0)` dict and
 look at each path index `p0` and each `s0` in the `sList`.
 Then for each `p0` and `s0` we look at each assigned cell (rAdj,cAdj) adjacent
 to (r0,c0) and we get the colour `colAdj` of cell (rAdj,cAdj).
 We set `sAdj` to be `(s0 + 1) % seqLen`.
 
+If (r0,c0) is on the solution path with step `s0` and (rAdj,cAdj) is on the
+solution path with step `sAdj` then we continue with the next `p0` and `s0`
+(because this is just repeating the solution path exactly).
+
+If (rAdj,cAdj) is End then this candidate step has failed
+(because we've reached End via a different path).
+We undo using the undo list (see below) and return a flag to say we were unsuccessful.
+
 If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p0`
 and `sAdj` is the step on solution path index `pAdj`
 then the attempt at a candidate step has failed (because we've learned that
-we've joined up to our solution path in a new place).
+we've joined up to our solution path in a new place with a step that is
+an accepted part of the solution path).
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
 If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
