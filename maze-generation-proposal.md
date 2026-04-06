@@ -130,7 +130,7 @@ When we attempt a candidate step `s` at unassigned cell (r,c) and
 originating at solution path index `p`
 we are calling `attemptCandidateStep(p, r, c, s)`.
 This will see if we can set unassigned (r,c) to be step `s` without leading
-to any forbidden steps or creating a new path. It works as follows.
+creating a new path. It works as follows.
 
 First we set (r,c) to be step `s` and call
 `setAccessFrom(p, r, c, s)` which should return true (check with assert).
