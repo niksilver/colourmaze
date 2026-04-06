@@ -195,6 +195,10 @@ For each cell still unassigned after dead-end extension, pick a random
 step that's not forbidden. If all steps are forbidden,
 assign step −1 (rendered as black).
 
+However, it's currently not clear how we record these cell colours
+using `setAccessFrom()` because that requires a path index. We'll come
+to that later.
+
 Currently there is a possible problem here.
 Dead-end extension only ever tries step (s + 1) % seqLen for a cell adjacent to an
 already-assigned cell with canAccessFrom entry {p: [s]}. A step that dead-end extension
