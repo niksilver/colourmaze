@@ -69,13 +69,15 @@ If so, the path is rejected. This is a safety net on top of the pruning.
 Create a `forbidden` data structure that says for each cell which step(s)
 it cannot be. For example, `forbidden[3][4][2] == true` means cell (3,4)
 cannot be at step 2, while `forbidden[3][4][0] == false` means the same cell
-can be at step 2. Initially the value is false for every cell in the grid.
+can be at step 0. Initially the value is false for every cell in the grid.
 
 
 ## Prepare accessFrom data
 
 We will need to track which non-solution cells are accessible from
-which solution-path cells at which step. We will need some functions
+which solution-path cells at which step. This mechanism will also track
+how each solution cell is accessed from the previous (and only previous)
+solution cell. We will need some functions
 backed by one or more data structures. Those data structures need
 to be initialised.
 
@@ -168,6 +170,20 @@ Then reset (r,c) to be unassigned.
 For each cell still unassigned after dead-end extension, pick a random
 step that's not forbidden. If all steps are forbidden,
 assign step −1 (rendered as black).
+
+Currently there is a possible problem here.
+Dead-end extension only ever tries step (s + 1) % seqLen for a cell adjacent to an
+already-assigned cell with canAccessFrom entry {p: [s]}. A step that dead-end extension
+never attempted ends up with no forbidden entry. Fill remaining can then freely assign that
+step.
+
+Concretely: in [R, B, B], dead-end extension extends a chain from Start (step 0) by always
+trying step 1 (the next step). It never tries step 2 on cells adjacent to Start. Fill
+remaining could assign step 2 (also blue) to such a cell — the player can still step onto
+it — and from there a full second-route might complete.
+
+We will see if this poses a problem in practice.
+
 
 ## Colour the cells
 
