@@ -215,24 +215,7 @@
     return forbidden;
   }
 
-  // Assigns a random permitted step to every still-unassigned cell.
-  // If all steps are forbidden for a cell, assigns -1 (rendered black).
-  function fillRemaining(rows, cols, cellStep, cannot, seqLen) {
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        if (cellStep[r][c] !== null) continue;
-        var allowed = [];
-        for (var s = 0; s < seqLen; s++) {
-          if (!cannot[r][c][s]) allowed.push(s);
-        }
-        cellStep[r][c] = allowed.length > 0
-          ? allowed[Math.floor(Math.random() * allowed.length)]
-          : -1;
-      }
-    }
-  }
-
-  // Builds two lookup structures from the solution path: isSol (set of solution cell keys)
+// Builds two lookup structures from the solution path: isSol (set of solution cell keys)
   // and cellStep (rows×cols array with each solution cell's sequence step, null elsewhere).
   function buildSolutionMaps(rows, cols, path, seqLen) {
     var isSol = {};
@@ -390,7 +373,6 @@
   exports._hasShortcut          = hasShortcut;
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
-  exports._fillRemaining        = fillRemaining;
   exports._buildMazeState       = buildMazeState;
 
   if (typeof module !== 'undefined') module.exports = exports;
