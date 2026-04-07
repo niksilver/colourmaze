@@ -101,7 +101,7 @@ It should throw an error if setting a step whose colour does not match an
 existing step for that cell.
 
 As a special case we allow `setAccessFrom(-1, r, c, s)` which means that
-we can access (r,c) at step `s` by some as-yet-unknown path. This is to
+we can potentially access (r,c) at step `s` by some as-yet-unknown path. This is to
 allow us to just colour a cell without knowing how it might join up with a
 path. However, we won't call this directly - it's accessed via a colour
 function, defined below.

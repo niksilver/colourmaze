@@ -272,6 +272,28 @@
       return col;
     }
 
+    // Set the colour of a cell without specifying with path index it's from.
+    // Internally it sets it to all possible steps for that colour using
+    // path index -1.
+    // Throws if the cell's steps map to more than one colour.
+    // Throws if colour is not valid.
+    function setColour(r, c, k) {
+      var gotColour = false;
+      for (var s = 0; s < sequence.length; s++) {
+        if (sequence[s] == k) {
+          gotColour = true;
+          af.setAccessFrom(-1, r, c, s)
+        }
+      }
+
+      if (!gotColour) {
+        throw new Error('Colour ' + k + ' is not in sequence');
+      }
+
+      // Throws if there's a colour conflict
+      colour(r, c);
+    }
+
     // Assigns step s to unassigned cell (r,c) from solution path index p.
     // Propagates reachability and detects second routes to End.
     // Returns true on success (no second solution created), false otherwise.
@@ -373,6 +395,7 @@
       setAccessFrom:        af.setAccessFrom,
       cellSteps:            cellSteps,
       colour:               colour,
+      setColour:            setColour,
       attemptCandidateStep: attemptCandidateStep,
     };
   }

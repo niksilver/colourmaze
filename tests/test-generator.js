@@ -454,6 +454,57 @@ test('colour: returns the correct colour when a cell has two different steps of 
   assert.strictEqual(ctx.colour(1, 1), seq[1]); // B
 });
 
+test('setColour: allows setting of colour that appears singly in a sequence', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  // Directly set up: cell (1,1) to be Yellow
+  ctx.setColour(1, 1, seq[1]);
+  assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
+  assert.deepStrictEqual(ctx.cellSteps(1, 1), [1], 'Cell (1,1) should be accessible on step 1');
+});
+
+test('setColour: allows setting of colour that appears twice in a sequence', function () {
+  var seq  = G.SEQUENCES[2]; // [R, B, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  // Directly set up: cell (1,1) to be blue, which is repeated
+  ctx.setColour(1, 1, seq[1]);
+  assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
+  assert.deepStrictEqual(ctx.cellSteps(1, 1).sort(), [1,2], 'Cell (1,1) should be accessible on steps [1,2]');
+});
+
+test('setColour: throws if cell is already a different colour', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  // Cell (2,1) accessible from solution path as yellow.
+  ctx.setAccessFrom(0, 2, 1, 1);
+  assert.strictEqual(ctx.colour(2,1), seq[1], 'Cell (2,1) should be yellow after just setting it')
+  // Try to set (2,1) to be blue
+  assert.throws(function() {
+    ctx.setColour(2, 1, seq[2]);
+  }, 'Should not be able to set a yellow cell to be blue')
+})
+
+test('setColour: throws if colour is not valid', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  // Try to set (2,1) to be some unknown colour
+  assert.throws(function() {
+    ctx.setColour(2, 1, 'Unknownium');
+  }, 'Should not be able to set cell to a non-colour')
+})
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {
