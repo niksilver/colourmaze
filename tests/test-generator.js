@@ -338,6 +338,20 @@ test('attemptCandidateStep: propagation updates canAccessFrom for a downstream c
   assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0], 1: [0] });
 });
 
+test('attemptCandidateStep: throws when assigning a step whose colour conflicts with the cell', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
+    { row: 0, col: 1 }, { row: 0, col: 2 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  ctx.attemptCandidateStep(0, 2, 1, 0); // step 0 (R) from p=0
+  // step 2 is B — different colour from R — should throw
+  assert.throws(function () {
+    ctx.attemptCandidateStep(1, 2, 1, 2);
+  });
+});
+
 console.log('\n-- cellSteps and colour --');
 
 test('cellSteps: returns [] for an unassigned cell after initialisation', function () {
@@ -438,20 +452,6 @@ test('colour: returns the correct colour when a cell has two different steps of 
   // cellSteps(1,1) = [1, 2], both B
   assert.strictEqual(ctx.cellSteps(1, 1).length, 2);
   assert.strictEqual(ctx.colour(1, 1), seq[1]); // B
-});
-
-test('colour: attemptCandidateStep throws when assigning a step whose colour conflicts with the cell', function () {
-  var seq  = G.SEQUENCES[1]; // [R, Y, B]
-  var path = [
-    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
-    { row: 0, col: 1 }, { row: 0, col: 2 }
-  ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
-  ctx.attemptCandidateStep(0, 2, 1, 0); // step 0 (R) from p=0
-  // step 2 is B — different colour from R — should throw
-  assert.throws(function () {
-    ctx.attemptCandidateStep(1, 2, 1, 2);
-  });
 });
 
 console.log('\n-- buildSolutionMaps --');

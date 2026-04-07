@@ -26,6 +26,7 @@ has all steps forbidden by the forbidden constraints (see below).
 - Prepare forbidden data
 - Prepare cellSteps data
 - Prepare accessFrom data
+- Define colour functions
 - Fill dead-end extensions
 - Fill remaining cells
 - Colour the cells
@@ -90,6 +91,7 @@ there is a path from solution path index `p` to (r,c), arriving at step `s`.
 Initially a call to `canAccessFrom(r, c)` will return an empty
 dict if (r,c) is not on the solution path, but if (r,c) is on the solution
 path at index `p` and step `s` then it will return `{p: [s]}`.
+See below for a special case where `p` is -1.
 
 `setAccessFrom(p, r, c, s)` adds `s` to the list of steps in `sList`
 for `canAccessFrom(r, c)`, adding a new key `p` if necessary.
@@ -97,6 +99,12 @@ It should return true if `s` was new to `sList`,
 and false if `s` was already present.
 It should throw an error if setting a step whose colour does not match an
 existing step for that cell.
+
+As a special case we allow `setAccessFrom(-1, r, c, s)` which means that
+we can access (r,c) at step `s` by some as-yet-unknown path. This is to
+allow us to just colour a cell without knowing how it might join up with a
+path. However, we won't call this directly - it's accessed via a colour
+function, defined below.
 
 `removeAccessFrom(p, r, c, s)` removes `s` from the list of steps in `sList`
 for `canAccessFrom(r, c)`.
@@ -110,11 +118,21 @@ anywhere on the solution path. It is the union of every `sList` in
 the dict of `canAccessFrom(r, c)`, and may be the empty list. It cannot
 be null.
 
+
+# Define colour functions
+
 `colour(r, c)` returns the colour of (r,c) or null if it is not set to
 any colour. It is a convenience function. Internally it should check
 that every step `s` for (r,c) has the same colour, and fail with an
 assertion error if not. However, logically that should never happen
 as we're protected by the error in `setAccessFrom()`.
+
+`setColour(r, c, k)` allows us to set the colour of a cell without yet knowing
+what solution path indices it might be accessible from. Internally it
+calls `setAccessFrom(-1, r, c, s)` for every step `s` that is colour `k`.
+
+`unsetColour(r, c, k)` simply removes the key/value pair `-1: sList` from
+the `canAccessFrom()` dict of (r,c).
 
 
 ## Fill dead-end extensions
@@ -123,7 +141,8 @@ Here we are creating misleading paths off the solution path.
 They should not introduce any new solutions.
 
 Scan the grid. For each assigned cell (r,c) get the dict
-`canAccessFrom(r,c)` and look at each `p` and `s`. (We will treat this dict
+`canAccessFrom(r,c)` and look at each `p` and `s` where `p >= 0`.
+(We will treat this dict
 as a live view, so any new `p` and `s` entries added while processing
 this cell are consumed in the current pass.) Then for each
 adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
