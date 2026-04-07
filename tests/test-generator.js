@@ -180,36 +180,36 @@ console.log('\n-- accessFrom --');
 var AF_PATH = [{ row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }];
 
 test('canAccessFrom: after initialisation, returns {} for a non-solution cell', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   assert.deepStrictEqual(af.canAccessFrom(2, 1), {});
 });
 
 test('canAccessFrom: after initialisation, returns {p:[s]} for each solution cell', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   assert.deepStrictEqual(af.canAccessFrom(2, 0), { 0: [0] });
   assert.deepStrictEqual(af.canAccessFrom(1, 0), { 1: [1] });
   assert.deepStrictEqual(af.canAccessFrom(0, 0), { 2: [2] });
 });
 
 test('setAccessFrom: returns true when s is new (new p key)', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   assert.strictEqual(af.setAccessFrom(0, 2, 1, 1), true);
 });
 
 test('setAccessFrom: returns false when s already present', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   assert.strictEqual(af.setAccessFrom(0, 2, 1, 1), false);
 });
 
 test('setAccessFrom: canAccessFrom reflects the addition', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   assert.deepStrictEqual(af.canAccessFrom(2, 1), { 0: [1] });
 });
 
 test('setAccessFrom: multiple steps accumulate for same p', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   af.setAccessFrom(0, 2, 1, 2);
   var entry = af.canAccessFrom(2, 1);
@@ -218,7 +218,7 @@ test('setAccessFrom: multiple steps accumulate for same p', function () {
 });
 
 test('setAccessFrom: multiple p keys coexist', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   af.setAccessFrom(1, 2, 1, 2);
   var entry = af.canAccessFrom(2, 1);
@@ -227,14 +227,14 @@ test('setAccessFrom: multiple p keys coexist', function () {
 });
 
 test('removeAccessFrom: returns true when s was present and removes it', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   assert.strictEqual(af.removeAccessFrom(0, 2, 1, 1), true);
   assert.deepStrictEqual(af.canAccessFrom(2, 1), {});
 });
 
 test('removeAccessFrom: removes p key when sList becomes empty', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   af.removeAccessFrom(0, 2, 1, 1);
   var entry = af.canAccessFrom(2, 1);
@@ -242,12 +242,22 @@ test('removeAccessFrom: removes p key when sList becomes empty', function () {
 });
 
 test('removeAccessFrom: returns false when p does not exist', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   assert.strictEqual(af.removeAccessFrom(5, 2, 1, 0), false);
 });
 
+test('setAccessFrom: throws when adding a step whose colour conflicts with an existing step', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B] — step 0=R, step 2=B, different colours
+  var path = [{ row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }];
+  var ctx  = G._buildMazeState(3, 3, path, seq);
+  ctx.setAccessFrom(0, 2, 1, 0); // step 0 (R)
+  assert.throws(function () {
+    ctx.setAccessFrom(1, 2, 1, 2); // step 2 (B) — conflicts with R
+  });
+});
+
 test('removeAccessFrom: returns false when s not in sList for p', function () {
-  var af = G._buildAccessFrom(3, 2, AF_PATH, 3);
+  var af = G._buildAccessFrom(3, 2, AF_PATH, G.SEQUENCES[2]);
   af.setAccessFrom(0, 2, 1, 1);
   assert.strictEqual(af.removeAccessFrom(0, 2, 1, 2), false);
 });
@@ -319,14 +329,11 @@ test('attemptCandidateStep: propagates back to path entry point and that is okay
 });
 */
 
-test('attemptCandidateStep: propagation updates canAccessFrom for a downstream cell', function () {
+test('attemptCandidateStep: fails when propagation would rejoin solution at a different path index (condition 3)', function () {
   // 3×3, seq=[R,Y,B]. Solution: (2,0)[R0]→(1,0)[Y1]→(0,0)[B2]→(0,1)[R0]→(0,2)[Y1].
   // Assign step 2 (B) to (1,1) from p=1 (solution cell (1,0)[Y1], adjacent to (1,1)).
   // The scan sees (1,1) at s0=2, sAdj=0 — (0,1)[R0] is adjacent and colour matches,
-  // so canAccessFrom(0,1) gains the new entry {1:[0]}.
-  // NOTE: once condition 3 is implemented this call will return false, because (0,1)
-  // is a solution cell at path index 3 (≠ p=1) and sAdj=0 matches its step — so this
-  // test will need updating at that point.
+  // but (0,1) is a solution cell at path index 3 ≠ p0=1 — condition 3 fires, returns false.
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
@@ -334,8 +341,27 @@ test('attemptCandidateStep: propagation updates canAccessFrom for a downstream c
   ];
   var ctx = G._buildMazeState(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(1, 1, 1, 2);
+  assert.strictEqual(result, false);
+  assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0] }); // unchanged
+  assert.deepStrictEqual(ctx.cellSteps(1, 1), []);              // undone
+});
+
+test('attemptCandidateStep: propagation updates canAccessFrom for a non-solution cell', function () {
+  // 3×3, seq=[R,Y,B]. Short path (2,0)[R0]→(1,0)[Y1]→(0,0)[B2] — End (0,2) is unassigned.
+  // First assign step 0 (R) to (2,1) from p=0.
+  // Then assign step 2 (B) to (1,1) from p=1.
+  // During the second call (1,1) at s0=2, sAdj=0 sees (2,1)[R]: colour matches,
+  // (2,1) is not on the solution path — no condition fires.
+  // canAccessFrom(2,1) gains {1:[0]} alongside the existing {0:[0]}.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  ctx.attemptCandidateStep(0, 2, 1, 0);
+  var result = ctx.attemptCandidateStep(1, 1, 1, 2);
   assert.strictEqual(result, true);
-  assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0], 1: [0] });
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 1), { 0: [0], 1: [0] });
 });
 
 test('attemptCandidateStep: throws when assigning a step whose colour conflicts with the cell', function () {
@@ -457,10 +483,10 @@ test('colour: returns the correct colour for each solution cell', function () {
 });
 
 test('colour: returns the correct colour for a cell assigned via attemptCandidateStep', function () {
+  // Short 3-cell path so (1,1) has no 5-cell solution-path neighbours to trigger condition 3.
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
-    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
-    { row: 0, col: 1 }, { row: 0, col: 2 }
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
   var ctx = G._buildMazeState(3, 3, path, seq);
   ctx.attemptCandidateStep(0, 2, 1, 0); // step 0 (R) from p=0

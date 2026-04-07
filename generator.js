@@ -157,7 +157,8 @@
   //
   // Solution cells are seeded at initialisation: path cell at index p with step
   // p%seqLen gets entry {p: [p%seqLen]}.
-  function buildAccessFrom(rows, cols, path, seqLen) {
+  function buildAccessFrom(rows, cols, path, sequence) {
+    var seqLen = sequence.length;
     var store = {};
 
     // Seed each solution cell with its own path index and step.
@@ -172,9 +173,40 @@
       return store[cellKey(r, c)] || {};
     }
 
+    // Returns the union of all steps reachable at (r,c) across every path origin.
+    // Returns [] if the cell has not been assigned any step.
+    function cellSteps(r, c) {
+      var accDict = canAccessFrom(r, c);
+      var steps = [];
+      for (var pStr in accDict) {
+        var sList = accDict[pStr];
+        for (var i = 0; i < sList.length; i++) {
+          if (steps.indexOf(sList[i]) === -1) steps.push(sList[i]);
+        }
+      }
+      return steps;
+    }
+
+    // Returns the colour of (r,c), or null if unassigned.
+    // Throws if the cell's steps map to more than one colour.
+    function colour(r, c) {
+      var steps = cellSteps(r, c);
+      if (steps.length === 0) return null;
+      var col = sequence[steps[0]];
+      for (var i = 1; i < steps.length; i++) {
+        if (sequence[steps[i]] !== col)
+          throw new Error('colour conflict at (' + r + ',' + c + '): step ' + steps[0] + ' is ' + col + ' but step ' + steps[i] + ' is ' + sequence[steps[i]]);
+      }
+      return col;
+    }
+
     // Adds step s to the sList for key p at cell (r,c).
     // Returns true if s was new to that list, false if already present.
+    // Throws if s has a different colour from steps already recorded for this cell.
     function setAccessFrom(p, r, c, s) {
+      var existing = colour(r, c);
+      if (existing !== null && existing !== sequence[s])
+        throw new Error('colour conflict at (' + r + ',' + c + '): existing colour is ' + existing + ' but new step ' + s + ' is ' + sequence[s]);
       var k = cellKey(r, c);
       if (!store[k])    store[k]    = {};
       if (!store[k][p]) store[k][p] = [];
@@ -196,7 +228,35 @@
       return true;
     }
 
-    return { canAccessFrom: canAccessFrom, setAccessFrom: setAccessFrom, removeAccessFrom: removeAccessFrom };
+    // Sets cell (r,c) to colour k by recording all matching steps under p=-1.
+    // Throws if k conflicts with the cell's existing colour, or is not in the sequence.
+    function setColour(r, c, k) {
+      var gotColour = false;
+      for (var s = 0; s < seqLen; s++) {
+        if (sequence[s] === k) {
+          gotColour = true;
+          setAccessFrom(-1, r, c, s);
+        }
+      }
+      if (!gotColour) throw new Error('Colour ' + k + ' is not in sequence');
+    }
+
+    // Removes the p=-1 entries for cell (r,c), uncolouring it.
+    function unsetColour(r, c) {
+      for (var s = 0; s < seqLen; s++) {
+        removeAccessFrom(-1, r, c, s);
+      }
+    }
+
+    return {
+      canAccessFrom:  canAccessFrom,
+      setAccessFrom:  setAccessFrom,
+      removeAccessFrom: removeAccessFrom,
+      cellSteps:      cellSteps,
+      colour:         colour,
+      setColour:      setColour,
+      unsetColour:    unsetColour,
+    };
   }
 
   // Allocates a rows×cols×seqLen array of booleans, all initialised to false.
@@ -252,75 +312,37 @@
     var isSol    = maps.isSol;
     var cellStep = maps.cellStep;
     var forbidden = buildForbidden(rows, cols, seqLen);
-    var af        = buildAccessFrom(rows, cols, path, seqLen);
+    var af        = buildAccessFrom(rows, cols, path, sequence);
+
+    var canAccessFrom  = af.canAccessFrom;
+    var setAccessFrom  = af.setAccessFrom;
+    var removeAccessFrom = af.removeAccessFrom;
+    var cellSteps      = af.cellSteps;
+    var colour         = af.colour;
 
     // Key of the end cell (top-right corner).
     var endKey = cellKey(0, cols - 1);
 
+    // Maps each solution-cell key to its path index.
+    var solIndex = {};
+    for (var i = 0; i < path.length; i++) {
+      solIndex[cellKey(path[i].row, path[i].col)] = i;
+    }
+
     var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-
-    // Returns the colour that (r,c) maps to, or null if unassigned.
-    // Throws if the cell's steps map to more than one colour.
-    function colour(r, c) {
-      var steps = cellSteps(r, c);
-      if (steps.length === 0) return null;
-      var col = sequence[steps[0]];
-      for (var i = 1; i < steps.length; i++) {
-        if (sequence[steps[i]] !== col)
-          throw new Error('colour conflict at (' + r + ',' + c + '): step ' + steps[0] + ' is ' + col + ' but step ' + steps[i] + ' is ' + sequence[steps[i]]);
-      }
-      return col;
-    }
-
-    // Set the colour of a cell without specifying with path index it's from.
-    // Internally it sets it to all possible steps for that colour using
-    // path index -1.
-    // Throws if the cell's steps map to more than one colour.
-    // Throws if colour is not valid.
-    function setColour(r, c, k) {
-      var gotColour = false;
-      for (var s = 0; s < seqLen; s++) {
-        if (sequence[s] === k) {
-          gotColour = true;
-          af.setAccessFrom(-1, r, c, s)
-        }
-      }
-
-      if (!gotColour) {
-        throw new Error('Colour ' + k + ' is not in sequence');
-      }
-
-      // Throws if there's a colour conflict
-      colour(r, c);
-    }
-
-    // Unset the colour of a cell. This just does it for undefined
-    // access, where the solution path index is -1.
-    function unsetColour(r, c) {
-      for (var s = 0; s < seqLen; s++) {
-        af.removeAccessFrom(-1, r, c, s);
-      }
-    }
 
     // Assigns step s to unassigned cell (r,c) from solution path index p.
     // Propagates reachability and detects second routes to End.
     // Returns true on success (no second solution created), false otherwise.
     // On failure, undoes all canAccessFrom changes made during this call.
-    // Throws if s has a different colour from steps already assigned to (r,c).
+    // Throws (via setAccessFrom) if s conflicts in colour with existing steps.
     function attemptCandidateStep(p, r, c, s) {
-      // Check colour consistency before assigning.
-      var existingSteps = cellSteps(r, c);
-      for (var ei = 0; ei < existingSteps.length; ei++) {
-        if (sequence[existingSteps[ei]] !== sequence[s])
-          throw new Error('colour conflict: cell (' + r + ',' + c + ') has step ' + existingSteps[ei] + ' (' + sequence[existingSteps[ei]] + ') but new step ' + s + ' is ' + sequence[s]);
-      }
-
       var undoList = [[p, r, c, s]];
-      af.setAccessFrom(p, r, c, s);
+      setAccessFrom(p, r, c, s);
 
       function undoAll() {
         for (var ui = 0; ui < undoList.length; ui++)
-          af.removeAccessFrom(undoList[ui][0], undoList[ui][1], undoList[ui][2], undoList[ui][3]);
+          removeAccessFrom(undoList[ui][0], undoList[ui][1], undoList[ui][2], undoList[ui][3]);
       }
 
       var progress = true;
@@ -331,7 +353,7 @@
           for (var c0 = 0; c0 < cols; c0++) {
             if (cellSteps(r0, c0).length === 0) continue;
             var r0Key   = cellKey(r0, c0);
-            var accDict = af.canAccessFrom(r0, c0);
+            var accDict = canAccessFrom(r0, c0);
             // For each (p0, s0) recorded as reaching (r0,c0).
             for (var p0str in accDict) {
               var p0    = parseInt(p0str, 10);
@@ -362,9 +384,17 @@
                     return false;
                   }
 
+                  // Condition 3: dead-end would rejoin the solution path at a
+                  // different index — a second route through the solution exists; fail.
+                  if (isSol[adjKey] && solIndex[adjKey] !== p0 &&
+                      cellSteps(rAdj, cAdj).includes(sAdj)) {
+                    undoAll();
+                    return false;
+                  }
+
                   // Propagate reachability.
                   if (sequence[sAdj] === colAdj) {
-                    var added = af.setAccessFrom(p0, rAdj, cAdj, sAdj);
+                    var added = setAccessFrom(p0, rAdj, cAdj, sAdj);
                     if (added) {
                       undoList.push([p0, rAdj, cAdj, sAdj]);
                       progress = true;
@@ -380,31 +410,16 @@
       return true;
     }
 
-    // Returns the union of all steps reachable at (r,c) across every solution
-    // path origin, derived directly from the accessFrom data structure.
-    // Returns [] if the cell has not been assigned any step.
-    function cellSteps(r, c) {
-      var accDict = af.canAccessFrom(r, c);
-      var steps = [];
-      for (var pStr in accDict) {
-        var sList = accDict[pStr];
-        for (var i = 0; i < sList.length; i++) {
-          if (steps.indexOf(sList[i]) === -1) steps.push(sList[i]);
-        }
-      }
-      return steps;
-    }
-
     return {
       cellStep:             cellStep,
       forbidden:            forbidden,
       isSol:                isSol,
-      canAccessFrom:        af.canAccessFrom,
-      setAccessFrom:        af.setAccessFrom,
+      canAccessFrom:        canAccessFrom,
+      setAccessFrom:        setAccessFrom,
       cellSteps:            cellSteps,
       colour:               colour,
-      setColour:            setColour,
-      unsetColour:          unsetColour,
+      setColour:            af.setColour,
+      unsetColour:          af.unsetColour,
       attemptCandidateStep: attemptCandidateStep,
     };
   }
