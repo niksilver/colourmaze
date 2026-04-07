@@ -279,7 +279,7 @@
     // Throws if colour is not valid.
     function setColour(r, c, k) {
       var gotColour = false;
-      for (var s = 0; s < sequence.length; s++) {
+      for (var s = 0; s < seqLen; s++) {
         if (sequence[s] == k) {
           gotColour = true;
           af.setAccessFrom(-1, r, c, s)
@@ -292,6 +292,14 @@
 
       // Throws if there's a colour conflict
       colour(r, c);
+    }
+
+    // Unset the colour of a cell. This just does it for undefined
+    // access, where the solution path index is -1.
+    function unsetColour(r, c) {
+      for (var s = 0; s <= seqLen; s++) {
+        af.removeAccessFrom(-1, r, c, s);
+      }
     }
 
     // Assigns step s to unassigned cell (r,c) from solution path index p.
@@ -396,6 +404,7 @@
       cellSteps:            cellSteps,
       colour:               colour,
       setColour:            setColour,
+      unsetColour:          unsetColour,
       attemptCandidateStep: attemptCandidateStep,
     };
   }

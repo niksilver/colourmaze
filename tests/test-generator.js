@@ -505,6 +505,20 @@ test('setColour: throws if colour is not valid', function () {
   }, 'Should not be able to set cell to a non-colour')
 })
 
+test('unSetColour: allows unsetting of colour that was previously set', function () {
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  // Directly set up: cell (1,1) to be yellow
+  ctx.setColour(1, 1, seq[1]);
+  assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
+  ctx.unsetColour(1,1);
+  assert.strictEqual(ctx.colour(1, 1), null, 'Cell (1,1) should not be a colour');
+  assert.deepStrictEqual(ctx.cellSteps(1, 1), [], 'Cell (1,1) should not be accessible on any steps');
+});
+
 console.log('\n-- buildSolutionMaps --');
 
 test('buildSolutionMaps: isSol marks exactly the path cells', function () {
