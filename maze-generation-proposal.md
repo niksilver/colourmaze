@@ -158,21 +158,23 @@ Then for each `p0` and `s0` we look at each assigned cell (rAdj,cAdj) adjacent
 to (r0,c0) - the inner loop. We get the colour `colAdj` of cell (rAdj,cAdj).
 We set `sAdj` to be `(s0 + 1) % seqLen`.
 
+(Condition 1: It's okay to repeat the solution path exactly okay.)
 If (r0,c0) is on the solution path with step `s0` and (rAdj,cAdj) is on the
-solution path with step `sAdj` then we continue with the inner loop
-(because this is just repeating the solution path exactly).
+solution path with step `sAdj` then we continue with the inner loop.
 
+(Condition 2: It's not okay to reach End via a different path.)
 If (rAdj,cAdj) is End and `colour(sAdj) == colAdj` then this
-candidate step has failed (because we've reached End via a different path).
+candidate step has failed.
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
+(Condition 3: It's not okay to join up to our solution path in a new place with
+a step that is an accepted part of the solution path.)
 If (rAdj,cAdj) is on the solution path as index `pAdj` and `pAdj != p0`
 and `sAdj` is the step on solution path index `pAdj`
-then the attempt at a candidate step has failed (because we've learned that
-we've joined up to our solution path in a new place with a step that is
-an accepted part of the solution path).
+then the attempt at a candidate step has failed.
 We undo using the undo list (see below) and return a flag to say we were unsuccessful.
 
+(Condition 4: It's okay to access another cell.)
 If the colour of `sAdj` equals `colAdj` then we `setAccessFrom(p0, rAdj, cAdj, sAdj)`.
 If this returns false then we just continue with the inner loop.
 If it returns true then we add [p0, rAdj, cAdj, sAdj] to our undo list,
