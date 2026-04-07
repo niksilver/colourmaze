@@ -357,6 +357,7 @@
             // For each (p0, s0) recorded as reaching (r0,c0).
             for (var p0str in accDict) {
               var p0    = parseInt(p0str, 10);
+              if (p0 < 0) continue;
               var sList = accDict[p0];
               // For each step s0 in the live sList.
               for (var si = 0; si < sList.length; si++) {
@@ -392,7 +393,8 @@
                     return false;
                   }
 
-                  // Propagate reachability.
+                  // Condition 4: It's okay to access another cell, and then we
+                  // can propagate reachability.
                   if (sequence[sAdj] === colAdj) {
                     var added = setAccessFrom(p0, rAdj, cAdj, sAdj);
                     if (added) {

@@ -311,23 +311,25 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
   assert.deepStrictEqual(ctx.cellSteps(1, 2), [], 'cell should be unassigned after failure');
 });
 
-/*
 test('attemptCandidateStep: propagates back to path entry point and that is okay', function () {
   // seq=[R,Y,B], solution path is just up the left side of the grid.
   // We add two extra cells from no path (which wouldn't normally happen),
   // and when we add a third cell 'from' p=1 it should link back to the solution
   // path at p=1 and that should be okay.
-    ****
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
   var ctx = G._buildMazeState(3, 3, path, seq);
-  var result = ctx.attemptCandidateStep(0, 1, 2, 1);
-  assert.strictEqual(result, false, 'should return false (same-colour second route to End)');
-  assert.strictEqual(ctx.cellStep[1][2], null, 'cell should be unassigned after failure');
+  ctx.setColour(1, 1, seq[0])    // (1,1)[R0] will eventually lead to (1,0)[Y1]
+  ctx.setColour(1, 2, seq[2])    // (1,2)[B2] will eventually lead to (1,1)[R0]
+  assert.deepStrictEqual(ctx.canAccessFrom(1, 1)[1], undefined, '(1,1) should not access p=1 yet');
+  assert.deepStrictEqual(ctx.canAccessFrom(1, 2)[1], undefined, '(1,2) should not access p=1 yet');
+  var result = ctx.attemptCandidateStep(1, 2, 2, 1);    // (2,2)[B2] should propagate
+  assert.strictEqual(result, true, 'New step at (2,2) should be okay');
+  assert.deepStrictEqual(ctx.canAccessFrom(1, 1)[1], [0], '(1,1) should access p=1 now');
+  assert.deepStrictEqual(ctx.canAccessFrom(1, 2)[1], [2], '(1,2) should access p=1 now');
 });
-*/
 
 test('attemptCandidateStep: fails when propagation would rejoin solution at a different path index (condition 3)', function () {
   // 3×3, seq=[R,Y,B]. Solution: (2,0)[R0]→(1,0)[Y1]→(0,0)[B2]→(0,1)[R0]→(0,2)[Y1].
