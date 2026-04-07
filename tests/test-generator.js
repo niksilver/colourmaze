@@ -352,6 +352,51 @@ test('attemptCandidateStep: throws when assigning a step whose colour conflicts 
   });
 });
 
+test('attemptCandidateStep: Should not propagate from coloured cell not on known path', function () {
+  // 3×3 grid, seq=[R,Y,B]. Solution: (2,0)→(1,0)→(0,0).
+  // Steps: 0,1,2.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+
+  // Colour (2,2) to be yellow, but we don't yet know we can get there
+  ctx.setColour(2, 2, seq[1])
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 2), {'-1': [1]}, 'Cell (2,2) is step 1 but not accessible');
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 1), {}, 'Cell (2,1) not yet coloured');
+
+  // Add an adjacent cell that's potentially accessible as the next step (blue), but
+  // no path should propagate to it yet.
+  ctx.setAccessFrom(0, 2, 1, 2);
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 2), {'-1': [1]}, 'Cell (2,2) is step 1 but still not accessible');
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 1), {0: [2]}, 'Cell (2,1) accessible but no propagation');
+});
+
+/* Commented out until we get propagation in place.
+
+test('attemptCandidateStep: Should propagate from coloured cell once linked to a known path', function () {
+  // 3×3 grid, seq=[R,Y,B]. Solution: (2,0)→(1,0)→(0,0).
+  // Steps: 0,1,2.
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var path = [
+    { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
+  ];
+  var ctx = G._buildMazeState(3, 3, path, seq);
+
+  // Colour (2,2) to be yellow, but we don't yet know we can get there
+  ctx.setColour(2, 2, seq[1])
+  assert.strictEqual(ctx.canAccessFrom(2, 2)[0], undefined, 'Cell (2,2) not accessible from path index 0');
+
+  // Add an adjacent cell that's accessible is the step before (red) and from path index 0.
+  // That should propagate to (2,2).
+  ctx.setAccessFrom(0, 1, 2, 0);
+  var dict = ctx.canAccessFrom(2, 2);
+  assert.deepStrictEqual(dict, {}, 'Dummy to get a pretty print');
+  assert.deepStrictEqual(ctx.canAccessFrom(2, 2)[0], [1], 'Cell (2,2) is now accessible at step 1 from path index 0');
+});
+*/
+
 console.log('\n-- cellSteps and colour --');
 
 test('cellSteps: returns [] for an unassigned cell after initialisation', function () {
