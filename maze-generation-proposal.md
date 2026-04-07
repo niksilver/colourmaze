@@ -131,7 +131,7 @@ as we're protected by the error in `setAccessFrom()`.
 what solution path indices it might be accessible from. Internally it
 calls `setAccessFrom(-1, r, c, s)` for every step `s` that is colour `k`.
 
-`unsetColour(r, c, k)` simply removes the key/value pair `-1: sList` from
+`unsetColour(r, c)` simply removes the key/value pair `-1: sList` from
 the `canAccessFrom()` dict of (r,c).
 
 

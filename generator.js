@@ -280,7 +280,7 @@
     function setColour(r, c, k) {
       var gotColour = false;
       for (var s = 0; s < seqLen; s++) {
-        if (sequence[s] == k) {
+        if (sequence[s] === k) {
           gotColour = true;
           af.setAccessFrom(-1, r, c, s)
         }
@@ -297,7 +297,7 @@
     // Unset the colour of a cell. This just does it for undefined
     // access, where the solution path index is -1.
     function unsetColour(r, c) {
-      for (var s = 0; s <= seqLen; s++) {
+      for (var s = 0; s < seqLen; s++) {
         af.removeAccessFrom(-1, r, c, s);
       }
     }
