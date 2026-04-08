@@ -2,6 +2,11 @@
 const assert = require('assert');
 const G = require('../generator.js');
 
+var DEBUG = false;
+function debug(s) {
+  if (DEBUG) console.log(s);
+}
+
 let passed = 0, failed = 0;
 
 function test(name, fn) {
@@ -715,6 +720,7 @@ console.log('\n-- Uniqueness solver --');
 
 // endKey is the string key of the end cell, e.g. '0,2'.
 // If left undefined it defaults to the top right cell as string.
+// Will stop at second solution; won't count any more.
 function countSolutions(maze, endKey) {
   var seq     = maze.sequence;
   var seqLen  = seq.length;
@@ -728,24 +734,38 @@ function countSolutions(maze, endKey) {
     endKey = '0,' + (cols - 1)
   }
 
-  visited[(rows - 1) + ',0'] = true;
+  // We define an xKey to be an extended key: row,col,step
+
+  visited[(rows - 1) + ',0,0'] = true;
 
   (function dfs(r, c, step) {
+    debug('Now at ' + r + ',' + c);
+
     if (count > 1) return;
     if (r + ',' + c === endKey) { count++; return; }
+
     var needed = seq[step % seqLen];
     for (var i = 0; i < DIRS.length; i++) {
       var nr = r + DIRS[i][0], nc = c + DIRS[i][1];
       if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-      var key = nr + ',' + nc;
-      if (visited[key]) continue;
-      if (maze.grid[nr][nc].colour !== needed) continue;
-      visited[key] = true;
+
+      var xKey = nr + ',' + nc + ',' + (step % seqLen);
+      debug('  from ' + r + ',' + c + ' considering ' + xKey);
+      if (visited[xKey]) {debug('  Continuing - visited'); continue; }
+
+      if (maze.grid[nr][nc].colour !== needed) {
+        debug('  Continuing - wanted ' + needed + ' but got ' + maze.grid[nr][nc].colour);
+        continue;
+      }
+
+      visited[xKey] = true;
       dfs(nr, nc, step + 1);
-      delete visited[key];
+      delete visited[xKey];
+      debug('Stepping back from ' + xKey);
     }
   }(rows - 1, 0, 1));
 
+  debug('Returning count ' + count);
   return count;
 }
 
@@ -852,6 +872,33 @@ test('countSolutions allows endKey to be defined as the non-default', function (
   grid[2][2].colour = '#000000';
   var maze = { grid: grid, sequence: seq, rows: 3, cols: 3 };
   assert.strictEqual(countSolutions(maze, '0,0'), 1);
+});
+
+test('countSolutions counts two routes if they cross at different steps', function () {
+  // The following maze from [G] up to [B] also allows a second path off to the
+  // right of A: G-H-A-B-C-D-E-B-A-G-H-B. This is not a return to the original
+  // path because it's crossing the original path at a different step.
+  // 
+  //  H [B] . .
+  //  G  A  B C
+  //  .  B  E D
+  // [G] H  . .
+  // 
+  var seq  = ['G', 'H', 'B', 'A', 'B', 'C', 'D', 'E', 'B', 'A'];
+  var grid = G._createGrid(4, 4);
+
+  // Create the maze, from the top row.
+  rows = ['HBxx', 'GABC', 'xBED', 'GHxx']
+  for (var r = 0; r < 4; r++) {
+    for (var c = 0; c < 4; c++) {
+      grid[r][c].colour = rows[r][c];
+      debug('Set grid[' + r + '][' + c + '] = ' + rows[r][c])
+    }
+  }
+
+  var maze = { grid: grid, sequence: seq, rows: 4, cols: 4 };
+  var count = countSolutions(maze, '0,1')
+  assert.strictEqual(count, 2);
 });
 
 console.log('\n-- generateMaze uniqueness (50 runs, solution path only) --');
