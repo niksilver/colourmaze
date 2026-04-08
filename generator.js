@@ -1,24 +1,44 @@
 // generator.js
 (function (exports) {
 
+  var DEBUG = false;
+  function debug(s) {
+    if (DEBUG) console.log(s);
+  }
+
+  var RGB = {
+    RED:    '#e63946', // red
+    YELLOW: '#f4d35e', // yellow
+    BLUE:   '#4cc9f0', // blue
+    GREEN:  '#4ade80', // green
+    PURPLE: '#c084fc', // purple
+    BLACK:  '#000000',
+    L: {               // From RGB to letter
+      '#e63946': 'R',
+      '#f4d35e': 'Y',
+      '#4cc9f0': 'B',
+      '#4ade80': 'G',
+      '#c084fc': 'P',
+      '#000000': '-',
+    }
+  };
+
   var COLOURS = [
-    '#e63946', // red
-    '#f4d35e', // yellow
-    '#4cc9f0', // blue
-    '#4ade80', // green
-    '#c084fc', // purple
+    RGB.RED,
+    RGB.YELLOW,
+    RGB.BLUE,
+    RGB.GREEN,
+    RGB.PURPLE,
   ];
 
-  var BLACK_COLOUR = '#000000';
-
   var SEQUENCES = [
-    ['#e63946', '#4cc9f0'],                                       // red, blue
-    ['#e63946', '#f4d35e', '#4cc9f0'],                           // red, yellow, blue
-    ['#e63946', '#4cc9f0', '#4cc9f0'],                           // red, blue, blue
-    ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80'],                // red, yellow, blue, green
-    ['#e63946', '#4cc9f0', '#f4d35e', '#4cc9f0'],                // red, blue, yellow, blue
-    ['#e63946', '#f4d35e', '#f4d35e', '#4cc9f0'],                // red, yellow, yellow, blue
-    ['#e63946', '#f4d35e', '#4cc9f0', '#4ade80', '#c084fc'],     // red, yellow, blue, green, purple
+    [RGB.RED, RGB.BLUE],                                       // red, blue
+    [RGB.RED, RGB.YELLOW, RGB.BLUE],                           // red, yellow, blue
+    [RGB.RED, RGB.BLUE,   RGB.BLUE],                           // red, blue, blue
+    [RGB.RED, RGB.YELLOW, RGB.BLUE,   RGB.GREEN],                // red, yellow, blue, green
+    [RGB.RED, RGB.BLUE,   RGB.YELLOW, RGB.BLUE],                // red, blue, yellow, blue
+    [RGB.RED, RGB.YELLOW, RGB.YELLOW, RGB.BLUE],                // red, yellow, yellow, blue
+    [RGB.RED, RGB.YELLOW, RGB.BLUE,   RGB.GREEN, RGB.PURPLE],     // red, yellow, blue, green, purple
   ];
 
   // Returns 'black' or 'white' for readable contrast against a hex cell colour.
@@ -247,7 +267,6 @@
         removeAccessFrom(-1, r, c, s);
       }
     }
-
     return {
       canAccessFrom:  canAccessFrom,
       setAccessFrom:  setAccessFrom,
@@ -292,13 +311,13 @@
   }
 
   // Creates a coloured grid from a completed cellStep array.
-  // Each cell gets sequence[step] as its colour; step -1 maps to BLACK_COLOUR.
+  // Each cell gets sequence[step] as its colour; step -1 maps to black.
   function buildGrid(rows, cols, cellStep, sequence) {
     var grid = createGrid(rows, cols);
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
         var s = cellStep[r][c];
-        grid[r][c].colour = (s === -1) ? BLACK_COLOUR : sequence[s];
+        grid[r][c].colour = (s === -1) ? RGB.BLACK : sequence[s];
       }
     }
     return grid;
@@ -426,6 +445,21 @@
     };
   }
 
+  // Pretty output format of the maze as a string.
+  function format(maze) {
+    var out = '';
+    for (var r = 0; r < maze.rows; r++) {
+      for (var c = 0; c < maze.cols; c++) {
+        var rgb = maze.grid[r][c].colour;
+        var ltr = RGB.L[rgb];    // Translate RGB string to a letter
+        if (typeof ltr == 'undefined') ltr = '.';
+        out += ltr + ' ';
+      }
+      out += '\n';
+    }
+    return out;
+  }
+
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
   // to top-right. Tries up to 500 times to find a valid solution path.
   // Returns { grid, sequence, rows, cols }.
@@ -434,17 +468,19 @@
     for (var attempt = 0; attempt < 500; attempt++) {
       var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
-      if (hasShortcut(path, seqLength, sequence)) continue;
 
       var maps     = buildSolutionMaps(rows, cols, path, seqLength);
       var cellStep = maps.cellStep;
 
-      return {
+      var maze = {
         grid:     buildGrid(rows, cols, cellStep, sequence),
         sequence: sequence,
         rows:     rows,
         cols:     cols,
       };
+
+      if (countSolutions(maze) > 1) continue;
+      return maze;
     }
     // Unreachable in practice — minimal fallback
     var grid = createGrid(rows, cols);
@@ -454,11 +490,69 @@
     return { grid: grid, sequence: sequence, rows: rows, cols: cols };
   }
 
+  // Count if there is more than one solution in a maze.
+  // Will stop at second solution; won't count any more.
+  // This is a standalone function so that we can pass in a maze
+  // of our our devising.
+  // endKey is the string key of the end cell, e.g. '0,2'.
+  // If left undefined it defaults to the top right cell as string.
+  function countSolutions(maze, endKey) {
+    var seq     = maze.sequence;
+    var seqLen  = seq.length;
+    var rows    = maze.rows;
+    var cols    = maze.cols;
+    var DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
+    var visited = {};
+    var count   = 0;
+
+    if (typeof endKey === 'undefined') {
+      endKey = '0,' + (cols - 1)
+    }
+
+    // We define an xKey to be an extended key: row,col,step
+
+    visited[(rows - 1) + ',0,0'] = true;
+
+    (function dfs(r, c, step) {
+      debug('Now at ' + r + ',' + c);
+
+      if (count > 1) return;
+      if (r + ',' + c === endKey) { count++; return; }
+
+      var needed = seq[step % seqLen];
+      for (var i = 0; i < DIRS.length; i++) {
+        var nr = r + DIRS[i][0], nc = c + DIRS[i][1];
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+
+        var xKey = nr + ',' + nc + ',' + (step % seqLen);
+        debug('  from ' + r + ',' + c + ' considering ' + xKey);
+        if (visited[xKey]) {debug('  Continuing - visited'); continue; }
+
+        if (maze.grid[nr][nc].colour !== needed) {
+          debug('  Continuing - wanted ' + needed + ' but got ' + maze.grid[nr][nc].colour);
+          continue;
+        }
+
+        visited[xKey] = true;
+        dfs(nr, nc, step + 1);
+        delete visited[xKey];
+        debug('Stepping back from ' + xKey);
+      }
+    }(rows - 1, 0, 1));
+
+    debug('Returning count ' + count);
+    return count;
+  }
+
+  exports.DEBUG                 = DEBUG;
+  exports.debug                 = debug;
   exports.COLOURS               = COLOURS;
   exports.SEQUENCES             = SEQUENCES;
-  exports.BLACK_COLOUR          = BLACK_COLOUR;
+  exports.RGB                   = RGB;
   exports.getLabelColour        = getLabelColour;
   exports.generateMaze          = generateMaze;
+  exports.format                = format;
+  exports.countSolutions        = countSolutions;
   exports._shuffle              = shuffle;
   exports._cellKey              = cellKey;
   exports._createGrid           = createGrid;
