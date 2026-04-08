@@ -104,44 +104,6 @@ test('path meets minimum length (7x7, min=ceil(49*0.4)=20)', function () {
   assert.ok(path.length >= 20, 'path length ' + path.length + ' < 20');
 });
 
-test('_hasShortcut returns false on a generated path (seqLen 3)', function () {
-  var seq  = G.SEQUENCES[1];
-  var path = G._generateSolutionPath(5, 5, 3, seq);
-  assert.ok(path !== null, 'path should not be null');
-  assert.strictEqual(G._hasShortcut(path, 3, seq), false);
-});
-
-test('_hasShortcut returns true on a manually crafted shortcut (seqLen 2)', function () {
-  // seqLen=2, seq=[R,B]. path[0]=(2,0)step0 (R), path[3]=(2,1)step1 (B), adjacent,
-  // |0-3|=3>1, seq[(0+1)%2]=seq[1]=B === seq[3%2]=seq[1]=B => shortcut
-  var seq  = G.SEQUENCES[0]; // [R, B]
-  var path = [
-    { row: 2, col: 0 },
-    { row: 1, col: 0 },
-    { row: 1, col: 1 },
-    { row: 2, col: 1 },
-    { row: 2, col: 2 }
-  ];
-  assert.strictEqual(G._hasShortcut(path, 2, seq), true);
-});
-
-test('_hasShortcut detects colour-based shortcut in [R,B,B] (missed by old step-index check)', function () {
-  // seqLen=3, seq=[R,B,B]. path[0]=(2,0)step0(R) adjacent to path[2]=(2,1)step2(B).
-  // Old check: (0+1)%3=1 !== 2%3=2 — NOT detected.
-  // New check: seq[(0+1)%3]=seq[1]=B === seq[2%3]=seq[2]=B — IS detected.
-  var seq  = G.SEQUENCES[2]; // [R, B, B]
-  var path = [
-    { row: 2, col: 0 },
-    { row: 1, col: 0 },
-    { row: 2, col: 1 },  // adjacent to path[0] AND path[4]
-    { row: 2, col: 2 },
-    { row: 1, col: 2 },
-    { row: 0, col: 2 }
-  ];
-  // path[0]=(2,0)step0(R), path[2]=(2,1)step2(B): adjacent, |0-2|=2, seq[1]=B === seq[2]=B => shortcut
-  assert.strictEqual(G._hasShortcut(path, 3, seq), true);
-});
-
 console.log('\n-- Grid Creation --');
 
 test('_createGrid returns correct dimensions', function () {

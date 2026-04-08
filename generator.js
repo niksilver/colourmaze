@@ -144,30 +144,6 @@
     return null;
   }
 
-  // Returns true if any two non-consecutive adjacent path cells form a shortcut —
-  // i.e. a player at cell i could jump directly to cell j because j's colour matches
-  // what the player needs next. Uses colour comparison to handle repeated-colour sequences.
-  function hasShortcut(path, seqLen, sequence) {
-    var indexAt = {};
-    for (var p = 0; p < path.length; p++) {
-      indexAt[cellKey(path[p].row, path[p].col)] = p;
-    }
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
-    for (var i = 0; i < path.length; i++) {
-      for (var d = 0; d < DIRS.length; d++) {
-        var nr = path[i].row + DIRS[d][0], nc = path[i].col + DIRS[d][1];
-        var nk = cellKey(nr, nc);
-        if (indexAt[nk] !== undefined) {
-          var j = indexAt[nk];
-          // Compare colours, not step indices, so repeated-colour sequences
-          // like [R,B,B] don't create undetected shortcuts.
-          if (Math.abs(i - j) !== 1 && sequence[(i + 1) % seqLen] === sequence[j % seqLen]) return true;
-        }
-      }
-    }
-    return false;
-  }
-
   // Builds the accessFrom data structure and returns an object exposing three
   // functions: canAccessFrom, setAccessFrom, removeAccessFrom.
   //
@@ -559,7 +535,6 @@
   exports._generateSolutionPath = generateSolutionPath;
   exports._buildSolutionMaps    = buildSolutionMaps;
   exports._buildGrid            = buildGrid;
-  exports._hasShortcut          = hasShortcut;
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
   exports._buildMazeState       = buildMazeState;
