@@ -167,8 +167,17 @@ creating a new path to End. It works as follows.
 
 First we
 `setAccessFrom(p, r, c, s)` which should return true (check with assert).
-We also create an undo list which initially just has the element
-[p, r, c, s].
+Then we check for new new paths - see next.
+If that is successful we're done and we return success.
+If it's not successful then we `removeAccessFrom(p, r, c, s)`
+(which should return true, telling us there was somethign to remove)
+and we return failure.
+
+
+## Check for no new paths
+
+This is how we check there are no new paths to End.
+First we create an empty undo list.
 
 Next we scan the grid. When we find an assigned cell (r0,c0)
 we get the `canAccessFrom(r0, c0)` dict and
