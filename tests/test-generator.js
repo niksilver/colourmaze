@@ -783,6 +783,27 @@ test('countSolutions returns 2 when two paths exist', function () {
   assert.strictEqual(countSolutions(maze), 2);
 });
 
+test('countSolutions returns 1 where there is one solution and one dead end', function () {
+  // Straight path (2,0)→(1,0)→(0,0)→(0,1)→(0,2), seq=[R,B]
+  // Non-sol cells all coloured to be unreachable
+  var seq  = G.SEQUENCES[0]; // [red, blue]
+  var grid = G._createGrid(3, 3);
+  // solution path colours: step%2 → 0=red,1=blue,0=red,1=blue,0=red
+  grid[2][0].colour = seq[0]; // red  (step 0)
+  grid[1][0].colour = seq[1]; // blue (step 1)
+  grid[0][0].colour = seq[0]; // red  (step 2)
+  grid[0][1].colour = seq[1]; // blue (step 3)
+  grid[0][2].colour = seq[0]; // red  (step 4) — end cell
+  // Dead end
+  grid[2][1].colour = seq[1];
+  grid[2][2].colour = seq[2];
+  // All other cells: colour them black (unreachable)
+  grid[1][1].colour = '#000000';
+  grid[1][2].colour = '#000000';
+  var maze = { grid: grid, sequence: seq, rows: 3, cols: 3 };
+  assert.strictEqual(countSolutions(maze), 1);
+});
+
 console.log('\n-- generateMaze uniqueness (50 runs, solution path only) --');
 
 test('generateMaze produces exactly 1 solution (50 runs, 5×5, [R,B,B])', function () {
