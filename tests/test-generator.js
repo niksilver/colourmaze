@@ -401,8 +401,6 @@ test('attemptCandidateStep: Should not propagate from coloured cell not on known
   assert.deepStrictEqual(ctx.canAccessFrom(2, 1), {0: [2]}, 'Cell (2,1) accessible but no propagation');
 });
 
-/* Commented out until we get propagation in place.
-
 test('attemptCandidateStep: Should propagate from coloured cell once linked to a known path', function () {
   // 3×3 grid, seq=[R,Y,B]. Solution: (2,0)→(1,0)→(0,0).
   // Steps: 0,1,2.
@@ -418,12 +416,10 @@ test('attemptCandidateStep: Should propagate from coloured cell once linked to a
 
   // Add an adjacent cell that's accessible is the step before (red) and from path index 0.
   // That should propagate to (2,2).
-  ctx.setAccessFrom(0, 1, 2, 0);
+  ctx.attemptCandidateStep(0, 1, 2, 0);
   var dict = ctx.canAccessFrom(2, 2);
-  assert.deepStrictEqual(dict, {}, 'Dummy to get a pretty print');
   assert.deepStrictEqual(ctx.canAccessFrom(2, 2)[0], [1], 'Cell (2,2) is now accessible at step 1 from path index 0');
 });
-*/
 
 console.log('\n-- cellSteps and colour --');
 
