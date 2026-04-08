@@ -41,6 +41,8 @@
     [RGB.RED, RGB.YELLOW, RGB.BLUE,   RGB.GREEN, RGB.PURPLE],     // red, yellow, blue, green, purple
   ];
 
+  var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
   // Returns 'black' or 'white' for readable contrast against a hex cell colour.
   // Uses perceived luminance: luma = 0.299R + 0.587G + 0.114B (0-255 scale).
   // Threshold: luma > 140 => black text, else white.
@@ -270,7 +272,7 @@
     return forbidden;
   }
 
-// Builds two lookup structures from the solution path: isSol (set of solution cell keys)
+  // Builds two lookup structures from the solution path: isSol (set of solution cell keys)
   // and cellStep (rows×cols array with each solution cell's sequence step, null elsewhere).
   function buildSolutionMaps(rows, cols, path, seqLen) {
     var isSol = {};
@@ -323,8 +325,6 @@
     for (var i = 0; i < path.length; i++) {
       solIndex[cellKey(path[i].row, path[i].col)] = i;
     }
-
-    var DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 
     // Assigns step s to unassigned cell (r,c) from solution path index p.
     // Propagates reachability and detects second routes to End.
@@ -436,6 +436,24 @@
     return out;
   }
 
+  // INCOMPELTE! Fill the maze with dead-ends
+  function fillWithDeadEnds(maze) {
+    var seq     = maze.sequence;
+    var colours = [];
+    for (var step in seq) {
+      var k = seq[step];
+      if (!(k in colours)) colours.push(k);
+    }
+
+    for (var r = 0; r < maze.rows; r++) {
+      for (var c = 0; c < maze.cols; c++) {
+        for (var k in colours) {
+          // To be completed!
+        }
+      }
+    }
+  }
+
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
   // to top-right. Tries up to 500 times to find a valid solution path.
   // Returns { grid, sequence, rows, cols }.
@@ -477,7 +495,6 @@
     var seqLen  = seq.length;
     var rows    = maze.rows;
     var cols    = maze.cols;
-    var DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
     var visited = {};
     var count   = 0;
 
