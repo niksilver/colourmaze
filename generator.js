@@ -326,21 +326,16 @@
       solIndex[cellKey(path[i].row, path[i].col)] = i;
     }
 
-    // Assigns step s to unassigned cell (r,c) from solution path index p.
-    // Propagates reachability and detects second routes to End.
-    // Returns true on success (no second solution created), false otherwise.
-    // On failure, undoes all canAccessFrom changes made during this call.
-    // Throws (via setAccessFrom) if s conflicts in colour with existing steps.
-    function attemptCandidateStep(p, r, c, s) {
-      var undoList = [[p, r, c, s]];
-      setAccessFrom(p, r, c, s);
+    function noNewPaths() {
 
       function undoAll() {
         for (var ui = 0; ui < undoList.length; ui++)
           removeAccessFrom(undoList[ui][0], undoList[ui][1], undoList[ui][2], undoList[ui][3]);
       }
 
+      var undoList = [];
       var progress = true;
+
       while (progress) {
         progress = false;
         // Outer scan: visit every assigned cell in the grid.
@@ -407,6 +402,21 @@
       return true;
     }
 
+
+    // Assigns step s to unassigned cell (r,c) from solution path index p.
+    // Propagates reachability and detects second routes to End.
+    // Returns true on success (no second solution created), false otherwise.
+    // On failure, undoes all canAccessFrom changes made during this call.
+    // Throws (via setAccessFrom) if s conflicts in colour with existing steps.
+    function attemptCandidateStep(p, r, c, s) {
+      setAccessFrom(p, r, c, s);
+      var success = noNewPaths();
+      if (success) return true;
+      removeAccessFrom(p, r, c, s);
+      return false;
+    }
+
+
     return {
       cellStep:             cellStep,
       forbidden:            forbidden,
@@ -418,6 +428,7 @@
       setColour:            af.setColour,
       unsetColour:          af.unsetColour,
       attemptCandidateStep: attemptCandidateStep,
+      noNewPaths:           noNewPaths,
     };
   }
 
