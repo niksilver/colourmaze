@@ -416,6 +416,33 @@
       return false;
     }
 
+    // Fill the maze with sequence colours, without creating any new paths
+    function fillRemaining() {
+      var colours = [];
+      for (var k of sequence) {
+        if (!(k in colours)) colours.push(k);
+      }
+
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          if (af.colour(r, c)) continue;
+
+          // Try each colour in turn.
+          // Would ideally shuffle the colours, but probably won't make much difference.
+          for (var k of colours) {
+            af.setColour(r, c, k);
+            if (noNewPaths()) {
+              // We've found a suitable colour
+              break;
+            }
+            af.unsetColour(r, c);
+          }
+          // Possible issue here - there may be no appropriate colours
+          // but we've not said a colour/step is forbidden.
+
+        }
+      }
+    }
 
     return {
       cellStep:             cellStep,
@@ -427,8 +454,9 @@
       colour:               colour,
       setColour:            af.setColour,
       unsetColour:          af.unsetColour,
-      attemptCandidateStep: attemptCandidateStep,
       noNewPaths:           noNewPaths,
+      attemptCandidateStep: attemptCandidateStep,
+      fillRemaining:        fillRemaining,
     };
   }
 
@@ -445,24 +473,6 @@
       out += '\n';
     }
     return out;
-  }
-
-  // INCOMPELTE! Fill the maze with dead-ends
-  function fillWithDeadEnds(maze) {
-    var seq     = maze.sequence;
-    var colours = [];
-    for (var step in seq) {
-      var k = seq[step];
-      if (!(k in colours)) colours.push(k);
-    }
-
-    for (var r = 0; r < maze.rows; r++) {
-      for (var c = 0; c < maze.cols; c++) {
-        for (var k in colours) {
-          // To be completed!
-        }
-      }
-    }
   }
 
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
@@ -485,6 +495,17 @@
       };
 
       if (countSolutions(maze) > 1) continue;
+      ctx = buildMazeState(rows, cols, path, sequence)
+
+      ctx.fillRemaining();
+      maze.grid = buildGrid(rows, cols, cellStep, sequence);
+
+      if (countSolutions(maze) > 1) {
+        // We've filled the grid but there is still more than one solution.
+        // That shouldn't happen
+        throw new Error('More than one solution after filling grid');
+        //continue;
+      }
       return maze;
     }
     // Unreachable in practice — minimal fallback
