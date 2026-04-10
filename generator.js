@@ -72,13 +72,13 @@
     return row + ',' + col;
   }
 
-  // Allocates a rows×cols 2D array of cells, each with colour initialised to null.
+  // Allocates a rows×cols 2D array of cells, each with its value (colour) initialised to null.
   function createGrid(rows, cols) {
     var grid = [];
     for (var r = 0; r < rows; r++) {
       grid[r] = [];
       for (var c = 0; c < cols; c++) {
-        grid[r][c] = { colour: null };
+        grid[r][c] = null;
       }
     }
     return grid;
@@ -275,18 +275,6 @@
     return forbidden;
   }
 
-  // Creates a coloured grid from a completed cellStep array.
-  // Each cell gets sequence[step] as its colour; step -1 maps to black.
-  function buildGrid(rows, cols, ctx, sequence) {
-    var grid = createGrid(rows, cols);
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        grid[r][c].colour = ctx.colour(r, c) || RGB.BLACK;
-      }
-    }
-    return grid;
-  }
-
   // Bundles all mutable maze state and methods that operate on it, so those
   // methods only need (p, r, c, s) style arguments via closure.
   function buildMazeState(rows, cols, path, sequence) {
@@ -429,6 +417,18 @@
       }
     }
 
+    // Creates a coloured grid just from colours in the maze.
+    // Each cell gets a colour, which may be RGB.BLACK.
+    function toGrid() {
+      var grid = createGrid(rows, cols);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          grid[r][c] = colour(r, c) || RGB.BLACK;
+        }
+      }
+      return grid;
+    }
+
     return {
       forbidden:            forbidden,
       isSol:                isSol,
@@ -441,15 +441,16 @@
       noNewPaths:           noNewPaths,
       attemptCandidateStep: attemptCandidateStep,
       fillRemaining:        fillRemaining,
+      toGrid:               toGrid,
     };
   }
 
-  // Pretty output format of the maze as a string.
-  function format(maze) {
+  // Pretty output format of a grid as a string.
+  function format(grid) {
     var out = '';
-    for (var r = 0; r < maze.rows; r++) {
-      for (var c = 0; c < maze.cols; c++) {
-        var rgb = maze.grid[r][c].colour;
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < grid[r].length; c++) {
+        var rgb = grid[r][c];
         var ltr = RGB.L[rgb];    // Translate RGB string to a letter
         if (typeof ltr == 'undefined') ltr = '.';
         out += ltr + ' ';
@@ -461,54 +462,53 @@
 
   // Top-level pipeline: generates a maze with a unique solution path from bottom-left
   // to top-right. Tries up to 500 times to find a valid solution path.
-  // Returns { grid, sequence, rows, cols }.
+  // Returns dict with keys { grid, sequence, rows, cols }.
   function generateMaze(rows, cols, sequence) {
     var seqLength = sequence.length;
     for (var attempt = 0; attempt < 500; attempt++) {
+      debug('sequence is ' + sequence);
       var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
 
-      var ctx  = buildMazeState(rows, cols, path, seqLength);
-      var maze = {
-        grid:     buildGrid(rows, cols, ctx, sequence),
-        sequence: sequence,
-        rows:     rows,
-        cols:     cols,
-      };
+      var ctx  = buildMazeState(rows, cols, path, sequence);
+      var grid = ctx.toGrid();
 
-      if (countSolutions(maze) > 1) continue;
-      ctx = buildMazeState(rows, cols, path, sequence)
+      if (countSolutions(grid, sequence) > 1) continue;
 
       ctx.fillRemaining();
-      maze.grid = buildGrid(rows, cols, ctx, sequence);
+      grid = ctx.toGrid(rows, cols, ctx, sequence);
 
-      if (countSolutions(maze) > 1) {
+      if (countSolutions(grid, sequence) > 1) {
         // We've filled the grid but there is still more than one solution.
         // That shouldn't happen
         throw new Error('More than one solution after filling grid');
         //continue;
       }
-      return maze;
+      return {
+        grid:     grid,
+        sequence: sequence,
+        rows:     rows,
+        cols:     cols,
+      };
     }
     // Unreachable in practice — minimal fallback
     var grid = createGrid(rows, cols);
     for (var r = 0; r < rows; r++)
       for (var c = 0; c < cols; c++)
-        grid[r][c].colour = sequence[0];
+        grid[r][c] = sequence[0];
     return { grid: grid, sequence: sequence, rows: rows, cols: cols };
   }
 
-  // Count if there is more than one solution in a maze.
+  // Count if there is more than one solution in a grid of colours.
   // Will stop at second solution; won't count any more.
-  // This is a standalone function so that we can pass in a maze
+  // This is a standalone function so that we can pass in a grid
   // of our our devising.
   // endKey is the string key of the end cell, e.g. '0,2'.
   // If left undefined it defaults to the top right cell as string.
-  function countSolutions(maze, endKey) {
-    var seq     = maze.sequence;
-    var seqLen  = seq.length;
-    var rows    = maze.rows;
-    var cols    = maze.cols;
+  function countSolutions(grid, sequence, endKey) {
+    var rows    = grid.length;
+    var cols    = grid[0].length;
+    var seqLen  = sequence.length;
     var visited = {};
     var count   = 0;
 
@@ -526,7 +526,7 @@
       if (count > 1) return;
       if (r + ',' + c === endKey) { count++; return; }
 
-      var needed = seq[step % seqLen];
+      var needed = sequence[step % seqLen];
       for (var i = 0; i < DIRS.length; i++) {
         var nr = r + DIRS[i][0], nc = c + DIRS[i][1];
         if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
@@ -535,8 +535,8 @@
         debug('  from ' + r + ',' + c + ' considering ' + xKey);
         if (visited[xKey]) {debug('  Continuing - visited'); continue; }
 
-        if (maze.grid[nr][nc].colour !== needed) {
-          debug('  Continuing - wanted ' + needed + ' but got ' + maze.grid[nr][nc].colour);
+        if (grid[nr][nc] !== needed) {
+          debug('  Continuing - wanted ' + needed + ' but got ' + grid[nr][nc]);
           continue;
         }
 
@@ -564,7 +564,6 @@
   exports._cellKey              = cellKey;
   exports._createGrid           = createGrid;
   exports._generateSolutionPath = generateSolutionPath;
-  exports._buildGrid            = buildGrid;
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
   exports._buildMazeState       = buildMazeState;
