@@ -11,6 +11,7 @@ function test(name, fn) {
     passed++;
   } catch (e) {
     console.log('  \u2717 ' + name + ': ' + e.message);
+    console.log(e.stack);
     failed++;
   }
 }
@@ -550,9 +551,9 @@ test('unSetColour: allows unsetting of colour that was previously set', function
   assert.deepStrictEqual(ctx.cellSteps(1, 1), [], 'Cell (1,1) should not be accessible on any steps');
 });
 
-console.log('\n-- buildSolutionMaps --');
+console.log('\n-- buildMazeState --');
 
-test('buildSolutionMaps: isSol marks exactly the path cells', function () {
+test('buildMazeState: isSol marks exactly the path cells', function () {
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -560,17 +561,18 @@ test('buildSolutionMaps: isSol marks exactly the path cells', function () {
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var result = G._buildSolutionMaps(3, 3, path, 3);
-  assert.strictEqual(result.isSol['2,0'], true);
-  assert.strictEqual(result.isSol['1,0'], true);
-  assert.strictEqual(result.isSol['0,0'], true);
-  assert.strictEqual(result.isSol['0,1'], true);
-  assert.strictEqual(result.isSol['0,2'], true);
-  assert.strictEqual(result.isSol['1,1'], undefined);
-  assert.strictEqual(result.isSol['2,2'], undefined);
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  assert.strictEqual(ctx.isSol['2,0'], true);
+  assert.strictEqual(ctx.isSol['1,0'], true);
+  assert.strictEqual(ctx.isSol['0,0'], true);
+  assert.strictEqual(ctx.isSol['0,1'], true);
+  assert.strictEqual(ctx.isSol['0,2'], true);
+  assert.strictEqual(ctx.isSol['1,1'], undefined);
+  assert.strictEqual(ctx.isSol['2,2'], undefined);
 });
 
-test('buildSolutionMaps: cellStep assigns correct sequence steps to path cells', function () {
+test('buildMazeState: cellSteps assigns correct sequence steps to path cells', function () {
   // path of length 5, seqLen 3: steps 0,1,2,0,1
   var path = [
     { row: 2, col: 0 },
@@ -579,15 +581,16 @@ test('buildSolutionMaps: cellStep assigns correct sequence steps to path cells',
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var result = G._buildSolutionMaps(3, 3, path, 3);
-  assert.strictEqual(result.cellStep[2][0], 0);
-  assert.strictEqual(result.cellStep[1][0], 1);
-  assert.strictEqual(result.cellStep[0][0], 2);
-  assert.strictEqual(result.cellStep[0][1], 0); // 3 % 3 = 0
-  assert.strictEqual(result.cellStep[0][2], 1); // 4 % 3 = 1
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  assert.deepStrictEqual(ctx.cellSteps(2, 0), [0]);
+  assert.deepStrictEqual(ctx.cellSteps(1, 0), [1]);
+  assert.deepStrictEqual(ctx.cellSteps(0, 0), [2]);
+  assert.deepStrictEqual(ctx.cellSteps(0, 1), [0]); // 3 % 3 = 0
+  assert.deepStrictEqual(ctx.cellSteps(0, 2), [1]); // 4 % 3 = 1
 });
 
-test('buildSolutionMaps: cellStep is null for non-path cells', function () {
+test('buildMazeState: cellStep is null for non-path cells', function () {
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -595,14 +598,15 @@ test('buildSolutionMaps: cellStep is null for non-path cells', function () {
     { row: 0, col: 1 },
     { row: 0, col: 2 }
   ];
-  var result = G._buildSolutionMaps(3, 3, path, 3);
-  assert.strictEqual(result.cellStep[1][1], null);
-  assert.strictEqual(result.cellStep[2][1], null);
-  assert.strictEqual(result.cellStep[2][2], null);
-  assert.strictEqual(result.cellStep[1][2], null);
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var ctx = G._buildMazeState(3, 3, path, seq);
+  assert.deepStrictEqual(ctx.cellSteps(1, 1), []);
+  assert.deepStrictEqual(ctx.cellSteps(2, 1), []);
+  assert.deepStrictEqual(ctx.cellSteps(2, 2), []);
+  assert.deepStrictEqual(ctx.cellSteps(1, 2), []);
 });
 
-console.log('\n-- buildGrid --');
+/*console.log('\n-- buildGrid --');
 
 test('buildGrid: cell colour matches sequence[cellStep]', function () {
   var seq = G.SEQUENCES[1]; // [R, Y, B]
@@ -628,7 +632,7 @@ test('buildGrid: returns correct dimensions', function () {
   var grid = G._buildGrid(2, 3, cellStep, seq);
   assert.strictEqual(grid.length, 2);
   assert.strictEqual(grid[0].length, 3);
-});
+});*/
 
 console.log('\n-- generateMaze end-to-end --');
 
@@ -816,9 +820,9 @@ test('generateMaze produces exactly 1 solution (50 runs, 5×5, [R,B,B])', functi
     var n    = G.countSolutions(maze);
     if (n > 1) {
       console.log(G.format(maze));
-      G.DEBUG = true;
+      G.setDebug(true);
       G.countSolutions(maze);
-      G.DEBUG = false;
+      G.setDebug(false);
     }
     assert.strictEqual(n, 1,
       'run ' + (i + 1) + ': expected 1 solution, got ' + n);

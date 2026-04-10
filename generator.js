@@ -2,6 +2,9 @@
 (function (exports) {
 
   var DEBUG = false;
+  function setDebug(b) {
+    DEBUG = b;
+  }
   function debug(s) {
     if (DEBUG) console.log(s);
   }
@@ -272,30 +275,13 @@
     return forbidden;
   }
 
-  // Builds two lookup structures from the solution path: isSol (set of solution cell keys)
-  // and cellStep (rows×cols array with each solution cell's sequence step, null elsewhere).
-  function buildSolutionMaps(rows, cols, path, seqLen) {
-    var isSol = {};
-    var cellStep = [];
-    for (var r = 0; r < rows; r++) {
-      cellStep[r] = [];
-      for (var c = 0; c < cols; c++) cellStep[r][c] = null;
-    }
-    for (var i = 0; i < path.length; i++) {
-      isSol[cellKey(path[i].row, path[i].col)] = true;
-      cellStep[path[i].row][path[i].col] = i % seqLen;
-    }
-    return { isSol: isSol, cellStep: cellStep };
-  }
-
   // Creates a coloured grid from a completed cellStep array.
   // Each cell gets sequence[step] as its colour; step -1 maps to black.
-  function buildGrid(rows, cols, cellStep, sequence) {
+  function buildGrid(rows, cols, ctx, sequence) {
     var grid = createGrid(rows, cols);
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
-        var s = cellStep[r][c];
-        grid[r][c].colour = (s === -1) ? RGB.BLACK : sequence[s];
+        grid[r][c].colour = ctx.colour(r, c) || RGB.BLACK;
       }
     }
     return grid;
@@ -305,9 +291,6 @@
   // methods only need (p, r, c, s) style arguments via closure.
   function buildMazeState(rows, cols, path, sequence) {
     var seqLen   = sequence.length;
-    var maps     = buildSolutionMaps(rows, cols, path, seqLen);
-    var isSol    = maps.isSol;
-    var cellStep = maps.cellStep;
     var forbidden = buildForbidden(rows, cols, seqLen);
     var af        = buildAccessFrom(rows, cols, path, sequence);
 
@@ -320,10 +303,12 @@
     // Key of the end cell (top-right corner).
     var endKey = cellKey(0, cols - 1);
 
-    // Maps each solution-cell key to its path index.
-    var solIndex = {};
+    var solIndex = {}; // Maps each solution-cell key to its path index.
+    var isSol    = {}; // Maps each solution-cell key to true.
     for (var i = 0; i < path.length; i++) {
-      solIndex[cellKey(path[i].row, path[i].col)] = i;
+      key =cellKey(path[i].row, path[i].col);
+      solIndex[key] = i;
+      isSol[key]    = true;
     }
 
     function noNewPaths() {
@@ -445,7 +430,6 @@
     }
 
     return {
-      cellStep:             cellStep,
       forbidden:            forbidden,
       isSol:                isSol,
       canAccessFrom:        canAccessFrom,
@@ -484,11 +468,9 @@
       var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
 
-      var maps     = buildSolutionMaps(rows, cols, path, seqLength);
-      var cellStep = maps.cellStep;
-
+      var ctx  = buildMazeState(rows, cols, path, seqLength);
       var maze = {
-        grid:     buildGrid(rows, cols, cellStep, sequence),
+        grid:     buildGrid(rows, cols, ctx, sequence),
         sequence: sequence,
         rows:     rows,
         cols:     cols,
@@ -498,7 +480,7 @@
       ctx = buildMazeState(rows, cols, path, sequence)
 
       ctx.fillRemaining();
-      maze.grid = buildGrid(rows, cols, cellStep, sequence);
+      maze.grid = buildGrid(rows, cols, ctx, sequence);
 
       if (countSolutions(maze) > 1) {
         // We've filled the grid but there is still more than one solution.
@@ -569,7 +551,7 @@
     return count;
   }
 
-  exports.DEBUG                 = DEBUG;
+  exports.setDebug              = setDebug;
   exports.debug                 = debug;
   exports.COLOURS               = COLOURS;
   exports.SEQUENCES             = SEQUENCES;
@@ -582,7 +564,6 @@
   exports._cellKey              = cellKey;
   exports._createGrid           = createGrid;
   exports._generateSolutionPath = generateSolutionPath;
-  exports._buildSolutionMaps    = buildSolutionMaps;
   exports._buildGrid            = buildGrid;
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
