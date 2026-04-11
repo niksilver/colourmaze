@@ -212,7 +212,7 @@ test('removeAccessFrom: returns false when p does not exist', function () {
 test('setAccessFrom: throws when adding a step whose colour conflicts with an existing step', function () {
   var seq  = G.SEQUENCES[1]; // [R, Y, B] — step 0=R, step 2=B, different colours
   var path = [{ row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }];
-  var ctx  = G._buildMazeState(3, 3, path, seq);
+  var ctx  = G._mazeContext(3, 3, path, seq);
   ctx.setAccessFrom(0, 2, 1, 0); // step 0 (R)
   assert.throws(function () {
     ctx.setAccessFrom(1, 2, 1, 2); // step 2 (B) — conflicts with R
@@ -237,7 +237,7 @@ test('attemptCandidateStep: returns true and assigns step for a safe cell', func
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
 
   var result = ctx.attemptCandidateStep(0, 2, 1, 1);
   assert.strictEqual(result, true, 'should return true (success)');
@@ -253,7 +253,7 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(0, 1, 2, 0);
   assert.strictEqual(result, false, 'should return false (second route to End)');
   assert.deepStrictEqual(ctx.cellSteps(1, 2), [], 'cell should be unassigned after failure');
@@ -268,7 +268,7 @@ test('attemptCandidateStep: returns false when cell adjacent to End creates seco
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(0, 1, 2, 1);
   assert.strictEqual(result, false, 'should return false (same-colour second route to End)');
   assert.deepStrictEqual(ctx.cellSteps(1, 2), [], 'cell should be unassigned after failure');
@@ -283,7 +283,7 @@ test('attemptCandidateStep: propagates back to path entry point and that is okay
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   ctx.setColour(1, 1, seq[0])    // (1,1)[R0] will eventually lead to (1,0)[Y1]
   ctx.setColour(1, 2, seq[2])    // (1,2)[B2] will eventually lead to (1,1)[R0]
   assert.deepStrictEqual(ctx.canAccessFrom(1, 1)[1], undefined, '(1,1) should not access p=1 yet');
@@ -304,7 +304,7 @@ test('attemptCandidateStep: fails when propagation would rejoin solution at a di
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   var result = ctx.attemptCandidateStep(1, 1, 1, 2);
   assert.strictEqual(result, false);
   assert.deepStrictEqual(ctx.canAccessFrom(0, 1), { 3: [0] }); // unchanged
@@ -322,7 +322,7 @@ test('attemptCandidateStep: propagation updates canAccessFrom for a non-solution
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   ctx.attemptCandidateStep(0, 2, 1, 0);
   var result = ctx.attemptCandidateStep(1, 1, 1, 2);
   assert.strictEqual(result, true);
@@ -335,7 +335,7 @@ test('attemptCandidateStep: throws when assigning a step whose colour conflicts 
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   ctx.attemptCandidateStep(0, 2, 1, 0); // step 0 (R) from p=0
   // step 2 is B — different colour from R — should throw
   assert.throws(function () {
@@ -350,7 +350,7 @@ test('attemptCandidateStep: Should not propagate from coloured cell not on known
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
 
   // Colour (2,2) to be yellow, but we don't yet know we can get there
   ctx.setColour(2, 2, seq[1])
@@ -371,7 +371,7 @@ test('attemptCandidateStep: Should propagate from coloured cell once linked to a
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
 
   // Colour (2,2) to be yellow, but we don't yet know we can get there
   ctx.setColour(2, 2, seq[1])
@@ -392,7 +392,7 @@ test('cellSteps: returns [] for an unassigned cell after initialisation', functi
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.deepStrictEqual(ctx.cellSteps(1, 1), []);
   assert.deepStrictEqual(ctx.cellSteps(1, 2), []);
   assert.deepStrictEqual(ctx.cellSteps(2, 1), []);
@@ -405,7 +405,7 @@ test('cellSteps: returns [step] for a solution cell after initialisation', funct
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.deepStrictEqual(ctx.cellSteps(2, 0), [0]); // path[0], step 0%3=0
   assert.deepStrictEqual(ctx.cellSteps(1, 0), [1]); // path[1], step 1%3=1
   assert.deepStrictEqual(ctx.cellSteps(0, 0), [2]); // path[2], step 2%3=2
@@ -421,7 +421,7 @@ test('colour: returns null for an unassigned cell', function () {
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.strictEqual(ctx.colour(1, 1), null);
   assert.strictEqual(ctx.colour(1, 2), null);
   assert.strictEqual(ctx.colour(2, 1), null);
@@ -435,7 +435,7 @@ test('colour: returns the correct colour for each solution cell', function () {
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
   // steps: 0=R, 1=Y, 2=B, 3%3=0=R, 4%3=1=Y
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.strictEqual(ctx.colour(2, 0), seq[0]); // R
   assert.strictEqual(ctx.colour(1, 0), seq[1]); // Y
   assert.strictEqual(ctx.colour(0, 0), seq[2]); // B
@@ -449,7 +449,7 @@ test('colour: returns the correct colour for a cell assigned via attemptCandidat
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   ctx.attemptCandidateStep(0, 2, 1, 0); // step 0 (R) from p=0
   assert.strictEqual(ctx.colour(2, 1), seq[0]); // R
   ctx.attemptCandidateStep(1, 1, 1, 2); // step 2 (B) from p=1
@@ -462,7 +462,7 @@ test('colour: returns the correct colour when a cell is accessible from two path
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Directly set up: cell (1,1) reachable from p=0 and p=3, both at step 0 (R)
   ctx.setAccessFrom(0, 1, 1, 0);
   ctx.setAccessFrom(3, 1, 1, 0);
@@ -477,7 +477,7 @@ test('colour: returns the correct colour when a cell has two different steps of 
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
     { row: 0, col: 1 }, { row: 0, col: 2 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Directly set up: cell (1,1) at step 1 (B) from p=0, and step 2 (B) from p=1
   ctx.setAccessFrom(0, 1, 1, 1);
   ctx.setAccessFrom(1, 1, 1, 2);
@@ -491,7 +491,7 @@ test('setColour: allows setting of colour that appears singly in a sequence', fu
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Directly set up: cell (1,1) to be Yellow
   ctx.setColour(1, 1, seq[1]);
   assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
@@ -503,7 +503,7 @@ test('setColour: allows setting of colour that appears twice in a sequence', fun
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Directly set up: cell (1,1) to be blue, which is repeated
   ctx.setColour(1, 1, seq[1]);
   assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
@@ -515,7 +515,7 @@ test('setColour: throws if cell is already a different colour', function () {
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Cell (2,1) accessible from solution path as yellow.
   ctx.setAccessFrom(0, 2, 1, 1);
   assert.strictEqual(ctx.colour(2,1), seq[1], 'Cell (2,1) should be yellow after just setting it')
@@ -530,7 +530,7 @@ test('setColour: throws if colour is not valid', function () {
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Try to set (2,1) to be some unknown colour
   assert.throws(function() {
     ctx.setColour(2, 1, 'Unknownium');
@@ -542,7 +542,7 @@ test('unSetColour: allows unsetting of colour that was previously set', function
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }
   ];
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   // Directly set up: cell (1,1) to be yellow
   ctx.setColour(1, 1, seq[1]);
   assert.strictEqual(ctx.colour(1, 1), seq[1], 'Cell (1,1) should be yellow');
@@ -551,9 +551,9 @@ test('unSetColour: allows unsetting of colour that was previously set', function
   assert.deepStrictEqual(ctx.cellSteps(1, 1), [], 'Cell (1,1) should not be accessible on any steps');
 });
 
-console.log('\n-- buildMazeState --');
+console.log('\n-- mazeContext --');
 
-test('buildMazeState: isSol marks exactly the path cells', function () {
+test('mazeContext: isSol marks exactly the path cells', function () {
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -562,7 +562,7 @@ test('buildMazeState: isSol marks exactly the path cells', function () {
     { row: 0, col: 2 }
   ];
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.strictEqual(ctx.isSol['2,0'], true);
   assert.strictEqual(ctx.isSol['1,0'], true);
   assert.strictEqual(ctx.isSol['0,0'], true);
@@ -572,7 +572,7 @@ test('buildMazeState: isSol marks exactly the path cells', function () {
   assert.strictEqual(ctx.isSol['2,2'], undefined);
 });
 
-test('buildMazeState: cellSteps assigns correct sequence steps to path cells', function () {
+test('mazeContext: cellSteps assigns correct sequence steps to path cells', function () {
   // path of length 5, seqLen 3: steps 0,1,2,0,1
   var path = [
     { row: 2, col: 0 },
@@ -582,7 +582,7 @@ test('buildMazeState: cellSteps assigns correct sequence steps to path cells', f
     { row: 0, col: 2 }
   ];
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.deepStrictEqual(ctx.cellSteps(2, 0), [0]);
   assert.deepStrictEqual(ctx.cellSteps(1, 0), [1]);
   assert.deepStrictEqual(ctx.cellSteps(0, 0), [2]);
@@ -590,7 +590,7 @@ test('buildMazeState: cellSteps assigns correct sequence steps to path cells', f
   assert.deepStrictEqual(ctx.cellSteps(0, 2), [1]); // 4 % 3 = 1
 });
 
-test('buildMazeState: cellStep is null for non-path cells', function () {
+test('mazeContext: cellStep is null for non-path cells', function () {
   var path = [
     { row: 2, col: 0 },
     { row: 1, col: 0 },
@@ -599,7 +599,7 @@ test('buildMazeState: cellStep is null for non-path cells', function () {
     { row: 0, col: 2 }
   ];
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
-  var ctx = G._buildMazeState(3, 3, path, seq);
+  var ctx = G._mazeContext(3, 3, path, seq);
   assert.deepStrictEqual(ctx.cellSteps(1, 1), []);
   assert.deepStrictEqual(ctx.cellSteps(2, 1), []);
   assert.deepStrictEqual(ctx.cellSteps(2, 2), []);

@@ -277,7 +277,7 @@
 
   // Bundles all mutable maze state and methods that operate on it, so those
   // methods only need (p, r, c, s) style arguments via closure.
-  function buildMazeState(rows, cols, path, sequence) {
+  function mazeContext(rows, cols, path, sequence) {
     var seqLen   = sequence.length;
     var forbidden = buildForbidden(rows, cols, seqLen);
     var af        = buildAccessFrom(rows, cols, path, sequence);
@@ -470,7 +470,7 @@
       var path = generateSolutionPath(rows, cols, seqLength, sequence);
       if (!path) continue;
 
-      var ctx  = buildMazeState(rows, cols, path, sequence);
+      var ctx  = mazeContext(rows, cols, path, sequence);
       var grid = ctx.toGrid();
 
       if (countSolutions(grid, sequence) > 1) continue;
@@ -566,7 +566,7 @@
   exports._generateSolutionPath = generateSolutionPath;
   exports._buildAccessFrom      = buildAccessFrom;
   exports._buildForbidden       = buildForbidden;
-  exports._buildMazeState       = buildMazeState;
+  exports._mazeContext          = mazeContext;
 
   if (typeof module !== 'undefined') module.exports = exports;
   else self.Generator = exports;   // self works in both Web Worker and browser window
