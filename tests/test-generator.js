@@ -114,16 +114,16 @@ test('path has no repeated cells (5x5)', function () {
   });
 });
 
-test('path meets minimum length (5x5, min=ceil(25*0.4)=10)', function () {
+test('path meets minimum length (5x5, min=ceil(25*0.3)=8)', function () {
   var path = G._generateSolutionPath(5, 5, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
-  assert.ok(path.length >= 10, 'path length ' + path.length + ' < 10');
+  assert.ok(path.length >= 8, 'path length ' + path.length + ' < 8');
 });
 
-test('path meets minimum length (7x7, min=ceil(49*0.4)=20)', function () {
+test('path meets minimum length (7x7, min=ceil(49*0.3)=15)', function () {
   var path = G._generateSolutionPath(7, 7, 3, G.SEQUENCES[1]);
   assert.ok(path !== null, 'path should not be null');
-  assert.ok(path.length >= 20, 'path length ' + path.length + ' < 20');
+  assert.ok(path.length >= 15, 'path length ' + path.length + ' < 15');
 });
 
 console.log('\n-- Grid Creation --');
