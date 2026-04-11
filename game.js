@@ -207,7 +207,7 @@ function onCellClick(e) {
   var needed = maze.sequence[state.currentStep % maze.sequence.length];
   if (!isOrthogonalNeighbour(state.currentPos, row, col)) return;
   if (state.visited[key]) return;
-  if (maze.grid[row][col].colour !== needed) return;
+  if (maze.grid[row][col] !== needed) return;
 
   state.visited[key] = true;
   state.path.push({ row: row, col: col });
