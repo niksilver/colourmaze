@@ -38,8 +38,6 @@ Each step is described below.
 
 Generate a random path from Start (bottom-left) to End (top-right) using
 a depth-first search (DFS) with backtracking. Each cell is visited at most once.
-The path must be at least `2 * (rows + cols)` cells long and
-at most `ceil(rows * cols * 0.5)` cells long.
 
 During DFS, before extending to a candidate cell at path index k, we check
 all previously-visited path cells j that are grid-adjacent to the candidate.
@@ -224,28 +222,13 @@ true - it's a logical error otherwise (use assert).
 
 ## Fill remaining cells
 
-For each cell still unassigned after dead-end extension, pick a random
-step that's not forbidden. If all steps are forbidden,
-assign step −1 (rendered as black).
-
-However, it's currently not clear how we record these cell colours
-using `setAccessFrom()` because that requires a path index. We'll come
-to that later.
-
-Currently there is a possible problem here.
-Dead-end extension only ever tries step (s + 1) % seqLen for a cell adjacent to an
-already-assigned cell with canAccessFrom entry {p: [s]}. A step that dead-end extension
-never attempted ends up with no forbidden entry. Fill remaining can then freely assign that
-step.
-
-Concretely: in [R, B, B], dead-end extension extends a chain from Start (step 0) by always
-trying step 1 (the next step). It never tries step 2 on cells adjacent to Start. Fill
-remaining could assign step 2 (also blue) to such a cell — the player can still step onto
-it — and from there a full second-route might complete.
-
-We will see if this poses a problem in practice.
+Through each cell still unassigned, and each colour.
+For each such cell, apply the colour and test for new new paths (above).
+If that's successful, keep the colour and move onto the next cell.
+If that's not successful, remove the colour and try the next.
 
 
 ## Colour the cells
 
-Map each step to `sequence[step]`. Step −1 maps to black (`#000000`).
+For each cell, map its step to its colour. Any cell without a colour
+is mapped to black.
