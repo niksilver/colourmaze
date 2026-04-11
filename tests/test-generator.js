@@ -16,6 +16,27 @@ function test(name, fn) {
   }
 }
 
+function assertGreaterThanOrEqual(actual, expected, message) {
+  if (!(actual >= expected)) {
+    throw new assert.AssertionError({
+      actual:   actual,
+      expected: expected,
+      operator: 'assertGreaterOrEqual',
+    });
+  }
+}
+
+function assertStrictIncludes(container, expected, message) {
+  if (!container.includes(expected)) {
+    throw new assert.AssertionError({
+      actual:   container,
+      expected: expected,
+      message:  message,
+      operator: 'assertStrictIncludes',
+    });
+  }
+}
+
 console.log('\n-- Utilities --');
 
 test('COLOURS has 5 entries', function () {
@@ -551,7 +572,7 @@ test('unSetColour: allows unsetting of colour that was previously set', function
   assert.deepStrictEqual(ctx.cellSteps(1, 1), [], 'Cell (1,1) should not be accessible on any steps');
 });
 
-console.log('\n-- mazeContext --');
+console.log('\n-- mazeContext.isSol --');
 
 test('mazeContext: isSol marks exactly the path cells', function () {
   var path = [
@@ -571,6 +592,8 @@ test('mazeContext: isSol marks exactly the path cells', function () {
   assert.strictEqual(ctx.isSol['1,1'], undefined);
   assert.strictEqual(ctx.isSol['2,2'], undefined);
 });
+
+console.log('\n-- mazeContext.cellSteps --');
 
 test('mazeContext: cellSteps assigns correct sequence steps to path cells', function () {
   // path of length 5, seqLen 3: steps 0,1,2,0,1
@@ -605,6 +628,35 @@ test('mazeContext: cellStep is null for non-path cells', function () {
   assert.deepStrictEqual(ctx.cellSteps(2, 2), []);
   assert.deepStrictEqual(ctx.cellSteps(1, 2), []);
 });
+
+console.log('\n-- mazeContext.fillWithDeadEnds --');
+
+test('mazeContext: fillWithDeadEnds adds to path step 0', function () {
+  var path = [
+    { row: 3, col: 0 },
+    { row: 2, col: 0 },
+    { row: 1, col: 0 },
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 2 },
+    { row: 0, col: 3 },
+  ];
+  var seq  = G.SEQUENCES[1]; // [R, Y, B]
+  var ctx = G._mazeContext(4, 4, path, seq);
+  assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should be step 0 by definition');
+  G.setDebug(true);
+  var filled = ctx.fillWithDeadEnds();
+
+  assertGreaterThanOrEqual(filled, 4, 'Add at least two dead-end cells');
+  assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should still be step 0');
+  assertStrictIncludes(ctx.cellSteps(3, 1), 1, '(3,1) should be step 1');
+  try {
+    assertStrictIncludes(ctx.cellSteps(3, 2), 2, 'Either (3,2) should be step 2...');
+  } catch (e) {
+    assertStrictIncludes(ctx.cellSteps(2, 1), 2, '...or (2,1) should be step 2');
+  }
+});
+G.setDebug(false);
 
 console.log('\n-- generateMaze end-to-end --');
 

@@ -140,21 +140,17 @@ the `canAccessFrom()` dict of (r,c).
 Here we are creating misleading paths off the solution path.
 They should not introduce any new solutions.
 
-Scan the grid. For each assigned cell (r,c) get the dict
+Do a depth first search (DFS) starting with each cell on the solution path.
+For each cell (r,c) get the dict
 `canAccessFrom(r,c)` and look at each `p` and `s` where `p >= 0`.
 (We will treat this dict
 as a live view, so any new `p` and `s` entries added while processing
 this cell are consumed in the current pass.) Then for each
 adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
 `(s + 1) % seqLen` attempt a candidate step `(s + 1) % seqLen` (see below).
-If the attempt is successful, set a flag to say that.
+If the attempt is successful, go to the next level of the DFS.
 If the attempt is not successful record that (rAdj,cAdj) is forbidden
-to be step `(s + 1) % seqLen` (true).
-
-If the grid was scanned and at least one attempt at a candidate step
-was successful, then repeat the scan. We keep doing this until
-a scan produced no successful attempts of a candidate step.
-Then we have finished filling dead-end extensions.
+to be step `(s + 1) % seqLen` (true). Then continue with the DFS.
 
 
 ## Attempt a candidate step

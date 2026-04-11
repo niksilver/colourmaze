@@ -389,6 +389,61 @@
       return false;
     }
 
+    function prettyDict(d, level) {
+      level = level || 0;
+      var padding = '  '.repeat(level);
+      var out = padding + '{\n';
+      for (k in d) {
+        var v = d[k];
+        if (v.constructor == Object) {
+          out += padding + '  ' + k + ':\n' + prettyDict(v, level+1) + ',\n';
+        } else {
+          out += padding + '  ' + k + ': ' + v + ',\n';
+        }
+      }
+      out += padding + '}';
+      return out;
+    }
+
+    // Fill the maze with dead-ends.
+    // Returns number of cells filled.
+    function fillWithDeadEnds() {
+      var filled = 0;
+
+      function dfsFillFrom(r, c) {
+        var accDict = canAccessFrom(r, c);
+        for (p in accDict) {
+          if (p < 0) continue;
+          var steps = accDict[p];
+          for (var s of steps) {
+            var dirs = shuffle(DIRS);
+            var sAdj = (s + 1) % seqLen;
+            for (var i = 0; i < dirs.length; i++) {
+              var rAdj = r + dirs[i][0], cAdj = c + dirs[i][1];
+              if (rAdj < 0 || rAdj >= rows || cAdj < 0 || cAdj >= cols) continue;
+              if (colour(rAdj, cAdj)) continue;
+              if (forbidden[rAdj][cAdj][sAdj]) continue;
+              var success = attemptCandidateStep(p, rAdj, cAdj, sAdj);
+              if (success) {
+                filled++;
+                dfsFillFrom(rAdj, cAdj);
+                break;
+              }
+              forbidden[rAdj][cAdj][sAdj] = true;
+            }
+          }
+        }
+      }
+
+      for (var pI = 0; pI < path.length; pI++) {
+        var pRow  = path[pI].row;
+        var pCol  = path[pI].col;
+        dfsFillFrom(pRow, pCol);
+      }
+
+      return filled;
+    }
+
     // Fill the maze with sequence colours, without creating any new paths
     function fillRemaining() {
       var colours = [];
@@ -440,6 +495,7 @@
       unsetColour:          af.unsetColour,
       noNewPaths:           noNewPaths,
       attemptCandidateStep: attemptCandidateStep,
+      fillWithDeadEnds:     fillWithDeadEnds,
       fillRemaining:        fillRemaining,
       toGrid:               toGrid,
     };
