@@ -146,11 +146,15 @@ For each cell (r,c) get the dict
 (We will treat this dict
 as a live view, so any new `p` and `s` entries added while processing
 this cell are consumed in the current pass.) Then for each
-adjacent unassigned cell (rAdj,cAdj) that is not forbidden for step
-`(s + 1) % seqLen` attempt a candidate step `(s + 1) % seqLen` (see below).
+adjacent cell (rAdj,cAdj) calculate a candidate step `sAdj` to be
+`(s + 1) % seqLen` and consider the following.
+If (rAdj,cAdj) is forbidden for step `sAdj`, skip it.
+If (rAdj,cAdj) is some colour, but different to colour(sAdj), skip it.
+If we already know we can access (rAdj,cAdj) from path `p` with step `sAdj`, skip it.
+Now we attempt candidate step `sAdj` at (rAdj,cAdj) - see below.
 If the attempt is successful, go to the next level of the DFS.
 If the attempt is not successful record that (rAdj,cAdj) is forbidden
-to be step `(s + 1) % seqLen` (true). Then continue with the DFS.
+to be step `sAdj` (true). Then continue with the DFS.
 
 
 ## Attempt a candidate step

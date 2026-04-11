@@ -420,9 +420,15 @@
             var sAdj = (s + 1) % seqLen;
             for (var i = 0; i < dirs.length; i++) {
               var rAdj = r + dirs[i][0], cAdj = c + dirs[i][1];
+              // Off the grid?
               if (rAdj < 0 || rAdj >= rows || cAdj < 0 || cAdj >= cols) continue;
-              if (colour(rAdj, cAdj)) continue;
+              // Forbidden?
               if (forbidden[rAdj][cAdj][sAdj]) continue;
+              // Already a different colour?
+              if (colour(rAdj, cAdj) && colour(rAdj,cAdj) !== sequence[sAdj]) continue;
+              // Know we can access it from this path?
+              if (canAccessFrom(rAdj, cAdj)[p] && canAccessFrom(rAdj, cAdj)[p] == sAdj) continue;
+              // Okay, let's try it
               var success = attemptCandidateStep(p, rAdj, cAdj, sAdj);
               if (success) {
                 filled++;
