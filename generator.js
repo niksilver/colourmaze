@@ -89,6 +89,7 @@
   // Returns the path as an array of {row, col} objects, or null after 200 failed attempts.
   function generateSolutionPath(rows, cols, seqLen, sequence) {
     var minLen = Math.ceil(rows * cols * 0.4);
+    var maxLen = Math.ceil(rows * cols * 0.5);
     var start  = { row: rows - 1, col: 0 };
     var end    = { row: 0, col: cols - 1 };
     var DIRS   = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -411,6 +412,7 @@
       var filled = 0;
 
       function dfsFillFrom(r, c) {
+        debug('Exploring from ' + cellKey(r,c));
         var accDict = canAccessFrom(r, c);
         for (p in accDict) {
           if (p < 0) continue;
@@ -420,22 +422,31 @@
             var sAdj = (s + 1) % seqLen;
             for (var i = 0; i < dirs.length; i++) {
               var rAdj = r + dirs[i][0], cAdj = c + dirs[i][1];
+              debug('  Considering ' + cellKey(rAdj,cAdj) + ' on path ' + p + ' at step ' + sAdj);
               // Off the grid?
               if (rAdj < 0 || rAdj >= rows || cAdj < 0 || cAdj >= cols) continue;
+              debug('  It is on the grid');
               // Forbidden?
               if (forbidden[rAdj][cAdj][sAdj]) continue;
+              debug('  It is not forbidden');
               // Already a different colour?
               if (colour(rAdj, cAdj) && colour(rAdj,cAdj) !== sequence[sAdj]) continue;
+              debug('  It is an acceptable colour - ' + colour(rAdj,cAdj));
+              var stepsAdj = 
+              // On solution path as this step?
               // Know we can access it from this path?
+              debug('  Will attempt it');
               if (canAccessFrom(rAdj, cAdj)[p] && canAccessFrom(rAdj, cAdj)[p] == sAdj) continue;
               // Okay, let's try it
               var success = attemptCandidateStep(p, rAdj, cAdj, sAdj);
               if (success) {
                 filled++;
                 dfsFillFrom(rAdj, cAdj);
+                debug('  Attempt is good, going deeper');
                 break;
               }
               forbidden[rAdj][cAdj][sAdj] = true;
+              debug('  Attempt is bad, trying next');
             }
           }
         }

@@ -642,18 +642,24 @@ test('mazeContext: fillWithDeadEnds adds to path step 0', function () {
     { row: 0, col: 3 },
   ];
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
-  var ctx = G._mazeContext(4, 4, path, seq);
-  assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should be step 0 by definition');
-  G.setDebug(true);
-  var filled = ctx.fillWithDeadEnds();
 
-  assertGreaterThanOrEqual(filled, 4, 'Add at least two dead-end cells');
-  assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should still be step 0');
-  assertStrictIncludes(ctx.cellSteps(3, 1), 1, '(3,1) should be step 1');
-  try {
-    assertStrictIncludes(ctx.cellSteps(3, 2), 2, 'Either (3,2) should be step 2...');
-  } catch (e) {
-    assertStrictIncludes(ctx.cellSteps(2, 1), 2, '...or (2,1) should be step 2');
+  // Do this several time, because the dead ends are generated randomly
+  for (var i = 0; i < 20; i++) {
+    var ctx = G._mazeContext(4, 4, path, seq);
+    assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should be step 0 by definition');
+
+    G.setDebug(true);
+    var filled = ctx.fillWithDeadEnds();
+    G.setDebug(false);
+
+    assertGreaterThanOrEqual(filled, 4, 'Add at least two dead-end cells');
+    assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should still be step 0');
+    assertStrictIncludes(ctx.cellSteps(3, 1), 1, '(3,1) should be step 1');
+    try {
+      assertStrictIncludes(ctx.cellSteps(3, 2), 2, 'Either (3,2) should be step 2...');
+    } catch (e) {
+      assertStrictIncludes(ctx.cellSteps(2, 1), 2, '...or (2,1) should be step 2');
+    }
   }
 });
 G.setDebug(false);

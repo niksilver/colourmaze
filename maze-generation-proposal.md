@@ -150,6 +150,7 @@ adjacent cell (rAdj,cAdj) calculate a candidate step `sAdj` to be
 `(s + 1) % seqLen` and consider the following.
 If (rAdj,cAdj) is forbidden for step `sAdj`, skip it.
 If (rAdj,cAdj) is some colour, but different to colour(sAdj), skip it.
+If (rAdj,cAdj) is on the solution path at step `sAdj` skip it.
 If we already know we can access (rAdj,cAdj) from path `p` with step `sAdj`, skip it.
 Now we attempt candidate step `sAdj` at (rAdj,cAdj) - see below.
 If the attempt is successful, go to the next level of the DFS.
