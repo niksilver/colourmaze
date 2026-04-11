@@ -443,8 +443,10 @@
               var success = attemptCandidateStep(p, rAdj, cAdj, sAdj);
               if (success) {
                 filled++;
-                dfsFillFrom(rAdj, cAdj);
                 debug('  Attempt is good, going deeper');
+                debug('In defFillFfrom():');
+                debug(format(toGrid()));
+                dfsFillFrom(rAdj, cAdj);
                 break;
               }
               forbidden[rAdj][cAdj][sAdj] = true;
@@ -454,10 +456,14 @@
         }
       }
 
+      debug('Before the loop:');
+      debug(format(toGrid()));
       for (var pI = 0; pI < path.length; pI++) {
         var pRow  = path[pI].row;
         var pCol  = path[pI].col;
         dfsFillFrom(pRow, pCol);
+        debug('In loop, pI = ' + pI + ':');
+        debug(format(toGrid()));
       }
 
       return filled;
@@ -550,6 +556,7 @@
 
       if (countSolutions(grid, sequence) > 1) continue;
 
+      ctx.fillWithDeadEnds();
       ctx.fillRemaining();
       grid = ctx.toGrid(rows, cols, ctx, sequence);
 
