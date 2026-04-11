@@ -88,8 +88,8 @@
   // least 40% of cells, with no colour-based shortcuts between non-consecutive cells.
   // Returns the path as an array of {row, col} objects, or null after 200 failed attempts.
   function generateSolutionPath(rows, cols, seqLen, sequence) {
-    var minLen = Math.ceil(rows * cols * 0.4);
-    var maxLen = Math.ceil(rows * cols * 0.5);
+    var minLen = (rows + cols) * 2;
+    var maxLen = Math.ceil(rows * cols * 0.6);
     var start  = { row: rows - 1, col: 0 };
     var end    = { row: 0, col: cols - 1 };
     var DIRS   = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -107,7 +107,7 @@
       var result = (function dfs(row, col) {
         if (++nodesVisited > nodeLimit) return null;
         if (row === end.row && col === end.col) {
-          return path.length >= minLen ? path.slice() : null;
+          return (path.length >= minLen && path.length <= maxLen) ? path.slice() : null;
         }
         var k = path.length;
         var dirs = shuffle(DIRS);
