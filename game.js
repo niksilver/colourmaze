@@ -138,7 +138,7 @@ function renderGrid() {
 
   for (var r = 0; r < maze.rows; r++) {
     for (var c = 0; c < maze.cols; c++) {
-      var cell   = maze.grid[r][c];
+      var colour = maze.grid[r][c];
       var div    = document.createElement('div');
       var key    = cellKey(r, c);
       var isStart = (r === maze.rows - 1 && c === 0);
@@ -149,19 +149,19 @@ function renderGrid() {
       div.className  = 'cell';
       div.dataset.row = r;
       div.dataset.col = c;
-      div.style.background = cell.colour;
+      div.style.background = colour;
 
       if (isEnd)     div.classList.add('end-cell');
       if (isCurrent) div.classList.add('current');
       if (isVisited && !isStart && !isEnd) {
         div.classList.add('visited');
-        div.style.setProperty('--dot-color', Generator.getLabelColour(cell.colour));
+        div.style.setProperty('--dot-color', Generator.getLabelColour(colour));
       }
 
       // S / E labels
       if (isStart || isEnd) {
         div.textContent = isStart ? 'S' : 'E';
-        div.style.color = Generator.getLabelColour(cell.colour);
+        div.style.color = Generator.getLabelColour(colour);
       }
 
       div.addEventListener('click', onCellClick);
