@@ -432,12 +432,14 @@
               // Already a different colour?
               if (colour(rAdj, cAdj) && colour(rAdj,cAdj) !== sequence[sAdj]) continue;
               debug('  It is an acceptable colour - ' + colour(rAdj,cAdj));
-              var stepsAdj = 
               // On solution path as this step?
-              // Know we can access it from this path?
-              debug('  Will attempt it');
-              if (canAccessFrom(rAdj, cAdj)[p] && canAccessFrom(rAdj, cAdj)[p] == sAdj) continue;
+              // if (isSol(cellKey(rAdj, cAdj)) && (p % seqLen) == sAdj) continue;
+              // debug('  Not on the solution path as this step');
+              // Already know we can access it at this step?
+              if (cellSteps(rAdj, cAdj).includes(sAdj)) continue;
+              debug('  Step is new for this cell');
               // Okay, let's try it
+              debug('  Will attempt it');
               var success = attemptCandidateStep(p, rAdj, cAdj, sAdj);
               if (success) {
                 filled++;

@@ -648,9 +648,7 @@ test('mazeContext: fillWithDeadEnds adds to path step 0', function () {
     var ctx = G._mazeContext(4, 4, path, seq);
     assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should be step 0 by definition');
 
-    G.setDebug(true);
     var filled = ctx.fillWithDeadEnds();
-    G.setDebug(false);
 
     assertGreaterThanOrEqual(filled, 4, 'Add at least two dead-end cells');
     assertStrictIncludes(ctx.cellSteps(3, 0), 0, '(3,0) should still be step 0');
@@ -662,7 +660,6 @@ test('mazeContext: fillWithDeadEnds adds to path step 0', function () {
     }
   }
 });
-G.setDebug(false);
 
 console.log('\n-- generateMaze end-to-end --');
 
