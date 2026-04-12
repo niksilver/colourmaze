@@ -184,6 +184,11 @@ Then for each `p0` and `s0` we look at each assigned cell (rAdj,cAdj) adjacent
 to (r0,c0) - the inner loop. We get the colour `colAdj` of cell (rAdj,cAdj).
 We set `sAdj` to be `(s0 + 1) % seqLen`.
 
+(Condition 0: We're not interested in paths back from End.)
+If (r0,c0) is End, then we continue with the inner loop.
+In fact, we can shortcut this by putting this test just after
+we get (r0,c0).
+
 (Condition 1: It's okay to repeat the solution path exactly okay.)
 If (r0,c0) is on the solution path with step `s0` and (rAdj,cAdj) is on the
 solution path with step `sAdj` then we continue with the inner loop.

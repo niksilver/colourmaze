@@ -318,6 +318,8 @@
           for (var c0 = 0; c0 < cols; c0++) {
             if (cellSteps(r0, c0).length === 0) continue;
             var r0Key   = cellKey(r0, c0);
+            // Condition 0: Ignore paths back from the end
+            if (r0Key == endKey) continue;
             var accDict = canAccessFrom(r0, c0);
             // For each (p0, s0) recorded as reaching (r0,c0).
             for (var p0str in accDict) {
