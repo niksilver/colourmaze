@@ -252,7 +252,7 @@ test('attemptCandidateStep: returns true and assigns step for a safe cell', func
   // 3×3 grid, seq=[R,Y,B]. Solution: (2,0)→(1,0)→(0,0)→(0,1)→(0,2).
   // Steps: 0,1,2,0,1.
   // Attempt: assign step 1 to (2,1) from p=0 (Start cell at (2,0)).
-  // (2,1)'s only assigned neighbour is (2,0) — no condition 2 or 3 can fire.
+  // (2,1)'s only assigned neighbour is (2,0) — no condition 3 or 4 can fire.
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
@@ -315,11 +315,11 @@ test('attemptCandidateStep: propagates back to path entry point and that is okay
   assert.deepStrictEqual(ctx.canAccessFrom(1, 2)[1], [2], '(1,2) should access p=1 now');
 });
 
-test('attemptCandidateStep: fails when propagation would rejoin solution at a different path index (condition 3)', function () {
+test('attemptCandidateStep: fails when propagation would rejoin solution at a different path index (condition 4)', function () {
   // 3×3, seq=[R,Y,B]. Solution: (2,0)[R0]→(1,0)[Y1]→(0,0)[B2]→(0,1)[R0]→(0,2)[Y1].
   // Assign step 2 (B) to (1,1) from p=1 (solution cell (1,0)[Y1], adjacent to (1,1)).
   // The scan sees (1,1) at s0=2, sAdj=0 — (0,1)[R0] is adjacent and colour matches,
-  // but (0,1) is a solution cell at path index 3 ≠ p0=1 — condition 3 fires, returns false.
+  // but (0,1) is a solution cell at path index 3 ≠ p0=1 — condition 4 fires, returns false.
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 },
@@ -525,7 +525,7 @@ test('colour: returns the correct colour for each solution cell', function () {
 });
 
 test('colour: returns the correct colour for a cell assigned via attemptCandidateStep', function () {
-  // Short 3-cell path so (1,1) has no 5-cell solution-path neighbours to trigger condition 3.
+  // Short 3-cell path so (1,1) has no 5-cell solution-path neighbours to trigger condition 4.
   var seq  = G.SEQUENCES[1]; // [R, Y, B]
   var path = [
     { row: 2, col: 0 }, { row: 1, col: 0 }, { row: 0, col: 0 }

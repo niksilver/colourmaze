@@ -318,7 +318,7 @@
           for (var c0 = 0; c0 < cols; c0++) {
             if (cellSteps(r0, c0).length === 0) continue;
             var r0Key   = cellKey(r0, c0);
-            // Condition 0: Ignore paths back from the end
+            // Condition 1: Ignore paths back from the end
             if (r0Key == endKey) continue;
             var accDict = canAccessFrom(r0, c0);
             // For each (p0, s0) recorded as reaching (r0,c0).
@@ -338,35 +338,35 @@
                   if (colAdj === null) continue;
                   var adjKey = cellKey(rAdj, cAdj);
 
-                  // Condition 1: both cells are consecutive solution-path cells —
+                  // Condition 2: both cells are consecutive solution-path cells —
                   // this is the intended route, not a new one; skip.
                   if (isSol[r0Key] && isSol[adjKey] &&
                       cellSteps(rAdj, cAdj).includes(sAdj)) {
-                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 1');
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 2');
                     continue;
                   }
 
-                  // Condition 2: adj is End and its colour matches what the player
+                  // Condition 3: adj is End and its colour matches what the player
                   // needs next — a second route to End has been found; fail.
                   if (adjKey === endKey && sequence[sAdj] === colAdj) {
-                    undoAll();
-                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 2');
-                    return false;
-                  }
-
-                  // Condition 3: dead-end would rejoin the solution path at a
-                  // different index — a second route through the solution exists; fail.
-                  if (isSol[adjKey] && solIndex[adjKey] !== p0 &&
-                      cellSteps(rAdj, cAdj).includes(sAdj)) {
                     undoAll();
                     debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 3');
                     return false;
                   }
 
-                  // Condition 4: It's okay to access another cell, and then we
+                  // Condition 4: dead-end would rejoin the solution path at a
+                  // different index — a second route through the solution exists; fail.
+                  if (isSol[adjKey] && solIndex[adjKey] !== p0 &&
+                      cellSteps(rAdj, cAdj).includes(sAdj)) {
+                    undoAll();
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 4');
+                    return false;
+                  }
+
+                  // Condition 5: It's okay to access another cell, and then we
                   // can propagate reachability.
                   if (sequence[sAdj] === colAdj) {
-                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 4, accepting');
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 5, accepting');
                     var added = setAccessFrom(p0, rAdj, cAdj, sAdj);
                     if (added) {
                       undoList.push([p0, rAdj, cAdj, sAdj]);
