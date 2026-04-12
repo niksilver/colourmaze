@@ -338,6 +338,7 @@
                   // this is the intended route, not a new one; skip.
                   if (isSol[r0Key] && isSol[adjKey] &&
                       cellSteps(rAdj, cAdj).includes(sAdj)) {
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 1');
                     continue;
                   }
 
@@ -345,6 +346,7 @@
                   // needs next — a second route to End has been found; fail.
                   if (adjKey === endKey && sequence[sAdj] === colAdj) {
                     undoAll();
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 2');
                     return false;
                   }
 
@@ -353,12 +355,14 @@
                   if (isSol[adjKey] && solIndex[adjKey] !== p0 &&
                       cellSteps(rAdj, cAdj).includes(sAdj)) {
                     undoAll();
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 3');
                     return false;
                   }
 
                   // Condition 4: It's okay to access another cell, and then we
                   // can propagate reachability.
                   if (sequence[sAdj] === colAdj) {
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' is good');
                     var added = setAccessFrom(p0, rAdj, cAdj, sAdj);
                     if (added) {
                       undoList.push([p0, rAdj, cAdj, sAdj]);
@@ -382,6 +386,7 @@
     // On failure, undoes all canAccessFrom changes made during this call.
     // Throws (via setAccessFrom) if s conflicts in colour with existing steps.
     function attemptCandidateStep(p, r, c, s) {
+      debug('attemptCandidateStep(' + p + ', ' + r + ', ' + c + ', ' + s + ')');
       setAccessFrom(p, r, c, s);
       var success = noNewPaths();
       if (success) return true;

@@ -435,9 +435,11 @@ test('attemptCandidateStep: 7x7 bug', function () {
   var ctx = G._mazeContext(7, 7, path, seq);
 
   // We should be able to add a dead-end from path index 1, cell (5,0) step 2.
-  var result = ctx.attemptCandidateStep(1, 5, 0, 2);
+  G.setDebug(true);
+  var result = ctx.attemptCandidateStep(1, 4, 0, 2);
   assert.strictEqual(result, true, 'Should be able to add from path index 1, cell(4,0) at step 2');
 });
+G.setDebug(false);
 
 console.log('\n-- cellSteps and colour --');
 
