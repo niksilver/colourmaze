@@ -1,0 +1,2200 @@
+
+
+sequence is #e63946,#4cc9f0,#4cc9f0,#4cc9f0,#4cc9f0
+Now at 6,0
+  from 6,0 considering 5,0,1
+Now at 5,0
+  from 5,0 considering 4,0,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,2
+Now at 5,1
+  from 5,1 considering 4,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,3
+Now at 5,0
+  from 5,0 considering 4,0,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+Stepping back from 5,0,3
+  from 5,1 considering 5,2,3
+Now at 5,2
+  from 5,2 considering 4,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+  from 5,2 considering 5,3,4
+Now at 5,3
+  from 5,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,3 considering 6,3,0
+Now at 6,3
+  from 6,3 considering 5,3,1
+Now at 5,3
+  from 5,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,2
+Now at 5,2
+  from 5,2 considering 4,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,3
+Now at 5,1
+  from 5,1 considering 4,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,4
+Now at 5,0
+  from 5,0 considering 4,0,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,0 considering 6,0,0
+  Continuing - visited
+  from 5,0 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,0,4
+  from 5,1 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+Stepping back from 5,1,3
+  from 5,2 considering 5,3,3
+Now at 5,3
+  from 5,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+  from 5,3 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,3
+Stepping back from 5,2,2
+  from 5,3 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,1
+  from 6,3 considering 6,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,3 considering 6,4,1
+Now at 6,4
+  from 6,4 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,2
+Now at 6,5
+  from 6,5 considering 5,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,3
+Now at 6,4
+  from 6,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,4,3
+  from 6,5 considering 6,6,3
+Now at 6,6
+  from 6,6 considering 5,6,4
+Now at 5,6
+  from 5,6 considering 4,6,0
+Now at 4,6
+  from 4,6 considering 3,6,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,6 considering 5,6,1
+Now at 5,6
+  from 5,6 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,2
+Now at 6,6
+  from 6,6 considering 5,6,3
+Now at 5,6
+  from 5,6 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+  from 5,6 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,3
+  from 6,6 considering 6,5,3
+Now at 6,5
+  from 6,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,4
+Now at 6,4
+  from 6,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,4 considering 6,3,0
+  Continuing - visited
+  from 6,4 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,4,4
+  from 6,5 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+Stepping back from 6,5,3
+Stepping back from 6,6,2
+  from 5,6 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,1
+  from 4,6 considering 4,5,1
+Now at 4,5
+  from 4,5 considering 3,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,2
+Now at 4,4
+  from 4,4 considering 3,4,3
+Now at 3,4
+  from 3,4 considering 2,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 3,4 considering 3,3,4
+Now at 3,3
+  from 3,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 3,2,0
+Now at 3,2
+  from 3,2 considering 2,2,1
+Now at 2,2
+  from 2,2 considering 1,2,2
+Now at 1,2
+  from 1,2 considering 0,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,3
+Now at 2,2
+  from 2,2 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 2,2 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,3
+  from 1,2 considering 1,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,3
+Now at 1,3
+  from 1,3 considering 0,3,4
+Now at 0,3
+  from 0,3 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 0,3 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 0,3 considering 0,4,0
+Now at 0,4
+  from 0,4 considering 1,4,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,4 considering 0,3,1
+Now at 0,3
+  from 0,3 considering 1,3,2
+Now at 1,3
+  from 1,3 considering 0,3,3
+Now at 0,3
+  from 0,3 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+  from 0,3 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,3
+  from 1,3 considering 2,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,3
+Now at 1,2
+  from 1,2 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,4
+Now at 2,2
+  from 2,2 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 2,2 considering 3,2,0
+  Continuing - visited
+  from 2,2 considering 2,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 2,2 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 2,2,4
+  from 1,2 considering 1,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+Stepping back from 1,2,3
+  from 1,3 considering 1,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,2
+  from 0,3 considering 0,2,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,1
+  from 0,4 considering 0,5,1
+Now at 0,5
+  from 0,5 considering 1,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,5 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 0,5 considering 0,6,2
+Now at 0,6
+Stepping back from 0,6,2
+Stepping back from 0,5,1
+Stepping back from 0,4,0
+Stepping back from 0,3,4
+  from 1,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 1,3 considering 1,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,3
+Stepping back from 1,2,2
+  from 2,2 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,1
+  from 3,2 considering 4,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,3,1
+Now at 3,3
+  from 3,3 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,2
+Now at 3,4
+  from 3,4 considering 2,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,3
+Now at 4,4
+  from 4,4 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+  from 4,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,4
+Now at 4,5
+  from 4,5 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,5 considering 4,6,0
+  Continuing - visited
+Stepping back from 4,5,4
+Stepping back from 4,4,3
+  from 3,4 considering 3,3,3
+Now at 3,3
+  from 3,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+Stepping back from 3,3,3
+  from 3,4 considering 3,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,2
+Stepping back from 3,3,1
+Stepping back from 3,2,0
+  from 3,3 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 3,3,4
+  from 3,4 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,3
+  from 4,4 considering 5,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,3
+Now at 4,5
+  from 4,5 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 4,5 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,3
+Stepping back from 4,4,2
+  from 4,5 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,1
+Stepping back from 4,6,0
+  from 5,6 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,6 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,6,4
+  from 6,6 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,6,3
+Stepping back from 6,5,2
+Stepping back from 6,4,1
+Stepping back from 6,3,0
+  from 5,3 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,3 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,3,4
+Stepping back from 5,2,3
+Stepping back from 5,1,2
+Stepping back from 5,0,1
+  from 6,0 considering 6,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+Returning count 1
+Before the loop:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 6,0
+  Considering 7,0 on path 0 at step 1
+  Considering 6,-1 on path 0 at step 1
+  Considering 6,1 on path 0 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,0 on path 0 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+In loop, pI = 0:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 5,0
+  Considering 4,0 on path 1 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,1 on path 1 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 6,0 on path 1 at step 2
+  It is on the grid
+  It is not forbidden
+  Considering 5,-1 on path 1 at step 2
+In loop, pI = 1:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 5,1
+  Considering 5,2 on path 2 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 6,1 on path 2 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 4,1 on path 2 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,0 on path 2 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 2:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 5,2
+  Considering 4,2 on path 3 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 6,2 on path 3 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,1 on path 3 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,3 on path 3 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+In loop, pI = 3:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 5,3
+  Considering 5,2 on path 4 at step 0
+  It is on the grid
+  It is not forbidden
+  Considering 4,3 on path 4 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 6,3 on path 4 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #e63946
+  Considering 5,4 on path 4 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 4:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 6,3
+  Considering 6,4 on path 5 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 5,3 on path 5 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 7,3 on path 5 at step 1
+  Considering 6,2 on path 5 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 5:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 6,4
+  Considering 7,4 on path 6 at step 2
+  Considering 6,3 on path 6 at step 2
+  It is on the grid
+  It is not forbidden
+  Considering 5,4 on path 6 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 6,5 on path 6 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+In loop, pI = 6:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 6,5
+  Considering 7,5 on path 7 at step 3
+  Considering 5,5 on path 7 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 6,6 on path 7 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 6,4 on path 7 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 7:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 6,6
+  Considering 6,7 on path 8 at step 4
+  Considering 5,6 on path 8 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 6,5 on path 8 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 7,6 on path 8 at step 4
+In loop, pI = 8:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 5,6
+  Considering 4,6 on path 9 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #e63946
+  Considering 5,7 on path 9 at step 0
+  Considering 6,6 on path 9 at step 0
+  It is on the grid
+  It is not forbidden
+  Considering 5,5 on path 9 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 9:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 4,6
+  Considering 3,6 on path 10 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 5,6 on path 10 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 4,5 on path 10 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 4,7 on path 10 at step 1
+In loop, pI = 10:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 4,5
+  Considering 4,6 on path 11 at step 2
+  It is on the grid
+  It is not forbidden
+  Considering 3,5 on path 11 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 4,4 on path 11 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 5,5 on path 11 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 11:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 4,4
+  Considering 4,5 on path 12 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 3,4 on path 12 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 5,4 on path 12 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 4,3 on path 12 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 12:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 3,4
+  Considering 4,4 on path 13 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 3,5 on path 13 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 3,3 on path 13 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 2,4 on path 13 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 13:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 3,3
+  Considering 2,3 on path 14 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 3,2 on path 14 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #e63946
+  Considering 4,3 on path 14 at step 0
+  It is on the grid
+  Considering 3,4 on path 14 at step 0
+  It is on the grid
+  It is not forbidden
+In loop, pI = 14:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 3,2
+  Considering 2,2 on path 15 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 3,3 on path 15 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 3,1 on path 15 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 4,2 on path 15 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 15:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 2,2
+  Considering 3,2 on path 16 at step 2
+  It is on the grid
+  It is not forbidden
+  Considering 2,3 on path 16 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 1,2 on path 16 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 2,1 on path 16 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 16:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 1,2
+  Considering 1,1 on path 17 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 1,3 on path 17 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 0,2 on path 17 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 2,2 on path 17 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+In loop, pI = 17:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 1,3
+  Considering 1,2 on path 18 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 1,4 on path 18 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 2,3 on path 18 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 0,3 on path 18 at step 4
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+In loop, pI = 18:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 0,3
+  Considering -1,3 on path 19 at step 0
+  Considering 1,3 on path 19 at step 0
+  It is on the grid
+  It is not forbidden
+  Considering 0,2 on path 19 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 0,4 on path 19 at step 0
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #e63946
+In loop, pI = 19:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 0,4
+  Considering 0,5 on path 20 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 0,3 on path 20 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 1,4 on path 20 at step 1
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering -1,4 on path 20 at step 1
+In loop, pI = 20:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 0,5
+  Considering 0,6 on path 21 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Considering 1,5 on path 21 at step 2
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 0,4 on path 21 at step 2
+  It is on the grid
+  It is not forbidden
+  Considering -1,5 on path 21 at step 2
+In loop, pI = 21:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Exploring from 0,6
+  Considering 0,5 on path 22 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - #4cc9f0
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering 0,7 on path 22 at step 3
+  Considering 1,6 on path 22 at step 3
+  It is on the grid
+  It is not forbidden
+  It is an acceptable colour - null
+  Step is new for this cell
+  Will attempt it
+  Attempt is bad, trying next
+  Considering -1,6 on path 22 at step 3
+In loop, pI = 22:
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+Now at 6,0
+  from 6,0 considering 5,0,1
+Now at 5,0
+  from 5,0 considering 4,0,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,2
+Now at 5,1
+  from 5,1 considering 4,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,3
+Now at 5,0
+  from 5,0 considering 4,0,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+Stepping back from 5,0,3
+  from 5,1 considering 5,2,3
+Now at 5,2
+  from 5,2 considering 4,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+  from 5,2 considering 5,3,4
+Now at 5,3
+  from 5,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,3 considering 6,3,0
+Now at 6,3
+  from 6,3 considering 5,3,1
+Now at 5,3
+  from 5,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,2
+Now at 5,2
+  from 5,2 considering 4,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,3
+Now at 5,1
+  from 5,1 considering 4,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,4
+Now at 5,0
+  from 5,0 considering 4,0,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,0 considering 6,0,0
+  Continuing - visited
+  from 5,0 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,0,4
+  from 5,1 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+Stepping back from 5,1,3
+  from 5,2 considering 5,3,3
+Now at 5,3
+  from 5,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+  from 5,3 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,3
+Stepping back from 5,2,2
+  from 5,3 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,1
+  from 6,3 considering 6,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,3 considering 6,4,1
+Now at 6,4
+  from 6,4 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,2
+Now at 6,5
+  from 6,5 considering 5,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,3
+Now at 6,4
+  from 6,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,4,3
+  from 6,5 considering 6,6,3
+Now at 6,6
+  from 6,6 considering 5,6,4
+Now at 5,6
+  from 5,6 considering 4,6,0
+Now at 4,6
+  from 4,6 considering 3,6,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,6 considering 5,6,1
+Now at 5,6
+  from 5,6 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,2
+Now at 6,6
+  from 6,6 considering 5,6,3
+Now at 5,6
+  from 5,6 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+  from 5,6 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,3
+  from 6,6 considering 6,5,3
+Now at 6,5
+  from 6,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,4
+Now at 6,4
+  from 6,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,4 considering 6,3,0
+  Continuing - visited
+  from 6,4 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,4,4
+  from 6,5 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+Stepping back from 6,5,3
+Stepping back from 6,6,2
+  from 5,6 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,1
+  from 4,6 considering 4,5,1
+Now at 4,5
+  from 4,5 considering 3,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,2
+Now at 4,4
+  from 4,4 considering 3,4,3
+Now at 3,4
+  from 3,4 considering 2,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 3,4 considering 3,3,4
+Now at 3,3
+  from 3,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 3,2,0
+Now at 3,2
+  from 3,2 considering 2,2,1
+Now at 2,2
+  from 2,2 considering 1,2,2
+Now at 1,2
+  from 1,2 considering 0,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,3
+Now at 2,2
+  from 2,2 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 2,2 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,3
+  from 1,2 considering 1,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,3
+Now at 1,3
+  from 1,3 considering 0,3,4
+Now at 0,3
+  from 0,3 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 0,3 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 0,3 considering 0,4,0
+Now at 0,4
+  from 0,4 considering 1,4,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,4 considering 0,3,1
+Now at 0,3
+  from 0,3 considering 1,3,2
+Now at 1,3
+  from 1,3 considering 0,3,3
+Now at 0,3
+  from 0,3 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+  from 0,3 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,3
+  from 1,3 considering 2,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,3
+Now at 1,2
+  from 1,2 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,4
+Now at 2,2
+  from 2,2 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 2,2 considering 3,2,0
+  Continuing - visited
+  from 2,2 considering 2,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 2,2 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 2,2,4
+  from 1,2 considering 1,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+Stepping back from 1,2,3
+  from 1,3 considering 1,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,2
+  from 0,3 considering 0,2,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,1
+  from 0,4 considering 0,5,1
+Now at 0,5
+  from 0,5 considering 1,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,5 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 0,5 considering 0,6,2
+Now at 0,6
+Stepping back from 0,6,2
+Stepping back from 0,5,1
+Stepping back from 0,4,0
+Stepping back from 0,3,4
+  from 1,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 1,3 considering 1,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,3
+Stepping back from 1,2,2
+  from 2,2 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,1
+  from 3,2 considering 4,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,3,1
+Now at 3,3
+  from 3,3 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,2
+Now at 3,4
+  from 3,4 considering 2,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,3
+Now at 4,4
+  from 4,4 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+  from 4,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,4
+Now at 4,5
+  from 4,5 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,5 considering 4,6,0
+  Continuing - visited
+Stepping back from 4,5,4
+Stepping back from 4,4,3
+  from 3,4 considering 3,3,3
+Now at 3,3
+  from 3,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+Stepping back from 3,3,3
+  from 3,4 considering 3,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,2
+Stepping back from 3,3,1
+Stepping back from 3,2,0
+  from 3,3 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 3,3,4
+  from 3,4 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,3
+  from 4,4 considering 5,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,3
+Now at 4,5
+  from 4,5 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 4,5 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,3
+Stepping back from 4,4,2
+  from 4,5 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,1
+Stepping back from 4,6,0
+  from 5,6 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,6 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,6,4
+  from 6,6 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,6,3
+Stepping back from 6,5,2
+Stepping back from 6,4,1
+Stepping back from 6,3,0
+  from 5,3 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,3 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,3,4
+Stepping back from 5,2,3
+Stepping back from 5,1,2
+Stepping back from 5,0,1
+  from 6,0 considering 6,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+Returning count 1
+Now at 6,0
+  from 6,0 considering 5,0,1
+Now at 5,0
+  from 5,0 considering 4,0,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,2
+Now at 5,1
+  from 5,1 considering 4,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,3
+Now at 5,0
+  from 5,0 considering 4,0,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,0 considering 6,0,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,0 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+Stepping back from 5,0,3
+  from 5,1 considering 5,2,3
+Now at 5,2
+  from 5,2 considering 4,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,4
+Now at 5,1
+  from 5,1 considering 4,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 6,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,1 considering 5,0,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,1 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,1,4
+  from 5,2 considering 5,3,4
+Now at 5,3
+  from 5,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,3 considering 6,3,0
+Now at 6,3
+  from 6,3 considering 5,3,1
+Now at 5,3
+  from 5,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,2
+Now at 5,2
+  from 5,2 considering 4,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 6,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,2 considering 5,1,3
+Now at 5,1
+  from 5,1 considering 4,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 6,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,1 considering 5,0,4
+Now at 5,0
+  from 5,0 considering 4,0,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,0 considering 6,0,0
+  Continuing - visited
+  from 5,0 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,0,4
+  from 5,1 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+Stepping back from 5,1,3
+  from 5,2 considering 5,3,3
+Now at 5,3
+  from 5,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 5,3 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,3 considering 5,2,4
+Now at 5,2
+  from 5,2 considering 4,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 6,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 5,2 considering 5,1,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,2 considering 5,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 5,2,4
+  from 5,3 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,3
+Stepping back from 5,2,2
+  from 5,3 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,3,1
+  from 6,3 considering 6,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,3 considering 6,4,1
+Now at 6,4
+  from 6,4 considering 5,4,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,2
+Now at 6,5
+  from 6,5 considering 5,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,3
+Now at 6,4
+  from 6,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,4 considering 6,3,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 6,4 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,4,3
+  from 6,5 considering 6,6,3
+Now at 6,6
+  from 6,6 considering 5,6,4
+Now at 5,6
+  from 5,6 considering 4,6,0
+Now at 4,6
+  from 4,6 considering 3,6,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,6 considering 5,6,1
+Now at 5,6
+  from 5,6 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,2
+Now at 6,6
+  from 6,6 considering 5,6,3
+Now at 5,6
+  from 5,6 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 5,6 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+  from 5,6 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,3
+  from 6,6 considering 6,5,3
+Now at 6,5
+  from 6,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 6,5 considering 6,4,4
+Now at 6,4
+  from 6,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,4 considering 6,3,0
+  Continuing - visited
+  from 6,4 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,4,4
+  from 6,5 considering 6,6,4
+Now at 6,6
+  from 6,6 considering 5,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,6 considering 6,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,6,4
+Stepping back from 6,5,3
+Stepping back from 6,6,2
+  from 5,6 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 5,6,1
+  from 4,6 considering 4,5,1
+Now at 4,5
+  from 4,5 considering 3,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,2
+Now at 4,4
+  from 4,4 considering 3,4,3
+Now at 3,4
+  from 3,4 considering 2,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 3,4 considering 3,3,4
+Now at 3,3
+  from 3,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,3 considering 3,2,0
+Now at 3,2
+  from 3,2 considering 2,2,1
+Now at 2,2
+  from 2,2 considering 1,2,2
+Now at 1,2
+  from 1,2 considering 0,2,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,3
+Now at 2,2
+  from 2,2 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 2,2 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,3
+  from 1,2 considering 1,1,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,3
+Now at 1,3
+  from 1,3 considering 0,3,4
+Now at 0,3
+  from 0,3 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 0,3 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 0,3 considering 0,4,0
+Now at 0,4
+  from 0,4 considering 1,4,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,4 considering 0,3,1
+Now at 0,3
+  from 0,3 considering 1,3,2
+Now at 1,3
+  from 1,3 considering 0,3,3
+Now at 0,3
+  from 0,3 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+  from 0,3 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,3
+  from 1,3 considering 2,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,3
+Now at 1,2
+  from 1,2 considering 0,2,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 2,2,4
+Now at 2,2
+  from 2,2 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 2,2 considering 3,2,0
+  Continuing - visited
+  from 2,2 considering 2,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 2,2 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 2,2,4
+  from 1,2 considering 1,1,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,2 considering 1,3,4
+Now at 1,3
+  from 1,3 considering 0,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 2,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,3 considering 1,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,3 considering 1,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 1,3,4
+Stepping back from 1,2,3
+  from 1,3 considering 1,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,2
+  from 0,3 considering 0,2,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,3 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 0,3,1
+  from 0,4 considering 0,5,1
+Now at 0,5
+  from 0,5 considering 1,5,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 0,5 considering 0,4,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 0,5 considering 0,6,2
+Now at 0,6
+Stepping back from 0,6,2
+Stepping back from 0,5,1
+Stepping back from 0,4,0
+Stepping back from 0,3,4
+  from 1,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 1,3 considering 1,2,4
+Now at 1,2
+  from 1,2 considering 0,2,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 2,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 1,2 considering 1,1,0
+  Continuing - wanted #e63946 but got #000000
+  from 1,2 considering 1,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 1,2,4
+  from 1,3 considering 1,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 1,3,3
+Stepping back from 1,2,2
+  from 2,2 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 2,2 considering 2,1,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 2,2 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 2,2,1
+  from 3,2 considering 4,2,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,2 considering 3,3,1
+Now at 3,3
+  from 3,3 considering 2,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,2
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,2
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,2
+Now at 3,4
+  from 3,4 considering 2,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,4 considering 4,4,3
+Now at 4,4
+  from 4,4 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+  from 4,4 considering 5,4,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,4
+Now at 4,5
+  from 4,5 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,5 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,5 considering 4,6,0
+  Continuing - visited
+Stepping back from 4,5,4
+Stepping back from 4,4,3
+  from 3,4 considering 3,3,3
+Now at 3,3
+  from 3,3 considering 2,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 4,3,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 3,3 considering 3,2,4
+  Continuing - wanted #4cc9f0 but got #e63946
+  from 3,3 considering 3,4,4
+Now at 3,4
+  from 3,4 considering 2,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 3,4 considering 4,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,3,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 3,4 considering 3,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 3,4,4
+Stepping back from 3,3,3
+  from 3,4 considering 3,5,3
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,2
+Stepping back from 3,3,1
+Stepping back from 3,2,0
+  from 3,3 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 3,3,4
+  from 3,4 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+Stepping back from 3,4,3
+  from 4,4 considering 5,4,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,3,3
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,4 considering 4,5,3
+Now at 4,5
+  from 4,5 considering 3,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 5,5,4
+  Continuing - wanted #4cc9f0 but got #000000
+  from 4,5 considering 4,4,4
+Now at 4,4
+  from 4,4 considering 3,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 4,4 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,3,0
+  Continuing - wanted #e63946 but got #000000
+  from 4,4 considering 4,5,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 4,4,4
+  from 4,5 considering 4,6,4
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,3
+Stepping back from 4,4,2
+  from 4,5 considering 4,6,2
+  Continuing - wanted #4cc9f0 but got #e63946
+Stepping back from 4,5,1
+Stepping back from 4,6,0
+  from 5,6 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,6 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,6,4
+  from 6,6 considering 6,5,4
+Now at 6,5
+  from 6,5 considering 5,5,0
+  Continuing - wanted #e63946 but got #000000
+  from 6,5 considering 6,4,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 6,5 considering 6,6,0
+  Continuing - wanted #e63946 but got #4cc9f0
+Stepping back from 6,5,4
+Stepping back from 6,6,3
+Stepping back from 6,5,2
+Stepping back from 6,4,1
+Stepping back from 6,3,0
+  from 5,3 considering 5,2,0
+  Continuing - wanted #e63946 but got #4cc9f0
+  from 5,3 considering 5,4,0
+  Continuing - wanted #e63946 but got #000000
+Stepping back from 5,3,4
+Stepping back from 5,2,3
+Stepping back from 5,1,2
+Stepping back from 5,0,1
+  from 6,0 considering 6,1,1
+  Continuing - wanted #4cc9f0 but got #000000
+Returning count 1
+- - - B R B B
+- - B B - - -
+- - B - - - -
+- - R B B - -
+- - - - B B R
+B B B B - - B
+R - - R B B B
+
+This has 1 solutions and 26 black cells
+nik@Spectre14:colourmaze$
+

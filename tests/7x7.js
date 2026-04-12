@@ -24,8 +24,10 @@ function generateOne() {
 }
 
 
+G.setDebug(true);
 for (var i = 0; i < 50; i++) {
   console.log('\n\n\n----------\n\n\n');
   var bks = generateOne();
   if (bks > 20) break;
 }
+G.setDebug(false);
