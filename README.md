@@ -4,7 +4,7 @@ Creates a maze in which the you have to step from one colour to another
 in sequence from start to end.
 
 This is available to play at
-(https://niksilver.github.io/colourmaze/)[`https://niksilver.github.io/colourmaze/`].
+[`https://niksilver.github.io/colourmaze/`](https://niksilver.github.io/colourmaze/).
 
 You can tap on cells to track your path. It also allows you to backtrack.
 
