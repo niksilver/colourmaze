@@ -422,16 +422,16 @@ test('attemptCandidateStep: Should ignore path back from End', function () {
     { row: 1, col: 0 }, { row: 0, col: 0 },    // Up
     { row: 0, col: 1 },    // Right
   ];
-  G.setDebug(true);
   var ctx = G._mazeContext(2, 2, path, seq);
 
   // We should be able to add a dead-end from path index 2, cell (1,0) step 0.
   var result = ctx.attemptCandidateStep(2, 1, 0, 0);
   assert.strictEqual(result, true, 'Should ignore paths back from the end');
 });
-G.setDebug(false);
 
 test('attemptCandidateStep: 7x7 bug', function () {
+  // This is the original form of a bug which was simplified and captured
+  // with the previous test: Should ignore path back from End.
   // 7×7 grid, seq=[R,B,B,B,B]
   //
   //           0 1 2 3 4 5 6

@@ -297,7 +297,6 @@
       key =cellKey(path[i].row, path[i].col);
       solIndex[key] = i;
       isSol[key]    = true;
-      debug('isSol[' + key + '] = true');
     }
 
     function noNewPaths() {
