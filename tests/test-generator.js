@@ -405,6 +405,32 @@ test('attemptCandidateStep: Should propagate from coloured cell once linked to a
   assert.deepStrictEqual(ctx.canAccessFrom(2, 2)[0], [1], 'Cell (2,2) is now accessible at step 1 from path index 0');
 });
 
+test('attemptCandidateStep: Should ignore path back from End', function () {
+  // 2×2 grid, seq=[R,B,B,B,B]
+  //
+  //   B B
+  //   R -
+  //
+  // The solution path is (1,0) -> (0,0) -> (0,1). But there is also a 'path'
+  // (1,0) -> (0,0) -> (0,1) -> (0,0) -> (0,1). We should have a condition
+  // in attemptCandidateSteps that ignores this second path back from End.
+  // If we do then we can successfully attempt to add Red at (1,1), which should be
+  // allowed. But without that condition it would fail.
+
+  var seq  = ['R', 'B', 'B', 'B', 'B'];
+  var path = [
+    { row: 1, col: 0 }, { row: 0, col: 0 },    // Up
+    { row: 0, col: 1 },    // Right
+  ];
+  G.setDebug(true);
+  var ctx = G._mazeContext(2, 2, path, seq);
+
+  // We should be able to add a dead-end from path index 2, cell (1,0) step 0.
+  var result = ctx.attemptCandidateStep(2, 1, 0, 0);
+  assert.strictEqual(result, true, 'Should ignore paths back from the end');
+});
+G.setDebug(false);
+
 test('attemptCandidateStep: 7x7 bug', function () {
   // 7×7 grid, seq=[R,B,B,B,B]
   //
@@ -435,11 +461,9 @@ test('attemptCandidateStep: 7x7 bug', function () {
   var ctx = G._mazeContext(7, 7, path, seq);
 
   // We should be able to add a dead-end from path index 1, cell (5,0) step 2.
-  G.setDebug(true);
   var result = ctx.attemptCandidateStep(1, 4, 0, 2);
   assert.strictEqual(result, true, 'Should be able to add from path index 1, cell(4,0) at step 2');
 });
-G.setDebug(false);
 
 console.log('\n-- cellSteps and colour --');
 

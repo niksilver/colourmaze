@@ -297,6 +297,7 @@
       key =cellKey(path[i].row, path[i].col);
       solIndex[key] = i;
       isSol[key]    = true;
+      debug('isSol[' + key + '] = true');
     }
 
     function noNewPaths() {
@@ -310,6 +311,7 @@
       var progress = true;
 
       while (progress) {
+        debug('noNewPaths(): Starting scan');
         progress = false;
         // Outer scan: visit every assigned cell in the grid.
         for (var r0 = 0; r0 < rows; r0++) {
@@ -338,7 +340,7 @@
                   // this is the intended route, not a new one; skip.
                   if (isSol[r0Key] && isSol[adjKey] &&
                       cellSteps(rAdj, cAdj).includes(sAdj)) {
-                    debug('  ' + r0Key + ' -> ' + adjKey + ' fails condition 1');
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 1');
                     continue;
                   }
 
@@ -362,10 +364,11 @@
                   // Condition 4: It's okay to access another cell, and then we
                   // can propagate reachability.
                   if (sequence[sAdj] === colAdj) {
-                    debug('  ' + r0Key + ' -> ' + adjKey + ' is good');
+                    debug('  ' + r0Key + ' -> ' + adjKey + ' is okay by condition 4, accepting');
                     var added = setAccessFrom(p0, rAdj, cAdj, sAdj);
                     if (added) {
                       undoList.push([p0, rAdj, cAdj, sAdj]);
+                      debug('    New accessFrom(' + p0 + ', ' + rAdj + ', ' + cAdj + ', ' + sAdj + ')');
                       progress = true;
                     }
                   }
@@ -375,6 +378,7 @@
           }
         }
       }
+      debug('noNewPaths(): Exiting scan with true');
 
       return true;
     }
