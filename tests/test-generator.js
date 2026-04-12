@@ -405,6 +405,40 @@ test('attemptCandidateStep: Should propagate from coloured cell once linked to a
   assert.deepStrictEqual(ctx.canAccessFrom(2, 2)[0], [1], 'Cell (2,2) is now accessible at step 1 from path index 0');
 });
 
+test('attemptCandidateStep: 7x7 bug', function () {
+  // 7×7 grid, seq=[R,B,B,B,B]
+  //
+  //           0 1 2 3 4 5 6
+  //        0  - - - B R B B
+  //        1  - - B B - - -
+  //        2  - - B - - - -
+  //        3  - - R B B - -
+  //        4  - - - - B B R
+  //        5  B B B B - - B
+  //        6  R - - R B B B
+
+  var seq  = ['R', 'B', 'B', 'B', 'B'];
+  var path = [
+    { row: 6, col: 0 }, { row: 5, col: 0 },    // Up
+    { row: 5, col: 1 }, { row: 5, col: 2 }, { row: 5, col: 3 },    // Right
+    { row: 6, col: 3 },    // Down
+    { row: 6, col: 4 }, { row: 6, col: 5 }, { row: 6, col: 6 },    // Right
+    { row: 5, col: 6 }, { row: 4, col: 6 },    // Up
+    { row: 4, col: 5 }, { row: 4, col: 4 },    // Left
+    { row: 3, col: 4 },    // Up
+    { row: 3, col: 3 }, { row: 3, col: 2 },    // Left
+    { row: 2, col: 2 }, { row: 1, col: 2 },    // Up
+    { row: 1, col: 3 },    // Right
+    { row: 0, col: 3 },    // Up
+    { row: 0, col: 4 }, { row: 0, col: 5 }, { row: 0, col: 6 },    // Right
+  ];
+  var ctx = G._mazeContext(7, 7, path, seq);
+
+  // We should be able to add a dead-end from path index 1, cell (5,0) step 2.
+  var result = ctx.attemptCandidateStep(1, 5, 0, 2);
+  assert.strictEqual(result, true, 'Should be able to add from path index 1, cell(4,0) at step 2');
+});
+
 console.log('\n-- cellSteps and colour --');
 
 test('cellSteps: returns [] for an unassigned cell after initialisation', function () {
