@@ -264,6 +264,26 @@ function buildSeqOptions() {
   });
 }
 
+function restoreMaze(parsed) {
+  var maze = {
+    grid:     parsed.grid,
+    sequence: parsed.sequence,
+    rows:     parsed.gridSize,
+    cols:     parsed.gridSize,
+  };
+  state.maze        = maze;
+  state.gridSize    = parsed.gridSize;
+  state.sequence    = parsed.sequence;
+  state.currentPos  = { row: maze.rows - 1, col: 0 };
+  state.currentStep = 1;
+  state.path        = [{ row: maze.rows - 1, col: 0 }];
+  state.visited     = {};
+  state.visited[(maze.rows - 1) + ',0'] = true;
+  renderSequenceBar();
+  renderGrid();
+  showScreen('game-screen');
+}
+
 function initMenu() {
   setupSelector('grid-size-options', function (val) { state.gridSize = val; });
 
@@ -281,6 +301,20 @@ function initMenu() {
     history.pushState(null, '', '#');
     document.getElementById('win-overlay').classList.remove('active');
   });
+
+  window.addEventListener('popstate', function () {
+    var parsed = MazeURL.parseHash(location.hash);
+    if (parsed) {
+      restoreMaze(parsed);
+    } else {
+      showScreen('menu-screen');
+    }
+  });
+
+  var parsed = MazeURL.parseHash(location.hash);
+  if (parsed) {
+    restoreMaze(parsed);
+  }
 
 }
 
