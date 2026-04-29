@@ -8,7 +8,7 @@
 
 **Tech Stack:** Vanilla JS (ES2020 BigInt, no build step). Node.js for tests. Browser history API (`pushState`, `popstate`).
 
-**Status:** Not started
+**Status:** Complete
 
 ---
 
