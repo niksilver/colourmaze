@@ -81,6 +81,7 @@ function startGame() {
     state.visited[(maze.rows - 1) + ',0'] = true;
     renderSequenceBar();
     renderGrid();
+    history.pushState(null, '', MazeURL.buildHash(state.gridSize, state.sequence, maze.grid));
   });
 
   mazeWorker.postMessage({ rows: state.gridSize, cols: state.gridSize, sequence: state.sequence });
@@ -271,9 +272,13 @@ function initMenu() {
   updateSequencePreview();
 
   document.getElementById('new-game-btn').addEventListener('click', startGame);
-  document.getElementById('menu-btn').addEventListener('click', function () { showScreen('menu-screen'); });
+  document.getElementById('menu-btn').addEventListener('click', function () {
+    history.pushState(null, '', '#');
+    showScreen('menu-screen');
+  });
   document.getElementById('new-game-btn-2').addEventListener('click', startGame);
   document.getElementById('win-ok-btn').addEventListener('click', function () {
+    history.pushState(null, '', '#');
     document.getElementById('win-overlay').classList.remove('active');
   });
 
