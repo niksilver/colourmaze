@@ -310,6 +310,9 @@ function initMenu() {
   document.getElementById('help-overlay').addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('active');
   });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('help-overlay').classList.remove('active');
+  });
 
   window.addEventListener('popstate', function () {
     var parsed = MazeURL.parseHash(location.hash);
