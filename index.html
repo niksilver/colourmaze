@@ -10,7 +10,10 @@
 
   <!-- ── Menu screen ──────────────────────────────────── -->
   <div id="menu-screen" class="screen active">
-    <h1 class="title">Colourmaze</h1>
+    <div class="title-row">
+      <h1 class="title">Colourmaze</h1>
+      <button class="help-btn" id="help-btn">?</button>
+    </div>
 
     <div class="selector-group">
       <div class="selector-label">Grid Size</div>
@@ -52,6 +55,24 @@
     <div class="overlay-box">
       <div class="overlay-title">Solved!</div>
       <button class="btn btn-primary" id="win-ok-btn">OK</button>
+    </div>
+  </div>
+
+  <!-- ── Help overlay ───────────────────────────────────── -->
+  <div class="overlay" id="help-overlay">
+    <div class="overlay-box">
+      <div class="overlay-title help-overlay-title">How to Play</div>
+      <div class="help-body">
+        <p>Navigate a grid of coloured cells from the <strong>Start</strong> cell (S) to the <strong>End</strong> cell (E).</p>
+        <ul>
+          <li>Cells must be visited in colour order — for example, Red → Yellow → Blue → Red → …</li>
+          <li>You can only move one step at a time: up, down, left, or right.</li>
+          <li>Some paths are dead ends. Tap any cell you've already visited to backtrack.</li>
+          <li>Tap <strong>Another</strong> to generate another maze of the same type.</li>
+        </ul>
+        <p>Choose your grid size and colour sequence, then tap <strong>New Game</strong> to start.</p>
+      </div>
+      <button class="btn btn-secondary" id="help-close-btn">Got it</button>
     </div>
   </div>
 
