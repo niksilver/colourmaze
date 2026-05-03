@@ -8,7 +8,7 @@
 
 **Tech Stack:** Plain HTML, CSS, JavaScript — no build step.
 
-**Status:** Not started
+**Status:** Complete
 
 ---
 
