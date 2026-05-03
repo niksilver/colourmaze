@@ -307,6 +307,9 @@ function initMenu() {
   document.getElementById('help-close-btn').addEventListener('click', function () {
     document.getElementById('help-overlay').classList.remove('active');
   });
+  document.getElementById('help-overlay').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('active');
+  });
 
   window.addEventListener('popstate', function () {
     var parsed = MazeURL.parseHash(location.hash);
