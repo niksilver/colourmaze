@@ -22,6 +22,32 @@ body {
   text-transform: uppercase;
 }
 
+/* ── Title row (title + help button) ──────────────────── */
+.title-row {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-btn {
+  position: absolute;
+  right: 0;
+  padding: 8px 14px;
+  background: #1e1e2e;
+  border: 1px solid #888;
+  border-radius: 8px;
+  color: #eee;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: opacity 0.15s;
+}
+.help-btn:hover { opacity: 0.85; }
+
 /* ── Selector groups ───────────────────────────────────── */
 .selector-group { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .selector-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
@@ -201,6 +227,25 @@ body {
   gap: 20px;
 }
 .overlay-title { font-size: 32px; font-weight: 700; letter-spacing: 2px; }
+
+.help-overlay-title { font-size: 20px; }
+
+.help-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ccc;
+  text-align: left;
+}
+.help-body ul {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.help-body strong { color: #fff; }
 
 .generating-msg {
   grid-column: 1 / -1;
